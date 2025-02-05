@@ -15,8 +15,8 @@ st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Go to", ["Main Page", "Plot Your Own Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
 # Load CSV data for each graph
-ctd_csv_file_path = 'ctddata.csv'  # Replace with actual path
-weather_csv_file_path = 'weatherdata.csv'  # Replace with actual path
+ctd_csv_file_path = '/ctddata.csv'  # Replace with actual path
+weather_csv_file_path = '/weatherdata.csv'  # Replace with actual path
 
 # Main Page
 if page == "Main Page":
