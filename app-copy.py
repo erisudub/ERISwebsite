@@ -78,6 +78,7 @@ if page == "Main Page":
     st_folium(m, width=1500, height=500)
 
 # Plot Your Own Data Page
+# this is for the tutorial
 elif page == "Plot Your Own Data":
     st.write("## Upload Your CSV")
     user_file = st.file_uploader("Upload a CSV file", type=["csv"])
