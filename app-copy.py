@@ -223,4 +223,4 @@ elif page == "Gallery":
         cols = st.columns(columns)
         for j, col in enumerate(cols):
             if i + j < len(photos):
-                col.image(photos[i + j], use_column_width=True, caption=captions[i + j])
+                col.image(photos[i + j], use_container_width=True, caption=captions[i + j])
