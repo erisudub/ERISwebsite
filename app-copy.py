@@ -26,9 +26,10 @@ if page == "Main Page":
     # Assign column names to weather_data and confirm them
     weather_data.columns = [
         'Date', 'Time', 'Temp_Out', 'Hi_Temp', 'Low_Temp', 'Out_Hum', 'Dew_Pt',
-        'Wind_Speed', 'Wind_Dir', 'Wind_Run', 'col10', 'col11', 'col12', 'col13',
-        'col14', 'col15', 'col16', 'col17', 'col18', 'col19', 'col20', 'col21',
-        'col22', 'col30', 'col31', 'col32', 'Wind_Samp', 'Wind_Tx', 'ISS_Recept', 'Arc_Int'
+       'Wind_Speed', 'Wind_Dir', 'Wind_Run', 'col10', 'col11', 'col12', 'col13',
+       'col14', 'col15', 'col16', 'col17', 'col18', 'col19', 'col20', 'col21',
+       'col22', 'col23', 'col24', 'col25', 'col26', 'col27', 'col28', 'col29',
+       'col30', 'col31', 'col32', 'Wind_Samp', 'Wind_Tx', 'ISS_Recept', 'Arc_Int', 'col38'
     ]
 
     # Combine Date and Time into DateTime for weather data
