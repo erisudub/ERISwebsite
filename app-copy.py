@@ -217,7 +217,7 @@ elif page == "Meet the Team":
 # Gallery Page
 elif page == "Gallery":
     photos = ["images/group.jpg", "images/grads.jpg", "images/tub.jpg"]
-    captions = ["Deployment Day Spring 2024", "CTD Calibrations", "2024 Graduating Marine Technicians"]
+    captions = ["Deployment Day Spring 2024", "2024 Graduating Marine Technicians", "CTD Calibrations"]
     columns = 3
     for i in range(0, len(photos), columns):
         cols = st.columns(columns)
