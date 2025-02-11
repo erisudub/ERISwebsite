@@ -207,7 +207,7 @@ elif page == "Plot Your Own Data":
 elif page == "Instrument Descriptions":
     st.write("## Description of the Instruments")
     st.write("### Seabird CTD")
-    st.write("Our Seabird SBE 16plus Conductivity-Temperature-Depth (CTD) sensor is a compact, durable oceanographic instrument.")
+    st.write("Our Seabird SBE 16plus Conductivity-Temperature-Depth (CTD) sensor is a compact, durable oceanographic instrument. This robust and versatile sensor suite provides accurate measurements of key water quality parameters, making it an essential tool for marine research, environmental monitoring, and climate studies. Our CTD is equipped with sensors to provide data on conductivity (salinity), temperature, and pressure (depth)")
     st.write("### Weather Station")
     
 # Meet the Team Page
