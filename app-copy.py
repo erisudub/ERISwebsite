@@ -232,7 +232,7 @@ elif page == "Gallery":
     # List of photos and captions
     photos = [
         "images/tub.jpg",
-        "/images/group.jpg",
+        "images/group.jpg",
         "images/grads.jpg"
     ]
     captions = [
