@@ -28,7 +28,7 @@ page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Data", "Instrumen
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
-weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
+weather_csv_file_path = 'new_weather_data.csv'  # Use the uploaded weather CSV file
 
 # Main Page
 if page == "Main Page":
@@ -154,8 +154,7 @@ elif page == "Instrument Data":
         'Date', 'Time', 'Temp_Out', 'Hi_Temp', 'Low_Temp', 'Out_Hum', 'Dew_Pt',
        'Wind_Speed', 'Wind_Dir', 'Wind_Run', 'col10', 'col11', 'col12', 'col13',
        'col14', 'col15', 'col16', 'col17', 'col18', 'col19', 'col20', 'col21',
-       'col22', 'col23', 'col24', 'col25', 'col26', 'col27', 'col28', 'col29',
-       'col30', 'col31', 'col32', 'Wind_Samp', 'Wind_Tx', 'ISS_Recept', 'Arc_Int', 'col38'
+       'col22', 'col23', 'col24', 'col25', 'col26', 'col27', 'col28', 'col29'
     ]
 
     # Combine Date and Time into DateTime for weather data
