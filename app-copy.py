@@ -224,7 +224,7 @@ elif page == "Instrument Descriptions":
 elif page == "Meet the Team":
     st.write("## Team Members")
 
-# 📌 **Gallery Page**
+#Gallery Page
 elif page == "Gallery":
 
     # List of photos and captions
@@ -247,16 +247,12 @@ elif page == "Gallery":
 
     # Function to update the image index
     def change_image(direction):
-       st.session_state.current_index = (st.session_state.current_index + direction) % len(photos)
+        st.session_state.current_index = (st.session_state.current_index + direction) % len(photos)
 
-    # Centered image display
-    col1, col2, col3 = st.columns([1, 2, 1])  # Center image
-    with col2:
-        st.image(
-            photos[st.session_state.current_index],
-            caption=captions[st.session_state.current_index],
-            use_container_width = True  # Adjust width as needed
-        )
+    # Display image and caption
+    st.image(photos[st.session_state.current_index],
+             caption=captions[st.session_state.current_index],
+             use_container_width=True)
 
     # **⬅️➡️ Centered Navigation Buttons**
     col1, col2, col3 = st.columns([9, 18, 3])
@@ -275,9 +271,6 @@ elif page == "Gallery":
             change_image(1)
             st.session_state.auto_switch = False
             st.rerun()
-
-    # Toggle Auto-Slideshow
-    st.session_state.auto_switch = st.toggle("Auto-Slideshow", value=st.session_state.auto_switch)
 
     # Auto-switch logic without blocking the app
     if st.session_state.auto_switch:
