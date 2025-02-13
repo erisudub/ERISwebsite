@@ -233,7 +233,7 @@ elif page == "Gallery":
         "images/group.jpg",
         "images/grads.jpg",
         "images/ctd.jpg",
-        "images/ctdmaintence.jpg",
+        "images/ctdmaintenence.jpg",
         "images/rasppitable.jpg",
         "images/tunnelsetup.jpg",
         "images/tunnelteam.jpg"
