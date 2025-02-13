@@ -260,7 +260,6 @@ elif page == "Gallery":
 
     # Display image and caption
     st.image(photos[st.session_state.current_index],
-             caption=captions[st.session_state.current_index],
              use_container_width=True)
     
     st.markdown(
