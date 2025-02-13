@@ -254,7 +254,7 @@ elif page == "Gallery":
     # Display image and caption
     st.image(photos[st.session_state.current_index],
              caption=captions[st.session_state.current_index],
-             use_container_width=True)
+             width = 600)
 
     # **⬅️➡️ Centered Navigation Buttons**
     col1, col2, col3 = st.columns([9, 18, 3])
