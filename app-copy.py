@@ -7,6 +7,7 @@ import time
 import os
 import base64
 import threading
+from streamlit_autorefresh import st_autorefresh
 
 
 # Function to encode images to base64
@@ -256,7 +257,7 @@ elif page == "Meet the Team":
      #   st.image(
       #      photos[st.session_state.current_index],
        #     caption=captions[st.session_state.current_index],
-        #    width=600  # Adjust width as needed
+        #    use_container_width = True  # Adjust width as needed
         #)
 
     # **⬅️➡️ Centered Navigation Buttons**
@@ -286,10 +287,8 @@ elif page == "Meet the Team":
         #change_image(1)  # Move to next image
         #st.rerun()  # Refresh app
 
+# 📌 **Gallery Page**
 elif page == "Gallery":
-
-    # 🛑 Clear any previous Streamlit elements before rendering the gallery
-    st.experimental_rerun()
 
     # List of photos and captions
     photos = [
@@ -340,8 +339,7 @@ elif page == "Gallery":
             st.session_state.auto_switch = False
             st.rerun()
 
-    # Auto-switch logic without blocking the app
+    # **Auto-Slideshow Feature**
     if st.session_state.auto_switch:
-        time.sleep(10)  # Wait 10 seconds
-        change_image(1)  # Move to next image
-        st.rerun()  # Refresh app
+        st_autorefresh(interval=10_000, key="gallery_autorefresh")  # Refresh every 10 seconds
+        change_image(1)
