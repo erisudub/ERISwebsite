@@ -226,7 +226,6 @@ elif page == "Meet the Team":
     st.write("## Team Members")
 
 # 📌 **Gallery Page**
-
 elif page == "Gallery":
 
     # List of photos and captions
@@ -286,3 +285,4 @@ elif page == "Gallery":
         time.sleep(10)  # Wait 10 seconds
         change_image(1)  # Move to next image
         st.rerun()  # Refresh app
+
