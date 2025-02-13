@@ -3,6 +3,19 @@ import pandas as pd
 import plotly.graph_objs as go
 import folium
 from streamlit_folium import st_folium
+import time
+import os
+import base64
+import threading
+
+
+# Function to encode images to base64
+def get_base64_image(image_path):
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except FileNotFoundError:
+        return None  # Return None if image doesn't exist
 
 # Set wide layout for the Streamlit page
 st.set_page_config(layout="wide")
@@ -12,7 +25,7 @@ st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.selectbox("Go to", ["Main Page", "Plot Your Own Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
+page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
@@ -92,13 +105,19 @@ if page == "Main Page":
                          dict(count=1, label="1m", step="month", stepmode="backward"),
                          dict(count=6, label="6m", step="month", stepmode="backward"),
                          dict(step="all")],
-                x=-0.022, y=1.085)),
+                x=0.5, y=1.15, xanchor = 'center')),
             yaxis=dict(showgrid=True, gridcolor='lightgrey'),
             plot_bgcolor="white",
             paper_bgcolor="lightblue",
             font=dict(family="Georgia, serif", size=12, color="black"),
-            legend=dict(x=1.02, y=0.5, traceorder="normal", bgcolor='rgba(255, 255, 255, 0.5)'),
-            margin=dict(l=50, r=50, t=120, b=50),
+            legend=dict(
+              x=1.05, 
+              y=0.5, 
+              xanchor = 'left',
+              yanchor = 'middle',
+              traceorder="normal", 
+              bgcolor='rgba(255, 255, 255, 0.5)'),
+            margin=dict(l=50, r=120, t=120, b=50),
             autosize=False
         )
 
@@ -123,13 +142,19 @@ if page == "Main Page":
                          dict(count=1, label="1m", step="month", stepmode="backward"),
                          dict(count=6, label="6m", step="month", stepmode="backward"),
                          dict(step="all")],
-                x=0.022, y=1.05)),
+                x=0.5, y=1.15, xanchor = 'center')),
             yaxis=dict(showgrid=True, gridcolor='lightgrey'),
             plot_bgcolor="white",
             paper_bgcolor="lightblue",
             font=dict(family="Georgia, serif", size=12, color="black"),
-            legend=dict(x=1.02, y=0.5, traceorder="normal", bgcolor='rgba(255, 255, 255, 0.5)'),
-            margin=dict(l=50, r=50, t=120, b=50),
+            legend=dict(
+              x=1.05, 
+              y=0.5, 
+              xanchor = 'left',
+              yanchor = 'middle',
+              traceorder="normal", 
+              bgcolor='rgba(255, 255, 255, 0.5)'),
+            margin=dict(l=50, r=120, t=120, b=50),
             autosize=False
         )
 
@@ -184,43 +209,76 @@ if page == "Main Page":
     # Display the map in full width
     st_folium(m, width=1500, height=500)
 
-# Plot Your Own Data Page
-# this is for the tutorial
-elif page == "Plot Your Own Data":
-    st.write("## Upload Your CSV")
-    user_file = st.file_uploader("Upload a CSV file", type=["csv"])
-    if user_file:
-        try:
-            user_data = pd.read_csv(user_file)
-            st.dataframe(user_data)
-            if 'time' in user_data.columns:
-                user_data['time'] = pd.to_datetime(user_data['time'])
-                fig_user = go.Figure()
-                for col in user_data.columns:
-                    if col != 'time':
-                        fig_user.add_trace(go.Scatter(x=user_data['time'], y=user_data[col], mode='lines', name=col))
-                st.plotly_chart(fig_user)
-        except Exception as e:
-            st.error(f"Error processing file: {e}")
-
-# Instrument Descriptions Page
+# 📌 **Instrument Descriptions Page**
 elif page == "Instrument Descriptions":
     st.write("## Description of the Instruments")
-    st.write("### Seabird CTD")
-    st.write("Our Seabird SBE 16plus Conductivity-Temperature-Depth (CTD) sensor is a compact, durable oceanographic instrument. This robust and versatile sensor suite provides accurate measurements of key water quality parameters, making it an essential tool for marine research, environmental monitoring, and climate studies. Our CTD is equipped with sensors to provide data on conductivity (salinity), temperature, and pressure (depth)")
-    st.write("### Weather Station")
     
+    # Seabird CTD Section
+    st.write("### Seabird CTD")
+    st.write("Our Seabird SBE 16plus Conductivity-Temperature-Depth (CTD) sensor is a compact, durable oceanographic instrument. This robust and versatile sensor suite provides accurate measurements of key water quality parameters, making it an essential tool for marine research, environmental monitoring, and climate studies. Our CTD is equipped with sensors to provide data on conductivity (salinity), temperature, and pressure (depth).")
+
+    # Weather Station Section
+    st.write("### Weather Station")
+    st.write("Our weather station provides real-time atmospheric data, including temperature, humidity, wind speed, and barometric pressure, aiding in climate monitoring and marine research.")
+
 # Meet the Team Page
 elif page == "Meet the Team":
     st.write("## Team Members")
-    
-# Gallery Page
+
+# 📌 **Gallery Page**
+# Check which page is active
 elif page == "Gallery":
-    photos = ["images/group.jpg", "images/grads.jpg", "images/tub.jpg"]
-    captions = ["Deployment Day Spring 2024", "2024 Graduating Marine Technicians", "CTD Calibrations"]
-    columns = 3
-    for i in range(0, len(photos), columns):
-        cols = st.columns(columns)
-        for j, col in enumerate(cols):
-            if i + j < len(photos):
-                col.image(photos[i + j], use_container_width=True, caption=captions[i + j])
+
+    # List of photos and captions
+    photos = [
+        "/content/20240408_170326 (1).jpg",
+        "/content/20240506_164858 (1).jpg",
+        "/content/IMG_6900.jpg"
+    ]
+    captions = [
+        "CTD Calibrations",
+        "Deployment Day Spring 2024",
+        "2024 Graduating Marine Technicians"
+    ]
+
+    # Initialize session state variables
+    if "current_index" not in st.session_state:
+        st.session_state.current_index = 0
+    if "auto_switch" not in st.session_state:
+        st.session_state.auto_switch = True  # Auto-switch enabled by default
+
+    # Function to update the image index
+    def change_image(direction):
+        st.session_state.current_index = (st.session_state.current_index + direction) % len(photos)
+
+    # Display image and caption
+    st.image(photos[st.session_state.current_index],
+             caption=captions[st.session_state.current_index],
+             use_container_width=True)
+
+    # **⬅️➡️ Centered Navigation Buttons**
+    col1, col2, col3 = st.columns([9, 18, 3])
+
+    with col1:
+        if st.button("Backward", key="prev"):
+            change_image(-1)
+            st.session_state.auto_switch = False  # Stop auto-switching when manually clicked
+            st.rerun()
+
+    with col2:
+        st.write("")  # Spacer
+
+    with col3:
+        if st.button("Forward", key="next"):
+            change_image(1)
+            st.session_state.auto_switch = False
+            st.rerun()
+
+    # Toggle Auto-Slideshow
+    #st.session_state.auto_switch = st.toggle("Auto-Slideshow", value=st.session_state.auto_switch)
+
+    # Auto-switch logic without blocking the app
+    if st.session_state.auto_switch:
+        time.sleep(10)  # Wait 5 seconds
+        change_image(1)  # Move to next image
+        st.rerun()  # Refresh app
