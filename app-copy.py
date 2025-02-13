@@ -152,7 +152,13 @@ elif page == "Instrument Data":
     st.write("Weather Data Columns:", weather_data.columns.tolist())
     st.write("First few rows of Weather Data before renaming:", weather_data.head())
 
-    st.write("Sample Weather Data after DateTime conversion:", weather_data[['Date', 'Time', 'DateTime']].head())
+    if 'Date' in weather_data.columns and 'Time' in weather_data.columns:
+        weather_data['DateTime'] = pd.to_datetime(weather_data['Date'] + ' ' + weather_data['Time'],
+                                              format="%m/%d/%Y %I:%M %p", errors='coerce')
+        st.write("Sample Weather Data after DateTime conversion:", weather_data[['Date', 'Time', 'DateTime']].head())
+    else:
+        st.write("ERROR: 'Date' or 'Time' column missing in Weather Data:", weather_data.columns.tolist())
+
 
     st.write("Filtered CTD Data Size:", filtered_ctd_data.shape)
     st.write("Filtered Weather Data Size:", filtered_weather_data.shape)
