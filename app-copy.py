@@ -224,11 +224,105 @@ elif page == "Instrument Descriptions":
 elif page == "Meet the Team":
     st.write("## Team Members")
 
-# 📌 **Gallery Page**
 elif page == "Gallery":
+    st.title("Photo Gallery 📸")
 
-    # List of photos and captions (Ensure both lists are the same length!)
+    # 📌 **Main Image Slider**
     photos = [
+        "/content/20240408_170326 (1).jpg",
+        "/content/20240506_164858 (1).jpg",
+        "/content/IMG_6900.jpg"
+    ]
+    captions = [
+        "CTD Calibrations",
+        "Deployment Day Spring 2024",
+        "2024 Graduating Marine Technicians"
+    ]
+
+    # ✅ **Filter out non-existing images**
+    valid_images = [(photo, captions[i]) for i, photo in enumerate(photos) if os.path.exists(photo)]
+
+    if not valid_images:
+        st.error("⚠️ No valid images found for the main gallery. Check file paths.")
+        st.write("Debug: Expected paths →", photos)
+        valid_photos, valid_captions = [], []
+    else:
+        valid_photos, valid_captions = zip(*valid_images)
+
+    # ✅ **Initialize session state**
+    if "current_index" not in st.session_state:
+        st.session_state.current_index = 0
+    if "auto_switch" not in st.session_state:
+        st.session_state.auto_switch = True
+    if "animation_key" not in st.session_state:
+        st.session_state.animation_key = 0  
+
+    # ✅ **Function to change the displayed image**
+    def change_image(direction):
+        if valid_photos:
+            st.session_state.current_index = (st.session_state.current_index + direction) % len(valid_photos)
+            st.session_state.animation_key += 1  
+            st.rerun()
+
+    # ✅ **Convert image to base64**
+    def get_base64_image(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+
+    # ✅ **Display the Main Image Slider**
+    if valid_photos:
+        base64_image = get_base64_image(valid_photos[st.session_state.current_index])
+
+        st.markdown(
+            f"""
+            <style>
+            .slide-container {{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                flex-direction: column;
+            }}
+            .slide-image {{
+                max-width: 90%;
+                height: auto;
+                max-height: 500px;
+                animation: slideIn 0.7s ease-in-out;
+            }}
+            .caption {{
+                text-align: center;
+                font-size: 18px;
+                font-weight: bold;
+                margin-top: 10px;
+            }}
+            @keyframes slideIn {{
+                from {{
+                    transform: translateX(100%);
+                    opacity: 0;
+                }}
+                to {{
+                    transform: translateX(0);
+                    opacity: 1;
+                }}
+            }}
+            </style>
+            <div class="slide-container">
+                <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
+                <p class="caption">{valid_captions[st.session_state.current_index]}</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # ✅ **Auto-switch logic**
+        if st.session_state.auto_switch:
+            time.sleep(7)  
+            change_image(1)
+
+    # 📌 **Gallery should appear **RIGHT BELOW** the slider**
+    st.subheader("More Photos 📸")
+
+    gallery_photos = [
         "images/tub.jpg",
         "images/group.jpg",
         "images/grads.jpg",
@@ -238,7 +332,7 @@ elif page == "Gallery":
         "images/tunnelsetup.jpg",
         "images/tunnelteam.jpg"
     ]
-    captions = [
+    gallery_captions = [
         "CTD Calibrations",
         "Deployment Day Spring 2024",
         "2024 Graduating Marine Technicians",
@@ -249,54 +343,23 @@ elif page == "Gallery":
         "Tunnel Team"
     ]
 
-    # Initialize session state variables
-    if "current_index" not in st.session_state:
-        st.session_state.current_index = 0
-    if "auto_switch" not in st.session_state:
-        st.session_state.auto_switch = True  # Auto-switch enabled by default
+    # ✅ **Filter valid gallery images**
+    valid_gallery = [(photo, caption) for photo, caption in zip(gallery_photos, gallery_captions) if os.path.exists(photo)]
 
-    # Function to update the image index
-    def change_image(direction):
-        st.session_state.current_index = (st.session_state.current_index + direction) % len(photos)
+    if not valid_gallery:
+        st.error("⚠️ No valid images found for the gallery. Check file paths.")
+    else:
+        col1, col2, col3 = st.columns(3)
+        columns = [col1, col2, col3]
 
-    # Ensure safe index
-    index = st.session_state.current_index % len(photos)
-
-    # Display image and caption
-    st.image(photos[index], use_container_width=True)
-
-    st.markdown(
-        f"""
-        <p style="text-align:center; font-size:22px; font-weight:bold; color:#333;">
-            {captions[index]}
-        </p>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Toggle for auto-slideshow
-    st.session_state.auto_switch = st.toggle("Auto-Slideshow", value=st.session_state.auto_switch)
-
-    # **⬅️➡️ Centered Navigation Buttons**
-    col1, col2, col3 = st.columns([9, 18, 3])
-
-    with col1:
-        if st.button("Backward", key="prev"):
-            change_image(-1)
-            st.session_state.auto_switch = False  # Stop auto-switching when manually clicked
-            st.rerun()
-
-    with col2:
-        st.write("")  # Spacer
-
-    with col3:
-        if st.button("Forward", key="next"):
-            change_image(1)
-            st.session_state.auto_switch = False
-            st.rerun()
-
-    # Auto-switch logic without blocking the app
-    if st.session_state.auto_switch:
-        time.sleep(10)  # Wait 10 seconds
-        change_image(1)  # Move to next image
-        st.rerun()  # Refresh app
+        for i, (photo, caption) in enumerate(valid_gallery):
+            base64_img = get_base64_image(photo)
+            if base64_img:
+                img_html = f"""
+                <div style="text-align:center;">
+                    <img src="data:image/jpeg;base64,{base64_img}" style="width:100%; max-height:300px; object-fit:cover; border-radius:10px;">
+                    <p style="font-size:16px; font-weight:bold;">{caption}</p>
+                </div>
+                """
+                with columns[i % 3]:  # Distribute images evenly among columns
+                    st.markdown(img_html, unsafe_allow_html=True)
