@@ -149,6 +149,8 @@ elif page == "Instrument Data":
     ctd_data = pd.read_csv(ctd_csv_file_path)
     weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
 
+    st.write("Weather Data Columns:", weather_data.columns.tolist())
+
     # Assign column names to weather_data and confirm them
     weather_data.columns = [
         'Date', 'Time', 'Temp_Out', 'Hi_Temp', 'Low_Temp', 'Out_Hum', 'Dew_Pt',
