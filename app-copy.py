@@ -226,13 +226,12 @@ elif page == "Meet the Team":
 
 # 📌 **Gallery Page**
 elif page == "Gallery":
-    st.title("Photo Gallery 📸")
 
-    # 📌 **Image List**
+    # List of photos and captions
     photos = [
-        "images/tub.jpg",
-        "images/group.jpg",
-        "images/grads.jpg"
+        "/content/20240408_170326 (1).jpg",
+        "/content/20240506_164858 (1).jpg",
+        "/content/IMG_6900.jpg"
     ]
     captions = [
         "CTD Calibrations",
@@ -240,125 +239,46 @@ elif page == "Gallery":
         "2024 Graduating Marine Technicians"
     ]
 
-    # ✅ **Filter existing images**
-    valid_images = [(photo, captions[i]) for i, photo in enumerate(photos) if os.path.exists(photo)]
-    if not valid_images:
-        st.error("⚠️ No valid images found for the gallery. Check file paths.")
-        valid_photos, valid_captions = [], []
-    else:
-        valid_photos, valid_captions = zip(*valid_images)
-
-    # ✅ **Initialize session state**
+    # Initialize session state variables
     if "current_index" not in st.session_state:
         st.session_state.current_index = 0
-    if "last_switch_time" not in st.session_state:
-        st.session_state.last_switch_time = time.time()
-    if "user_clicked" not in st.session_state:
-        st.session_state.user_clicked = False  
+    if "auto_switch" not in st.session_state:
+        st.session_state.auto_switch = True  # Auto-switch enabled by default
 
-    # ✅ **Function to change the displayed image**
+    # Function to update the image index
     def change_image(direction):
-        if valid_photos:
-            st.session_state.current_index = (st.session_state.current_index + direction) % len(valid_photos)
-            st.session_state.last_switch_time = time.time()
-            st.session_state.user_clicked = True  
-            st.rerun()
+        st.session_state.current_index = (st.session_state.current_index + direction) % len(photos)
 
-    # ✅ **Convert image to base64**
-    def get_base64_image(image_path):
-        try:
-            with open(image_path, "rb") as img_file:
-                return base64.b64encode(img_file.read()).decode()
-        except Exception:
-            return None  
+    # Display image and caption
+    st.image(photos[st.session_state.current_index],
+             caption=captions[st.session_state.current_index],
+             use_container_width=True)
+    
+    st.session_state.auto_switch = st.toggle("Auto-Slideshow", value=st.session_state.auto_switch)
 
-    # ✅ **Auto-slideshow logic**
-    if not st.session_state.user_clicked:
-        time_since_last = time.time() - st.session_state.last_switch_time
-        if time_since_last > 7:
-            change_image(1)  # Auto-advance every 7 seconds
-
-    # ✅ **Create a placeholder for the image**
-    image_placeholder = st.empty()
-
-    def update_image():
-        if valid_photos:
-            base64_image = get_base64_image(valid_photos[st.session_state.current_index])
-            if base64_image:
-                image_placeholder.markdown(
-                    f"""
-                    <style>
-                    .slide-container {{
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        width: 100%;
-                        flex-direction: column;
-                    }}
-                    .slide-image {{
-                        max-width: 100%;  
-                        width: 900px;  
-                        max-height: 600px;
-                        object-fit: contain;  
-                        animation: slideIn 0.7s ease-in-out;
-                    }}
-                    .caption {{
-                        text-align: center;
-                        font-size: 20px;
-                        font-weight: bold;
-                        margin-top: 10px;
-                    }}
-                    @keyframes slideIn {{
-                        from {{
-                            transform: translateX(100%);
-                            opacity: 0;
-                        }}
-                        to {{
-                            transform: translateX(0);
-                            opacity: 1;
-                        }}
-                    }}
-                    </style>
-                    <div class="slide-container">
-                        <img src="data:image/jpeg;base64,{base64_image}" class="slide-image">
-                        <p class="caption">{valid_captions[st.session_state.current_index]}</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-    # ✅ **Call the update_image function**
-    update_image()
-
-    # ✅ **Custom CSS for button alignment**
-    st.markdown(
-        """
-        <style>
-        .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-        .stButton>button {
-            font-size: 18px;
-            padding: 10px 30px;
-            margin: 0 20px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # ✅ **Navigation Buttons with Proper Spacing**
-    col1, col_space, col2 = st.columns([2, 1, 2])  
+    # **⬅️➡️ Centered Navigation Buttons**
+    col1, col2, col3 = st.columns([9, 18, 3])
 
     with col1:
-        if st.button("⬅️ Previous", key="prev_button"):
+        if st.button("Backward", key="prev"):
             change_image(-1)
+            st.session_state.auto_switch = False  # Stop auto-switching when manually clicked
+            st.rerun()
 
     with col2:
-        if st.button("➡️ Next", key="next_button"):
+        st.write("")  # Spacer
+
+    with col3:
+        if st.button("Forward", key="next"):
             change_image(1)
+            st.session_state.auto_switch = False
+            st.rerun()
 
+    # Toggle Auto-Slideshow
+    #st.session_state.auto_switch = st.toggle("Auto-Slideshow", value=st.session_state.auto_switch)
 
+    # Auto-switch logic without blocking the app
+    if st.session_state.auto_switch:
+        time.sleep(10)  # Wait 5 seconds
+        change_image(1)  # Move to next image
+        st.rerun()  # Refresh app
