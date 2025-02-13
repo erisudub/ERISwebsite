@@ -227,7 +227,7 @@ elif page == "Meet the Team":
 # 📌 **Gallery Page**
 elif page == "Gallery":
 
-    # List of photos and captions
+    # List of photos and captions (Ensure both lists are the same length!)
     photos = [
         "images/tub.jpg",
         "images/group.jpg",
@@ -243,10 +243,10 @@ elif page == "Gallery":
         "Deployment Day Spring 2024",
         "2024 Graduating Marine Technicians",
         "Seabird 16plus CTD",
-        "Team at the Raspberry Pi Table"
-        "CTD Maintence",
+        "CTD Maintenance",
+        "Raspberry Pi Setup",
         "Tunnel CTD Setup",
-        "Team in the Tunnel"
+        "Tunnel Team"
     ]
 
     # Initialize session state variables
@@ -259,19 +259,22 @@ elif page == "Gallery":
     def change_image(direction):
         st.session_state.current_index = (st.session_state.current_index + direction) % len(photos)
 
+    # Ensure safe index
+    index = st.session_state.current_index % len(photos)
+
     # Display image and caption
-    st.image(photos[st.session_state.current_index], use_container_width=True)
+    st.image(photos[index], use_container_width=True)
 
     st.markdown(
         f"""
         <p style="text-align:center; font-size:22px; font-weight:bold; color:#333;">
-            {captions[st.session_state.current_index]}
+            {captions[index]}
         </p>
         """,
         unsafe_allow_html=True
     )
 
-
+    # Toggle for auto-slideshow
     st.session_state.auto_switch = st.toggle("Auto-Slideshow", value=st.session_state.auto_switch)
 
     # **⬅️➡️ Centered Navigation Buttons**
@@ -292,11 +295,8 @@ elif page == "Gallery":
             st.session_state.auto_switch = False
             st.rerun()
 
-    # Toggle Auto-Slideshow
-    #st.session_state.auto_switch = st.toggle("Auto-Slideshow", value=st.session_state.auto_switch)
-
     # Auto-switch logic without blocking the app
     if st.session_state.auto_switch:
-        time.sleep(10)  # Wait 5 seconds
+        time.sleep(10)  # Wait 10 seconds
         change_image(1)  # Move to next image
         st.rerun()  # Refresh app
