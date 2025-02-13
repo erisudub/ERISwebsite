@@ -26,10 +26,6 @@ st.set_page_config(layout="wide")
 st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
-# Load CSV data for each graph
-ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
-weather_csv_file_path = 'new_weather_data.csv'  # Use the uploaded weather CSV file
-
 # Main Page
 if page == "Main Page":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Welcome to ERIS</h1>", unsafe_allow_html=True)
@@ -145,6 +141,10 @@ if page == "Main Page":
 
 elif page == "Instrument Data":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
+
+    # Load CSV data for each graph
+    ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
+    weather_csv_file_path = 'new_weather_data.csv'  # Use the uploaded weather CSV file
 
     ctd_data = pd.read_csv(ctd_csv_file_path)
     weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
