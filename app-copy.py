@@ -229,9 +229,9 @@ elif page == "Gallery":
 
     # List of photos and captions
     photos = [
-        "/content/20240408_170326 (1).jpg",
-        "/content/20240506_164858 (1).jpg",
-        "/content/IMG_6900.jpg"
+        "images/tub.jpg",
+        "images/group.jpg",
+        "images/grads.jpg"
     ]
     captions = [
         "CTD Calibrations",
