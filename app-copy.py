@@ -229,14 +229,24 @@ elif page == "Gallery":
 
     # 📌 **Main Image Slider**
     photos = [
-        "/content/20240408_170326 (1).jpg",
-        "/content/20240506_164858 (1).jpg",
-        "/content/IMG_6900.jpg"
+        "images/tub.jpg",
+        "images/group.jpg",
+        "images/grads.jpg",
+        "images/ctd.jpg",
+        "images/ctdmaintenence.jpg",
+        "images/rasppitable.jpg",
+        "images/tunnelsetup.jpg",
+        "images/tunnelteam.jpg"
     ]
     captions = [
         "CTD Calibrations",
         "Deployment Day Spring 2024",
-        "2024 Graduating Marine Technicians"
+        "2024 Graduating Marine Technicians",
+        "Seabird 16plus CTD",
+        "CTD Maintenance",
+        "Raspberry Pi Setup",
+        "Tunnel CTD Setup",
+        "Tunnel Team"
     ]
 
     # ✅ **Filter out non-existing images**
