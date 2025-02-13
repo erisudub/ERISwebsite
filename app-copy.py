@@ -149,7 +149,8 @@ elif page == "Instrument Data":
     ctd_data = pd.read_csv(ctd_csv_file_path)
     weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
 
-    #st.write("Weather Data Columns:", weather_data.columns.tolist())
+    print("CTD Data Shape:", ctd_data.shape)
+    print("Weather Data Shape:", weather_data.shape)
 
     # Assign column names to weather_data and confirm them
     weather_data.columns = [
@@ -168,6 +169,9 @@ elif page == "Instrument Data":
     ctd_data['time'] = pd.to_datetime(ctd_data['time'], errors='coerce')
     ctd_data = ctd_data.dropna(subset=['time'])  # Drop rows with NaT in time
 
+    print("CTD Data Shape after dropping NaT:", ctd_data.shape)
+    print("Weather Data Shape after dropping NaT:", weather_data.shape)
+
     # Step 5: Date range selection for filtering data
     st.write("### Date Range Selection")
     min_date = min(ctd_data['time'].min(), weather_data['DateTime'].min())
@@ -179,6 +183,9 @@ elif page == "Instrument Data":
     # Filter the data based on the selected date range for both datasets
     filtered_ctd_data = ctd_data[(ctd_data['time'] >= pd.Timestamp(start_date)) & (ctd_data['time'] <= pd.Timestamp(end_date))]
     filtered_weather_data = weather_data[(weather_data['DateTime'] >= pd.Timestamp(start_date)) & (weather_data['DateTime'] <= pd.Timestamp(end_date))]
+
+    print("Filtered CTD Data Shape:", filtered_ctd_data.shape)
+    print("Filtered Weather Data Shape:", filtered_weather_data.shape)
 
     # Create filtered figures for both graphs
     fig1 = go.Figure()
@@ -293,7 +300,6 @@ elif page == "Instrument Data":
         csv2 = filtered_weather_data.to_csv(index=False)
         st.download_button("Download Weather Data", csv2, "weather_data.csv")
         st.dataframe(filtered_weather_data)
-
 
     # Display the Folium map of instrument locations
     # Add a map of instrument locations
