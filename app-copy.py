@@ -24,14 +24,119 @@ st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Descriptions", "Meet the Team", "Gallery"])
+page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
 weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
 
 # Main Page
-if page == "Main Page":
+if page == "Gallery":
+    st.title("Photo Gallery 📸")
+
+    # 📌 **Main Image Slider**
+    photos = [
+        "images/tub.jpg",
+        "images/group.jpg",
+        "images/grads.jpg",
+        "images/ctd.jpg",
+        "images/ctdmaintenence.jpg",
+        "images/rasppitable.jpg",
+        "images/tunnelsetup.jpg",
+        "images/tunnelteam.jpg"
+    ]
+    captions = [
+        "CTD Calibrations",
+        "Deployment Day Spring 2024",
+        "2024 Graduating Marine Technicians",
+        "Seabird 16plus CTD",
+        "CTD Maintenance",
+        "Raspberry Pi Setup",
+        "Tunnel CTD Setup",
+        "Tunnel Team"
+    ]
+
+    # ✅ **Filter out non-existing images**
+    valid_images = [(photo, captions[i]) for i, photo in enumerate(photos) if os.path.exists(photo)]
+
+    if not valid_images:
+        st.error("⚠️ No valid images found for the main gallery. Check file paths.")
+        st.write("Debug: Expected paths →", photos)
+        valid_photos, valid_captions = [], []
+    else:
+        valid_photos, valid_captions = zip(*valid_images)
+
+    # ✅ **Initialize session state**
+    if "current_index" not in st.session_state:
+        st.session_state.current_index = 0
+    if "auto_switch" not in st.session_state:
+        st.session_state.auto_switch = True
+    if "animation_key" not in st.session_state:
+        st.session_state.animation_key = 0  
+
+    # ✅ **Function to change the displayed image**
+    def change_image(direction):
+        if valid_photos:
+            st.session_state.current_index = (st.session_state.current_index + direction) % len(valid_photos)
+            st.session_state.animation_key += 1  
+            st.rerun()
+
+    # ✅ **Convert image to base64**
+    def get_base64_image(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+
+    # ✅ **Display the Main Image Slider**
+    if valid_photos:
+        base64_image = get_base64_image(valid_photos[st.session_state.current_index])
+
+        st.markdown(
+            f"""
+            <style>
+            .slide-container {{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                flex-direction: column;
+            }}
+            .slide-image {{
+                max-width: 90%;
+                height: auto;
+                max-height: 500px;
+                animation: slideIn 0.7s ease-in-out;
+            }}
+            .caption {{
+                text-align: center;
+                font-size: 18px;
+                font-weight: bold;
+                margin-top: 10px;
+            }}
+            @keyframes slideIn {{
+                from {{
+                    transform: translateX(100%);
+                    opacity: 0;
+                }}
+                to {{
+                    transform: translateX(0);
+                    opacity: 1;
+                }}
+            }}
+            </style>
+            <div class="slide-container">
+                <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
+                <p class="caption">{valid_captions[st.session_state.current_index]}</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # ✅ **Auto-switch logic**
+        if st.session_state.auto_switch:
+            time.sleep(7)  
+            change_image(1)
+
+elif page == "Instrument Data":
     ctd_data = pd.read_csv(ctd_csv_file_path)
     weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
     
@@ -225,112 +330,9 @@ elif page == "Meet the Team":
     st.write("## Team Members")
 
 elif page == "Gallery":
-    st.title("Photo Gallery 📸")
-
-    # 📌 **Main Image Slider**
-    photos = [
-        "images/tub.jpg",
-        "images/group.jpg",
-        "images/grads.jpg",
-        "images/ctd.jpg",
-        "images/ctdmaintenence.jpg",
-        "images/rasppitable.jpg",
-        "images/tunnelsetup.jpg",
-        "images/tunnelteam.jpg"
-    ]
-    captions = [
-        "CTD Calibrations",
-        "Deployment Day Spring 2024",
-        "2024 Graduating Marine Technicians",
-        "Seabird 16plus CTD",
-        "CTD Maintenance",
-        "Raspberry Pi Setup",
-        "Tunnel CTD Setup",
-        "Tunnel Team"
-    ]
-
-    # ✅ **Filter out non-existing images**
-    valid_images = [(photo, captions[i]) for i, photo in enumerate(photos) if os.path.exists(photo)]
-
-    if not valid_images:
-        st.error("⚠️ No valid images found for the main gallery. Check file paths.")
-        st.write("Debug: Expected paths →", photos)
-        valid_photos, valid_captions = [], []
-    else:
-        valid_photos, valid_captions = zip(*valid_images)
-
-    # ✅ **Initialize session state**
-    if "current_index" not in st.session_state:
-        st.session_state.current_index = 0
-    if "auto_switch" not in st.session_state:
-        st.session_state.auto_switch = True
-    if "animation_key" not in st.session_state:
-        st.session_state.animation_key = 0  
-
-    # ✅ **Function to change the displayed image**
-    def change_image(direction):
-        if valid_photos:
-            st.session_state.current_index = (st.session_state.current_index + direction) % len(valid_photos)
-            st.session_state.animation_key += 1  
-            st.rerun()
-
-    # ✅ **Convert image to base64**
-    def get_base64_image(image_path):
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
-
-    # ✅ **Display the Main Image Slider**
-    if valid_photos:
-        base64_image = get_base64_image(valid_photos[st.session_state.current_index])
-
-        st.markdown(
-            f"""
-            <style>
-            .slide-container {{
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 100%;
-                flex-direction: column;
-            }}
-            .slide-image {{
-                max-width: 90%;
-                height: auto;
-                max-height: 500px;
-                animation: slideIn 0.7s ease-in-out;
-            }}
-            .caption {{
-                text-align: center;
-                font-size: 18px;
-                font-weight: bold;
-                margin-top: 10px;
-            }}
-            @keyframes slideIn {{
-                from {{
-                    transform: translateX(100%);
-                    opacity: 0;
-                }}
-                to {{
-                    transform: translateX(0);
-                    opacity: 1;
-                }}
-            }}
-            </style>
-            <div class="slide-container">
-                <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
-                <p class="caption">{valid_captions[st.session_state.current_index]}</p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        # ✅ **Auto-switch logic**
-        if st.session_state.auto_switch:
-            time.sleep(7)  
-            change_image(1)
 
     # 📌 **Gallery should appear **RIGHT BELOW** the slider**
-    st.subheader("More Photos 📸")
+    st.title("Gallery")
 
     gallery_photos = [
         "images/tub.jpg",
