@@ -259,8 +259,10 @@ elif page == "Gallery":
         st.session_state.current_index = (st.session_state.current_index + direction) % len(photos)
 
     # Display image and caption
-    st.image(photos[st.session_state.current_index], use_container_width=True)
-    
+    st.image(photos[st.session_state.current_index],
+             caption=captions[st.session_state.current_index],
+             use_container_width=True)
+
     st.markdown(
         f"""
         <p style="text-align:center; font-size:22px; font-weight:bold; color:#333;">
