@@ -243,6 +243,7 @@ elif page == "Gallery":
         "Deployment Day Spring 2024",
         "2024 Graduating Marine Technicians",
         "Seabird 16plus CTD",
+        "Team at the Raspberry Pi Table"
         "CTD Maintence",
         "Tunnel CTD Setup",
         "Team in the Tunnel"
