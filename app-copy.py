@@ -90,6 +90,13 @@ if page == "Main Page":
         st.markdown(
             f"""
             <style>
+                .blue-box {{
+                background-color:rgb(140, 187, 231); /* Light blue */
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                width: 100%;
+            }}
             .slider-container {{
                 display: flex;
                 justify-content: center;
