@@ -31,7 +31,7 @@ ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
 weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
 
 # Main Page
-if page == "Gallery":
+if page == "Main Page":
     st.title("Photo Gallery 📸")
 
     # 📌 **Main Image Slider**
