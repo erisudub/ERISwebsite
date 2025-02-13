@@ -88,58 +88,63 @@ if page == "Main Page":
         right_logo = get_base64_image(right_logo_path)
 
         st.markdown(
-            f"""
-            <style>
-                .blue-box {{
-                background-color:rgb(140, 187, 231); /* Light blue */
-                padding: 20px;
-                border-radius: 10px;
-                text-align: center;
-                width: 100%;
-            }}
-            .slider-container {{
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 100%;
-            }}
-            .logo {{
-                width: 150px;
-                height: auto;
-                margin: 0 20px;
-            }}
-            .slide-image {{
-                max-width: 60%;
-                height: auto;
-                max-height: 500px;
-                animation: slideIn 0.7s ease-in-out;
-            }}
-            .caption {{
-                text-align: center;
-                font-size: 18px;
-                font-weight: bold;
-                margin-top: 10px;
-            }}
-            @keyframes slideIn {{
-                from {{
-                    transform: translateX(100%);
-                    opacity: 0;
-                }}
-                to {{
-                    transform: translateX(0);
-                    opacity: 1;
-                }}
-            }}
-            </style>
-            <div class="slider-container">
-                {'<img src="data:image/png;base64,' + left_logo + '" class="logo">' if left_logo else ''}
-                <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
-                {'<img src="data:image/png;base64,' + right_logo + '" class="logo">' if right_logo else ''}
-            </div>
-            <p class="caption">{valid_captions[st.session_state.current_index]}</p>
-            """,
-            unsafe_allow_html=True
-        )
+    """
+    <style>
+    .blue-box {
+        background-color: #d0e8ff; /* Light blue */
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        width: 100%;
+    }
+    .slider-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    .logo {
+        width: 150px;
+        height: auto;
+        margin: 0 20px;
+    }
+    .slide-image {
+        max-width: 60%;
+        height: auto;
+        max-height: 500px;
+        animation: slideIn 0.7s ease-in-out;
+    }
+    .caption {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    </style>
+
+    <div class="blue-box">
+        <h1 style="font-family: Georgia, serif;">Welcome to ERIS</h1>
+        <div class="slider-container">
+            <img src="data:image/png;base64,{left_logo}" class="logo">
+            <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
+            <img src="data:image/png;base64,{right_logo}" class="logo">
+        </div>
+        <p class="caption">{valid_captions[st.session_state.current_index]}</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
         st.write("### What is ERIS?")
         st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW). Students work with ERIS through Ocean 462. ERIS, with its educational mission, enables undergraduate students to design, build, operate, and maintain a cabled underwater observatory that emulates the NSF")
