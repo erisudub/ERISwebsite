@@ -149,14 +149,14 @@ elif page == "Instrument Data":
     ctd_data = pd.read_csv(ctd_csv_file_path)
     weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
 
-    st.write("Weather Data Columns:", weather_data.columns.tolist())
+    #st.write("Weather Data Columns:", weather_data.columns.tolist())
 
     # Assign column names to weather_data and confirm them
     weather_data.columns = [
-        'Date', 'Time', 'Temp_Out', 'Hi_Temp', 'Low_Temp', 'Out_Hum', 'Dew_Pt',
-       'Wind_Speed', 'Wind_Dir', 'Wind_Run', 'col10', 'col11', 'col12', 'col13',
-       'col14', 'col15', 'col16', 'col17', 'col18', 'col19', 'col20', 'col21',
-       'col22', 'col23', 'col24', 'col25', 'col26', 'col27', 'col28', 'col29'
+        'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
+       'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
+       'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
+       'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
     ]
 
     # Combine Date and Time into DateTime for weather data
