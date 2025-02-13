@@ -149,24 +149,6 @@ elif page == "Instrument Data":
     ctd_data = pd.read_csv(ctd_csv_file_path)
     weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
 
-    st.write("Weather Data Columns:", weather_data.columns.tolist())
-    st.write("First few rows of Weather Data before renaming:", weather_data.head())
-
-    if 'Date' in weather_data.columns and 'Time' in weather_data.columns:
-        weather_data['DateTime'] = pd.to_datetime(weather_data['Date'] + ' ' + weather_data['Time'],
-                                              format="%m/%d/%Y %I:%M %p", errors='coerce')
-        st.write("Sample Weather Data after DateTime conversion:", weather_data[['Date', 'Time', 'DateTime']].head())
-    else:
-        st.write("ERROR: 'Date' or 'Time' column missing in Weather Data:", weather_data.columns.tolist())
-
-
-    st.write("Filtered CTD Data Size:", filtered_ctd_data.shape)
-    st.write("Filtered Weather Data Size:", filtered_weather_data.shape)
-    st.write("First few rows of filtered CTD Data:", filtered_ctd_data.head())
-    st.write("First few rows of filtered Weather Data:", filtered_weather_data.head())
-
-
-    
     # Assign column names to weather_data and confirm them
     weather_data.columns = [
         'Date', 'Time', 'Temp_Out', 'Hi_Temp', 'Low_Temp', 'Out_Hum', 'Dew_Pt',
