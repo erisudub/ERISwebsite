@@ -231,12 +231,21 @@ elif page == "Gallery":
     photos = [
         "images/tub.jpg",
         "images/group.jpg",
-        "images/grads.jpg"
+        "images/grads.jpg",
+        "images/ctd.jpg",
+        "images/ctdmaintence.jpg",
+        "images/rasppitable.jpg",
+        "images/tunnelsetup.jpg",
+        "images/tunnelteam.jpg"
     ]
     captions = [
         "CTD Calibrations",
         "Deployment Day Spring 2024",
-        "2024 Graduating Marine Technicians"
+        "2024 Graduating Marine Technicians",
+        "Seabird 16plus CTD",
+        "CTD Maintence",
+        "Tunnel CTD Setup",
+        "Team in the Tunnel"
     ]
 
     # Initialize session state variables
@@ -254,6 +263,15 @@ elif page == "Gallery":
              caption=captions[st.session_state.current_index],
              use_container_width=True)
     
+    st.markdown(
+        f"""
+        <p style="text-align:center; font-size:22px; font-weight:bold; color:#333;">
+            {captions[st.session_state.current_index]}
+        </p>
+        """,
+        unsafe_allow_html=True
+    )
+
     st.session_state.auto_switch = st.toggle("Auto-Slideshow", value=st.session_state.auto_switch)
 
     # **⬅️➡️ Centered Navigation Buttons**
