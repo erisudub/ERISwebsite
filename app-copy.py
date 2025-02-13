@@ -83,79 +83,58 @@ if page == "Main Page":
 
     # ✅ **Convert image to base64**
     def get_base64_image(image_path):
-        try:
-            with open(image_path, "rb") as img_file:
-                return base64.b64encode(img_file.read()).decode()
-        except FileNotFoundError:
-            return None  # Return None if image doesn't exist
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
 
-    # ✅ **Logo Paths**
-    left_logo = "images/oceanlogo.png" 
-    right_logo = "images/oceanlogo.png"  
-
-    # ✅ **Display the Main Image Slider with Logos**
+    # ✅ **Display the Main Image Slider**
     if valid_photos:
         base64_image = get_base64_image(valid_photos[st.session_state.current_index])
-        base64_left_logo = get_base64_image(left_logo)
-        base64_right_logo = get_base64_image(right_logo)
 
-        col1, col2, col3 = st.columns([1, 3, 1])  # Adjust column sizes for spacing
-
-        with col1:
-            if base64_left_logo:
-                st.image(f"data:image/png;base64,{base64_left_logo}", use_column_width=True)
-
-        with col2:
-            st.markdown(
-                f"""
-                <style>
-                .slide-container {{
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 100%;
-                    flex-direction: column;
+        st.markdown(
+            f"""
+            <style>
+            .slide-container {{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                flex-direction: column;
+            }}
+            .slide-image {{
+                max-width: 90%;
+                height: auto;
+                max-height: 500px;
+                animation: slideIn 0.7s ease-in-out;
+            }}
+            .caption {{
+                text-align: center;
+                font-size: 18px;
+                font-weight: bold;
+                margin-top: 10px;
+            }}
+            @keyframes slideIn {{
+                from {{
+                    transform: translateX(100%);
+                    opacity: 0;
                 }}
-                .slide-image {{
-                    max-width: 100%;
-                    height: auto;
-                    max-height: 500px;
-                    animation: slideIn 0.7s ease-in-out;
+                to {{
+                    transform: translateX(0);
+                    opacity: 1;
                 }}
-                .caption {{
-                    text-align: center;
-                    font-size: 18px;
-                    font-weight: bold;
-                    margin-top: 10px;
-                }}
-                @keyframes slideIn {{
-                    from {{
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }}
-                    to {{
-                        transform: translateX(0);
-                        opacity: 1;
-                    }}
-                }}
-                </style>
-                <div class="slide-container">
-                    <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
-                    <p class="caption">{valid_captions[st.session_state.current_index]}</p>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with col3:
-            if base64_right_logo:
-                st.image(f"data:image/png;base64,{base64_right_logo}", use_column_width=True)
+            }}
+            </style>
+            <div class="slide-container">
+                <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
+                <p class="caption">{valid_captions[st.session_state.current_index]}</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         # ✅ **Auto-switch logic**
         if st.session_state.auto_switch:
             time.sleep(7)  
             change_image(1)
-
 
 elif page == "Instrument Data":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
