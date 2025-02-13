@@ -88,62 +88,62 @@ if page == "Main Page":
         right_logo = get_base64_image(right_logo_path)
 
         st.markdown(
-    """
-    <style>
-    .blue-box {
-        background-color: #d0e8ff; /* Light blue */
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
-        width: 100%;
-    }
-    .slider-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
-    .logo {
-        width: 150px;
-        height: auto;
-        margin: 0 20px;
-    }
-    .slide-image {
-        max-width: 60%;
-        height: auto;
-        max-height: 500px;
-        animation: slideIn 0.7s ease-in-out;
-    }
-    .caption {
-        text-align: center;
-        font-size: 18px;
-        font-weight: bold;
-        margin-top: 10px;
-    }
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    </style>
+            """
+            <style>
+            .blue-box {
+                background-color: #d0e8ff; /* Light blue */
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                width: 100%;
+            }
+            .slider-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+            }
+            .logo {
+                width: 150px;
+                height: auto;
+                margin: 0 20px;
+            }
+            .slide-image {
+                max-width: 60%;
+                height: auto;
+                max-height: 500px;
+                animation: slideIn 0.7s ease-in-out;
+            }
+            .caption {
+                text-align: center;
+                font-size: 18px;
+                font-weight: bold;
+                margin-top: 10px;
+            }
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            </style>
 
-    <div class="blue-box">
-        <h1 style="font-family: Georgia, serif;">Welcome to ERIS</h1>
-        <div class="slider-container">
-            <img src="data:image/png;base64,{left_logo}" class="logo">
-            <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
-            <img src="data:image/png;base64,{right_logo}" class="logo">
-        </div>
-        <p class="caption">{valid_captions[st.session_state.current_index]}</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+            <div class="blue-box">
+                <h1 style="font-family: Georgia, serif;">Welcome to ERIS</h1>
+                <div class="slider-container">
+                    <img src="data:image/png;base64,{left_logo}" class="logo">
+                    <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
+                    <img src="data:image/png;base64,{right_logo}" class="logo">
+                </div>
+                <p class="caption">{valid_captions[st.session_state.current_index]}</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
         st.write("### What is ERIS?")
