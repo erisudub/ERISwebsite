@@ -81,27 +81,32 @@ if page == "Main Page":
             st.session_state.animation_key += 1  
             st.rerun()
 
-    # ✅ **Convert image to base64**
-    def get_base64_image(image_path):
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
+    # ✅ **Logo Paths**
+    left_logo_path = "images/OceanTech Logo-PURPLE.png" 
+    right_logo_path = "images/OceanTech Logo-PURPLE.png"  
 
-    # ✅ **Display the Main Image Slider**
+    # ✅ **Convert images to base64**
     if valid_photos:
         base64_image = get_base64_image(valid_photos[st.session_state.current_index])
+        left_logo = get_base64_image(left_logo_path)
+        right_logo = get_base64_image(right_logo_path)
 
         st.markdown(
             f"""
             <style>
-            .slide-container {{
+            .slider-container {{
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 width: 100%;
-                flex-direction: column;
+            }}
+            .logo {{
+                width: 150px;
+                height: auto;
+                margin: 0 20px;
             }}
             .slide-image {{
-                max-width: 90%;
+                max-width: 60%;
                 height: auto;
                 max-height: 500px;
                 animation: slideIn 0.7s ease-in-out;
@@ -123,10 +128,12 @@ if page == "Main Page":
                 }}
             }}
             </style>
-            <div class="slide-container">
+            <div class="slider-container">
+                {'<img src="data:image/png;base64,' + left_logo + '" class="logo">' if left_logo else ''}
                 <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
-                <p class="caption">{valid_captions[st.session_state.current_index]}</p>
+                {'<img src="data:image/png;base64,' + right_logo + '" class="logo">' if right_logo else ''}
             </div>
+            <p class="caption">{valid_captions[st.session_state.current_index]}</p>
             """,
             unsafe_allow_html=True
         )
