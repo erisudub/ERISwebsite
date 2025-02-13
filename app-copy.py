@@ -7,8 +7,6 @@ import time
 import os
 import base64
 import threading
-from streamlit_autorefresh import st_autorefresh
-
 
 # Function to encode images to base64
 def get_base64_image(image_path):
@@ -227,67 +225,6 @@ elif page == "Meet the Team":
     st.write("## Team Members")
 
 # 📌 **Gallery Page**
-#elif page == "Gallery":
-#
- #   # List of photos and captions
-  #  photos = [
-   #     "images/tub.jpg",
-    #    "images/group.jpg",
-     #   "images/grads.jpg"
-    #]
-    #captions = [
-     #   "CTD Calibrations",
-      #  "Deployment Day Spring 2024",
-       # "2024 Graduating Marine Technicians"
-    #]
-
-    # Initialize session state variables
-    #if "current_index" not in st.session_state:
-     #   st.session_state.current_index = 0
-    #if "auto_switch" not in st.session_state:
-     #   st.session_state.auto_switch = True  # Auto-switch enabled by default
-
-    # Function to update the image index
-    #def change_image(direction):
-     #   st.session_state.current_index = (st.session_state.current_index + direction) % len(photos)
-
-    # Centered image display
-    #col1, col2, col3 = st.columns([1, 2, 1])  # Center image
-    #with col2:
-     #   st.image(
-      #      photos[st.session_state.current_index],
-       #     caption=captions[st.session_state.current_index],
-        #    use_container_width = True  # Adjust width as needed
-        #)
-
-    # **⬅️➡️ Centered Navigation Buttons**
-    #col1, col2, col3 = st.columns([9, 18, 3])
-
-    #with col1:
-     #   if st.button("Backward", key="prev"):
-      #      change_image(-1)
-       #     st.session_state.auto_switch = False  # Stop auto-switching when manually clicked
-        #    st.rerun()
-
-    #with col2:
-     #   st.write("")  # Spacer
-
-   # with col3:
-       # if st.button("Forward", key="next"):
-      #      change_image(1)
-           # st.session_state.auto_switch = False
-           # st.rerun()
-
-    # Toggle Auto-Slideshow
-    # st.session_state.auto_switch = st.toggle("Auto-Slideshow", value=st.session_state.auto_switch)
-
-    # Auto-switch logic without blocking the app
-    #if st.session_state.auto_switch:
-        #time.sleep(10)  # Wait 10 seconds
-        #change_image(1)  # Move to next image
-        #st.rerun()  # Refresh app
-
-# 📌 **Gallery Page**
 elif page == "Gallery":
 
     # List of photos and captions
@@ -310,7 +247,7 @@ elif page == "Gallery":
 
     # Function to update the image index
     def change_image(direction):
-        st.session_state.current_index = (st.session_state.current_index + direction) % len(photos)
+       st.session_state.current_index = (st.session_state.current_index + direction) % len(photos)
 
     # Centered image display
     col1, col2, col3 = st.columns([1, 2, 1])  # Center image
@@ -318,7 +255,7 @@ elif page == "Gallery":
         st.image(
             photos[st.session_state.current_index],
             caption=captions[st.session_state.current_index],
-            width=600  # Adjust width as needed
+            use_container_width = True  # Adjust width as needed
         )
 
     # **⬅️➡️ Centered Navigation Buttons**
@@ -339,7 +276,11 @@ elif page == "Gallery":
             st.session_state.auto_switch = False
             st.rerun()
 
-    # **Auto-Slideshow Feature**
+    # Toggle Auto-Slideshow
+    st.session_state.auto_switch = st.toggle("Auto-Slideshow", value=st.session_state.auto_switch)
+
+    # Auto-switch logic without blocking the app
     if st.session_state.auto_switch:
-        st_autorefresh(interval=10_000, key="gallery_autorefresh")  # Refresh every 10 seconds
-        change_image(1)
+        time.sleep(10)  # Wait 10 seconds
+        change_image(1)  # Move to next image
+        st.rerun()  # Refresh app
