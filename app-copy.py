@@ -294,6 +294,7 @@ elif page == "Instrument Data":
         st.download_button("Download Weather Data", csv2, "weather_data.csv")
         st.dataframe(filtered_weather_data)
 
+
     # Display the Folium map of instrument locations
     # Add a map of instrument locations
     st.write("### Instrument Locations")
