@@ -20,7 +20,7 @@ def get_base64_image(image_path):
 st.set_page_config(layout="wide")
 
 # Title for the entire page
-st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
+#st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
@@ -32,7 +32,7 @@ weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
 
 # Main Page
 if page == "Main Page":
-    st.title("Photo Gallery 📸")
+    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Welcome to ERIS</h1>", unsafe_allow_html=True)
 
     # 📌 **Main Image Slider**
     photos = [
@@ -137,6 +137,8 @@ if page == "Main Page":
             change_image(1)
 
 elif page == "Instrument Data":
+    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
+
     ctd_data = pd.read_csv(ctd_csv_file_path)
     weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
     
