@@ -187,7 +187,7 @@ elif page == "Instrument Data":
     weather_csv_file_path = 'new_weather_data.csv'  
 
     ctd_data = pd.read_csv(ctd_csv_file_path)
-    weather_data = pd.read_csv(weather_csv_file_path, skiprows=3, names=[
+    weather_data = pd.read_csv(weather_csv_file_path, skiprows=1, names=[
         'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
         'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
         'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
@@ -200,7 +200,7 @@ elif page == "Instrument Data":
 
     # Combine Date and Time into DateTime for weather data
     weather_data['DateTime'] = pd.to_datetime(
-        weather_data['Date'] + ' ' + weather_data['Time'], format="%m/%d/%Y %I:%M %p", errors='coerce'
+        weather_data['Date'] + 'm' + weather_data['Time'], format="%m/%d/%Y %I:%M %p", errors='coerce'
     )
     weather_data = weather_data.dropna(subset=['DateTime'])  # Drop rows with NaT in DateTime
     
