@@ -187,22 +187,22 @@ elif page == "Instrument Data":
     weather_csv_file_path = 'new_weather_data.csv'  # Use the uploaded weather CSV file
 
     ctd_data = pd.read_csv(ctd_csv_file_path)
-    weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
+    weather_data = pd.read_csv(weather_csv_file_path, skiprows=3, names=[
+    'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
+    'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
+    'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
+    'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
+    ])
 
     print("CTD Data Shape:", ctd_data.shape)
     print("Weather Data Shape:", weather_data.shape)
 
     # Assign column names to weather_data and confirm them
-    weather_data.columns = [
-        'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
-       'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
-       'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
-       'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
-    ]
 
     # Combine Date and Time into DateTime for weather data
-    weather_data['DateTime'] = pd.to_datetime(weather_data['Date'] + ' ' + weather_data['Time'],
-                                               format="%m/%d/%Y %I:%M %p", errors='coerce')
+    weather_data['DateTime'] = pd.to_datetime(
+        weather_data['Date'] + ' ' + weather_data['Time'] + "m", format="%m/%d/%Y %I:%M%p", errors='coerce'
+    )
     weather_data = weather_data.dropna(subset=['DateTime'])  # Drop rows with NaT in DateTime
     
     # Convert ctd_data 'time' column to datetime
