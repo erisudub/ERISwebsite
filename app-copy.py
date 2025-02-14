@@ -26,6 +26,10 @@ st.set_page_config(layout="wide")
 st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
+# Load CSV data for each graph
+ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
+weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
+
 # Main Page
 if page == "Main Page":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Welcome to ERIS</h1>", unsafe_allow_html=True)
@@ -77,73 +81,60 @@ if page == "Main Page":
             st.session_state.animation_key += 1  
             st.rerun()
 
-    # ✅ **Logo Paths**
-    left_logo_path = "images/OceanTech Logo-PURPLE.png" 
-    right_logo_path = "images/OceanTech Logo-PURPLE.png"  
+    # ✅ **Convert image to base64**
+    def get_base64_image(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
 
-    # ✅ **Convert images to base64**
+    # ✅ **Display the Main Image Slider**
     if valid_photos:
         base64_image = get_base64_image(valid_photos[st.session_state.current_index])
-        left_logo = get_base64_image(left_logo_path)
-        right_logo = get_base64_image(right_logo_path)
 
         st.markdown(
-            """
+            f"""
             <style>
-            .blue-box {
-                background-color: #d0e8ff; /* Light blue */
-                padding: 20px;
-                border-radius: 10px;
-                text-align: center;
-                width: 100%;
-            }
-            .slider-container {
+            .slide-container {{
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 width: 100%;
-            }
-            .logo {
-                width: 150px;
-                height: auto;
-                margin: 0 20px;
-            }
-            .slide-image {
-                max-width: 60%;
+                flex-direction: column;
+            }}
+            .slide-image {{
+                max-width: 90%;
                 height: auto;
                 max-height: 500px;
                 animation: slideIn 0.7s ease-in-out;
-            }
-            .caption {
+            }}
+            .caption {{
                 text-align: center;
                 font-size: 18px;
                 font-weight: bold;
                 margin-top: 10px;
-            }
-            @keyframes slideIn {
-                from {
+            }}
+            @keyframes slideIn {{
+                from {{
                     transform: translateX(100%);
                     opacity: 0;
-                }
-                to {
+                }}
+                to {{
                     transform: translateX(0);
                     opacity: 1;
-                }
-            }
+                }}
+            }}
             </style>
-
-            <div class="blue-box">
-                <h1 style="font-family: Georgia, serif;">Welcome to ERIS</h1>
-                <div class="slider-container">
-                    <img src="data:image/png;base64,{left_logo}" class="logo">
-                    <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
-                    <img src="data:image/png;base64,{right_logo}" class="logo">
-                </div>
+            <div class="slide-container">
+                <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
                 <p class="caption">{valid_captions[st.session_state.current_index]}</p>
             </div>
             """,
             unsafe_allow_html=True
         )
+
+        # ✅ **Auto-switch logic**
+        if st.session_state.auto_switch:
+            time.sleep(7)  
+            change_image(1)
 
 
         st.write("### What is ERIS?")
