@@ -183,25 +183,24 @@ elif page == "Instrument Data":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
     # Load CSV data for each graph
-    ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
-    weather_csv_file_path = 'new_weather_data.csv'  # Use the uploaded weather CSV file
+    ctd_csv_file_path = 'ctddata.csv'  
+    weather_csv_file_path = 'new_weather_data.csv'  
 
     ctd_data = pd.read_csv(ctd_csv_file_path)
     weather_data = pd.read_csv(weather_csv_file_path, skiprows=3, names=[
-    'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
-    'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
-    'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
-    'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
+        'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
+        'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
+        'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
+        'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
     ])
 
-    print("CTD Data Shape:", ctd_data.shape)
-    print("Weather Data Shape:", weather_data.shape)
-
-    # Assign column names to weather_data and confirm them
+    # ✅ Use st.write() for debugging
+    st.write("CTD Data Shape:", ctd_data.shape)
+    st.write("Weather Data Shape:", weather_data.shape)
 
     # Combine Date and Time into DateTime for weather data
     weather_data['DateTime'] = pd.to_datetime(
-        weather_data['Date'] + ' ' + weather_data['Time'] + "m", format="%m/%d/%Y %I:%M%p", errors='coerce'
+        weather_data['Date'] + ' ' + weather_data['Time'], format="%m/%d/%Y %I:%M %p", errors='coerce'
     )
     weather_data = weather_data.dropna(subset=['DateTime'])  # Drop rows with NaT in DateTime
     
@@ -209,16 +208,19 @@ elif page == "Instrument Data":
     ctd_data['time'] = pd.to_datetime(ctd_data['time'], errors='coerce')
     ctd_data = ctd_data.dropna(subset=['time'])  # Drop rows with NaT in time
 
-    print("CTD Data Shape after dropping NaT:", ctd_data.shape)
-    print("Weather Data Shape after dropping NaT:", weather_data.shape)
+    st.write("CTD Data Shape after dropping NaT:", ctd_data.shape)
+    st.write("Weather Data Shape after dropping NaT:", weather_data.shape)
 
-    # Step 5: Date range selection for filtering data
-    st.write("### Date Range Selection")
+    # ✅ Ensure min_date & max_date are valid
     min_date = min(ctd_data['time'].min(), weather_data['DateTime'].min())
     max_date = max(ctd_data['time'].max(), weather_data['DateTime'].max())
 
+    st.write("Min Date:", min_date, "Max Date:", max_date)
+
+    # Step 5: Date range selection for filtering data
     start_date = st.date_input("Start Date", value=min_date.date())
     end_date = st.date_input("End Date", value=max_date.date())
+
 
     # Filter the data based on the selected date range for both datasets
     filtered_ctd_data = ctd_data[(ctd_data['time'] >= pd.Timestamp(start_date)) & (ctd_data['time'] <= pd.Timestamp(end_date))]
