@@ -26,10 +26,6 @@ st.set_page_config(layout="wide")
 st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
-# Load CSV data for each graph
-ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
-weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
-
 # Main Page
 if page == "Main Page":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Welcome to ERIS</h1>", unsafe_allow_html=True)
@@ -81,27 +77,32 @@ if page == "Main Page":
             st.session_state.animation_key += 1  
             st.rerun()
 
-    # ✅ **Convert image to base64**
-    def get_base64_image(image_path):
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
+    # ✅ **Logo Paths**
+    left_logo_path = "images/OceanTech Logo-PURPLE.png" 
+    right_logo_path = "images/OceanTech Logo-PURPLE.png"  
 
-    # ✅ **Display the Main Image Slider**
+    # ✅ **Convert images to base64**
     if valid_photos:
         base64_image = get_base64_image(valid_photos[st.session_state.current_index])
+        left_logo = get_base64_image(left_logo_path)
+        right_logo = get_base64_image(right_logo_path)
 
         st.markdown(
             f"""
             <style>
-            .slide-container {{
+            .slider-container {{
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 width: 100%;
-                flex-direction: column;
+            }}
+            .logo {{
+                width: 150px;
+                height: auto;
+                margin: 0 20px;
             }}
             .slide-image {{
-                max-width: 90%;
+                max-width: 60%;
                 height: auto;
                 max-height: 500px;
                 animation: slideIn 0.7s ease-in-out;
@@ -123,19 +124,15 @@ if page == "Main Page":
                 }}
             }}
             </style>
-            <div class="slide-container">
+            <div class="slider-container">
+                {'<img src="data:image/png;base64,' + left_logo + '" class="logo">' if left_logo else ''}
                 <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
-                <p class="caption">{valid_captions[st.session_state.current_index]}</p>
+                {'<img src="data:image/png;base64,' + right_logo + '" class="logo">' if right_logo else ''}
             </div>
+            <p class="caption">{valid_captions[st.session_state.current_index]}</p>
             """,
             unsafe_allow_html=True
         )
-
-        # ✅ **Auto-switch logic**
-        if st.session_state.auto_switch:
-            time.sleep(7)  
-            change_image(1)
-
 
         st.write("### What is ERIS?")
         st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW). Students work with ERIS through Ocean 462. ERIS, with its educational mission, enables undergraduate students to design, build, operate, and maintain a cabled underwater observatory that emulates the NSF")
@@ -174,44 +171,42 @@ elif page == "Instrument Data":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
     # Load CSV data for each graph
-    ctd_csv_file_path = 'ctddata.csv'  
-    weather_csv_file_path = 'new_weather_data.csv'  
+    ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
+    weather_csv_file_path = 'new_weather_data.csv'  # Use the uploaded weather CSV file
 
     ctd_data = pd.read_csv(ctd_csv_file_path)
-    weather_data = pd.read_csv(weather_csv_file_path, skiprows=1, names=[
-        'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
-        'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
-        'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
-        'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
-    ])
+    weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
 
-    # ✅ Use st.write() for debugging
-    st.write("CTD Data Shape:", ctd_data.shape)
-    st.write("Weather Data Shape:", weather_data.shape)
+    print("CTD Data Shape:", ctd_data.shape)
+    print("Weather Data Shape:", weather_data.shape)
+
+    # Assign column names to weather_data and confirm them
+    weather_data.columns = [
+        'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
+       'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
+       'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
+       'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
+    ]
 
     # Combine Date and Time into DateTime for weather data
-    weather_data['DateTime'] = pd.to_datetime(
-        weather_data['Date'] + 'm' + weather_data['Time'], format="%m/%d/%Y %I:%M %p", errors='coerce'
-    )
+    weather_data['DateTime'] = pd.to_datetime(weather_data['Date'] + ' ' + weather_data['Time'],
+                                               format="%m/%d/%Y %I:%M %p", errors='coerce')
     weather_data = weather_data.dropna(subset=['DateTime'])  # Drop rows with NaT in DateTime
     
     # Convert ctd_data 'time' column to datetime
     ctd_data['time'] = pd.to_datetime(ctd_data['time'], errors='coerce')
     ctd_data = ctd_data.dropna(subset=['time'])  # Drop rows with NaT in time
 
-    st.write("CTD Data Shape after dropping NaT:", ctd_data.shape)
-    st.write("Weather Data Shape after dropping NaT:", weather_data.shape)
+    print("CTD Data Shape after dropping NaT:", ctd_data.shape)
+    print("Weather Data Shape after dropping NaT:", weather_data.shape)
 
-    # ✅ Ensure min_date & max_date are valid
+    # Step 5: Date range selection for filtering data
+    st.write("### Date Range Selection")
     min_date = min(ctd_data['time'].min(), weather_data['DateTime'].min())
     max_date = max(ctd_data['time'].max(), weather_data['DateTime'].max())
 
-    st.write("Min Date:", min_date, "Max Date:", max_date)
-
-    # Step 5: Date range selection for filtering data
     start_date = st.date_input("Start Date", value=min_date.date())
     end_date = st.date_input("End Date", value=max_date.date())
-
 
     # Filter the data based on the selected date range for both datasets
     filtered_ctd_data = ctd_data[(ctd_data['time'] >= pd.Timestamp(start_date)) & (ctd_data['time'] <= pd.Timestamp(end_date))]
