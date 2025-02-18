@@ -65,10 +65,10 @@ st.markdown(
 st.sidebar.image("images/New Oceanography-logo-banner-BLUE.png", use_container_width=True)
 
 # Sidebar for navigation
-#st.sidebar.title("Navigation")
+st.sidebar.title("Navigation")
 
 # Sidebar navigation dropdown (No "Go to" label, fixed spacing)
-page = st.sidebar.selectbox("### Navigation", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
+page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
