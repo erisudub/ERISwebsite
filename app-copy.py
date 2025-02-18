@@ -154,11 +154,6 @@ if page == "Main Page":
     st.write("### What is ERIS?")
     st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW)...")
 
-    # ✅ **Auto-switch logic**
-    if st.session_state.auto_switch and valid_photos:
-        time.sleep(7)  
-        change_image(1)
-
     st.write("### What is ERIS?")
     st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW). Students work with ERIS through Ocean 462. ERIS, with its educational mission, enables undergraduate students to design, build, operate, and maintain a cabled underwater observatory that emulates the NSF")
     st.write("Ocean Observatories Initiatives (OOI) Regional Cabled Array, by providing for a continuous data-stream for analysis, interpretation, and communication by students. From inspiration through implementation, this program is focused on the creation and operation of an underwater science sensor network that is physically located off the dock of the School of Oceanography at UW Seattle Campus.")
@@ -187,6 +182,10 @@ if page == "Main Page":
     st.write("Hands-on experience to build technical, science, and management skills in ocean technology through small group projects. Projects may include instrument design and building, data analysis, and/or participation in an on-going ocean technology initiative. Offered: AWSp.  Can be taken fo 1-5 credits, with a max of 15.")
     st.write("For more information, visit [MyPlan](https://myplan.uw.edu/course/#/courses?states=N4Igwg9grgTgzgUwMoIIYwMYAsQC4TAA6IAZhDALYAiqALqsbkSBqhQA5RyPGJ20AbBMQA0xAJZwUGWuIgA7FOmyNaMKAjEhJASXlw1UGeSWYsjEqgGItARw0wAnkjXj5Acx4hRxACapHbjxmAEYLKxtiACZw601iAGZYyJAAFmT4kABWDK0ANgyAXy0DdFoAUXlfABVxCgQg3ABtAAYRAE48loBdLTcMAShfBAA5BQB5dgRFBBk5fVV1TP7B4YAlBtcZBF9pWQVGw2X5AaGEAAUYBCvbOA37cSvfRY0%2Bk9WEaoAjVD35w6WJSwEAA7uN5AJHOcMMhZvsFnhLHEgaDwZC9OdrnAFH8DkUUSCAEIwUGIXLELCoKRoMw7ckgXySAYQRAAQV8ADdUCcdqYVIiIghCiBCkA).")
 
+        # ✅ **Auto-switch logic**
+    if st.session_state.auto_switch and valid_photos:
+        time.sleep(7)  
+        change_image(1)
 
 elif page == "Instrument Data":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
