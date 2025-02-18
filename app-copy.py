@@ -19,23 +19,21 @@ def get_base64_image(image_path):
 # Set wide layout for the Streamlit page
 st.set_page_config(layout="wide")
 
-# Title for the entire page
-# st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
-
-# Sidebar for navigation
-st.sidebar.title("Navigation")
-
-# Apply custom CSS to change the outline color to blue
+# ✅ Change top navigation bar to purple
 st.markdown(
     """
     <style>
+        /* Change top bar color */
+        section[data-testid="stHeader"] {
+            background: #6A0DAD !important;  /* Dark Purple */
+        }
         /* Change the outline of the sidebar select box */
         div[data-baseweb="select"] > div {
-            border-color: blue !important;
+            border-color: purple !important;
         }
         /* Change hover and selected item color */
         div[data-baseweb="select"] > div:focus {
-            border-color: blue !important;
+            border-color: purple !important;
             box-shadow: 0 0 5px blue !important;
         }
     </style>
@@ -43,13 +41,18 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Title for the entire page
+# st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
+
+# Sidebar for navigation
+st.sidebar.title("Navigation")
+
 # Sidebar navigation dropdown
 page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
 weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
-
 
 # Main Page
 if page == "Main Page":
