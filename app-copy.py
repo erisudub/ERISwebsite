@@ -19,7 +19,7 @@ def get_base64_image(image_path):
 # Set wide layout for the Streamlit page
 st.set_page_config(layout="wide")
 
-# ✅ Change top navigation bar to light blue
+# ✅ Change top navigation bar to light blue and fix sidebar spacing
 st.markdown(
     """
     <style>
@@ -48,6 +48,14 @@ st.markdown(
             width: 100% !important;
             display: block;
         }
+        /* Reduce spacing below the sidebar title */
+        .sidebar .stTitle {
+            margin-bottom: 0px !important;
+        }
+        /* Reduce padding/margin around selectbox */
+        div[data-testid="stSidebar"] > div:first-child {
+            margin-top: -20px !important;
+        }
     </style>
     """,
     unsafe_allow_html=True
@@ -56,11 +64,10 @@ st.markdown(
 # ✅ Add a full-width logo to the top of the sidebar
 st.sidebar.image("images/New Oceanography-logo-banner-BLUE.png", use_container_width=True)
 
-
 # Sidebar for navigation
 st.sidebar.title("Navigation")
 
-# Sidebar navigation dropdown
+# Sidebar navigation dropdown (No "Go to" label, fixed spacing)
 page = st.sidebar.selectbox("", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
 # Load CSV data for each graph
