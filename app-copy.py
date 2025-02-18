@@ -48,13 +48,13 @@ st.markdown(
             width: 100% !important;
             display: block;
         }
-        /* Reduce spacing below the sidebar title */
-        .sidebar .stTitle {
+        /* Remove margin below the sidebar title */
+        div[data-testid="stSidebar"] h1 {
             margin-bottom: 0px !important;
         }
-        /* Reduce padding/margin around selectbox */
-        div[data-testid="stSidebar"] > div:first-child {
-            margin-top: -20px !important;
+        /* Reduce space above the selectbox */
+        div[data-testid="stSidebar"] > div:nth-child(2) {
+            margin-top: -10px !important;
         }
     </style>
     """,
