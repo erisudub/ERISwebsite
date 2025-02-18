@@ -183,6 +183,32 @@ if page == "Main Page":
             unsafe_allow_html=True
         )
 
+    st.markdown(
+        """
+        <style>
+            .full-width-link {
+                display: block;
+                width: 100%;
+                background-color: #74bcf7;  /* Background color (Light Blue) */
+                color: black;  /* Text color */
+                text-align: center;
+                padding: 15px;
+                font-size: 20px;
+                font-weight: bold;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+            .full-width-link:hover {
+                background-color: #5A0C9D; /* Darker shade on hover */
+            }
+        </style>
+
+        <a href="https://youtu.be/zQ8caaUxIvY?si=NlzA_W-o2h0XHfeM" class="full-width-link" target="_blank">Navigation Tutorial</a>
+        """,
+        unsafe_allow_html=True
+    )
+
+
     st.write("### What is ERIS?")
     st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW)...")
 
