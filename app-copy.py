@@ -19,38 +19,20 @@ def get_base64_image(image_path):
 # Set wide layout for the Streamlit page
 st.set_page_config(layout="wide")
 
+# Title for the entire page
+#st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
+
 # Sidebar for navigation
 st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
+# Load CSV data for each graph
+ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
+weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
+
 # Main Page
 if page == "Main Page":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Welcome to ERIS</h1>", unsafe_allow_html=True)
-
-    # Debugging: Check if image paths exist
-for photo in photos:
-    st.write(f"Checking: {photo} → Exists: {os.path.exists(photo)}")
-
-# ✅ **Filter out non-existing images**
-valid_images = [(photo, captions[i]) for i, photo in enumerate(photos) if os.path.exists(photo)]
-
-if not valid_images:
-    st.error("⚠️ No valid images found for the main gallery. Check file paths.")
-    st.write("Debug: Expected paths →", photos)
-    valid_photos, valid_captions = [], []
-else:
-    valid_photos, valid_captions = zip(*valid_images)
-
-st.write(f"Debug: Found {len(valid_images)} valid images.")
-
-# ✅ **Check if base64 encoding works**
-if valid_photos:
-    base64_image = get_base64_image(valid_photos[st.session_state.current_index])
-    if base64_image:
-        st.write("✅ Image successfully encoded!")
-    else:
-        st.error("❌ Base64 encoding failed! Check image format and path.")
-
 
     # 📌 **Main Image Slider**
     photos = [
@@ -84,8 +66,6 @@ if valid_photos:
     else:
         valid_photos, valid_captions = zip(*valid_images)
 
-    st.write(f"Debug: Found {len(valid_images)} valid images.")
-
     # ✅ **Initialize session state**
     if "current_index" not in st.session_state:
         st.session_state.current_index = 0
@@ -96,7 +76,7 @@ if valid_photos:
 
     # ✅ **Function to change the displayed image**
     def change_image(direction):
-        if valid_photos:  # Only proceed if images exist
+        if valid_photos:
             st.session_state.current_index = (st.session_state.current_index + direction) % len(valid_photos)
             st.session_state.animation_key += 1  
             st.rerun()
@@ -106,92 +86,57 @@ if valid_photos:
     right_logo_path = "images/OceanTech Logo-PURPLE.png"  
 
     # ✅ **Convert images to base64**
-    base64_image = get_base64_image(valid_photos[st.session_state.current_index]) if valid_photos else None
-    left_logo = get_base64_image(left_logo_path)
-    right_logo = get_base64_image(right_logo_path)
+    if valid_photos:
+        base64_image = get_base64_image(valid_photos[st.session_state.current_index])
+        left_logo = get_base64_image(left_logo_path)
+        right_logo = get_base64_image(right_logo_path)
 
-    st.markdown(
-        f"""
-        <style>
-        .slider-container {{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }}
-        .logo {{
-            width: 150px;
-            height: auto;
-            margin: 0 20px;
-        }}
-        .slide-image {{
-            max-width: 60%;
-            height: auto;
-            max-height: 500px;
-            animation: slideIn 0.7s ease-in-out;
-        }}
-        .caption {{
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 10px;
-        }}
-        @keyframes slideIn {{
-            from {{
-                transform: translateX(100%);
-                opacity: 0;
+        st.markdown(
+            f"""
+            <style>
+            .slider-container {{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
             }}
-            to {{
-                transform: translateX(0);
-                opacity: 1;
+            .logo {{
+                width: 150px;
+                height: auto;
+                margin: 0 20px;
             }}
-        }}
-        </style>
-        <div class="slider-container">
-            {'<img src="data:image/png;base64,' + left_logo + '" class="logo">' if left_logo else ''}
-            {'<img src="data:image/jpeg;base64,' + base64_image + '" class="slide-image" key="' + str(st.session_state.animation_key) + '">' if base64_image else '<p>No image available</p>'}
-            {'<img src="data:image/png;base64,' + right_logo + '" class="logo">' if right_logo else ''}
-        </div>
-        <p class="caption">{valid_captions[st.session_state.current_index] if valid_captions else "No images available"}</p>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.write("### What is ERIS?")
-    st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW)...")
-
-    # ✅ **Auto-switch logic**
-    if st.session_state.auto_switch and valid_photos:
-        time.sleep(7)  
-        change_image(1)
-
-        st.write("### What is ERIS?")
-        st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW). Students work with ERIS through Ocean 462. ERIS, with its educational mission, enables undergraduate students to design, build, operate, and maintain a cabled underwater observatory that emulates the NSF")
-        st.write("Ocean Observatories Initiatives (OOI) Regional Cabled Array, by providing for a continuous data-stream for analysis, interpretation, and communication by students. From inspiration through implementation, this program is focused on the creation and operation of an underwater science sensor network that is physically located off the dock of the School of Oceanography at UW Seattle Campus.")
-        st.write("### Key Science Questions")
-        st.write("-  How do anthropogenic processes mediate natural processes in the marine environment?")
-        st.write("-  What are the temporal and spatial scales over which anthropogenic activities occur?")
-        st.write("-  How does the temperature, light, chemistry, and velocity of the marine environment change temporally and spatially?")
-        st.write("-  What unique ecological systems are present?")
-        st.write("-  What is the composition, configuration, and concentration of organisms in the different ecological systems?")
-        st.write("-  How are these systems impacted by both natural and anthropogenic events?")
-        st.write(" ")
-        st.write("ERIS will also encourage students to explore a range of technical considerations.")
-        st.write("### Technology Questions:")
-        st.write("-  What sensor(s) design is required?")
-        st.write("-  What sample rate and duty cycle is needed?")
-        st.write("-  What measurement accuracy is need and what can be achieved?")
-        st.write("-  How should remote observations be made?")
-        st.write("-  How can sensors be deployed and serviced?")
-        st.write("-  What are the power requirements?")
-        st.write("-  How will data be delivered, stored, and accessed?")
-        st.write("-  How will data be analyzed, interpreted, visualized, and communicated?")
-        st.write(" ")
-        st.write("As the observatory is being implemented, students focus on maintaining the components, as well as collecting, managing, and analyzing the continuous streams of data the observatory will produce. Integral to the ERIS program is the ability to distribute the collected data so that it may be interpreted by interested parties at the UW and worldwide.")
-
-        st.write("### Course: OCEAN 462: Ocean Technology Studio")
-        st.write("Hands-on experience to build technical, science, and management skills in ocean technology through small group projects. Projects may include instrument design and building, data analysis, and/or participation in an on-going ocean technology initiative. Offered: AWSp.  Can be taken fo 1-5 credits, with a max of 15.")
-        st.write("For more information, visit [MyPlan](https://myplan.uw.edu/course/#/courses?states=N4Igwg9grgTgzgUwMoIIYwMYAsQC4TAA6IAZhDALYAiqALqsbkSBqhQA5RyPGJ20AbBMQA0xAJZwUGWuIgA7FOmyNaMKAjEhJASXlw1UGeSWYsjEqgGItARw0wAnkjXj5Acx4hRxACapHbjxmAEYLKxtiACZw601iAGZYyJAAFmT4kABWDK0ANgyAXy0DdFoAUXlfABVxCgQg3ABtAAYRAE48loBdLTcMAShfBAA5BQB5dgRFBBk5fVV1TP7B4YAlBtcZBF9pWQVGw2X5AaGEAAUYBCvbOA37cSvfRY0%2Bk9WEaoAjVD35w6WJSwEAA7uN5AJHOcMMhZvsFnhLHEgaDwZC9OdrnAFH8DkUUSCAEIwUGIXLELCoKRoMw7ckgXySAYQRAAQV8ADdUCcdqYVIiIghCiBCkA).")
+            .slide-image {{
+                max-width: 60%;
+                height: auto;
+                max-height: 500px;
+                animation: slideIn 0.7s ease-in-out;
+            }}
+            .caption {{
+                text-align: center;
+                font-size: 18px;
+                font-weight: bold;
+                margin-top: 10px;
+            }}
+            @keyframes slideIn {{
+                from {{
+                    transform: translateX(100%);
+                    opacity: 0;
+                }}
+                to {{
+                    transform: translateX(0);
+                    opacity: 1;
+                }}
+            }}
+            </style>
+            <div class="slider-container">
+                {'<img src="data:image/png;base64,' + left_logo + '" class="logo">' if left_logo else ''}
+                <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
+                {'<img src="data:image/png;base64,' + right_logo + '" class="logo">' if right_logo else ''}
+            </div>
+            <p class="caption">{valid_captions[st.session_state.current_index]}</p>
+            """,
+            unsafe_allow_html=True
+        )
 
         # ✅ **Auto-switch logic**
         if st.session_state.auto_switch:
@@ -201,22 +146,16 @@ if valid_photos:
 elif page == "Instrument Data":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
-    # Load CSV data for each graph
-    ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
-    weather_csv_file_path = 'new_weather_data.csv'  # Use the uploaded weather CSV file
-
     ctd_data = pd.read_csv(ctd_csv_file_path)
     weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
-
-    print("CTD Data Shape:", ctd_data.shape)
-    print("Weather Data Shape:", weather_data.shape)
-
+    
     # Assign column names to weather_data and confirm them
     weather_data.columns = [
-        'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
-       'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
-       'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
-       'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
+        'Date', 'Time', 'Temp_Out', 'Hi_Temp', 'Low_Temp', 'Out_Hum', 'Dew_Pt',
+       'Wind_Speed', 'Wind_Dir', 'Wind_Run', 'col10', 'col11', 'col12', 'col13',
+       'col14', 'col15', 'col16', 'col17', 'col18', 'col19', 'col20', 'col21',
+       'col22', 'col23', 'col24', 'col25', 'col26', 'col27', 'col28', 'col29',
+       'col30', 'col31', 'col32', 'Wind_Samp', 'Wind_Tx', 'ISS_Recept', 'Arc_Int', 'col38'
     ]
 
     # Combine Date and Time into DateTime for weather data
@@ -227,9 +166,6 @@ elif page == "Instrument Data":
     # Convert ctd_data 'time' column to datetime
     ctd_data['time'] = pd.to_datetime(ctd_data['time'], errors='coerce')
     ctd_data = ctd_data.dropna(subset=['time'])  # Drop rows with NaT in time
-
-    print("CTD Data Shape after dropping NaT:", ctd_data.shape)
-    print("Weather Data Shape after dropping NaT:", weather_data.shape)
 
     # Step 5: Date range selection for filtering data
     st.write("### Date Range Selection")
@@ -242,9 +178,6 @@ elif page == "Instrument Data":
     # Filter the data based on the selected date range for both datasets
     filtered_ctd_data = ctd_data[(ctd_data['time'] >= pd.Timestamp(start_date)) & (ctd_data['time'] <= pd.Timestamp(end_date))]
     filtered_weather_data = weather_data[(weather_data['DateTime'] >= pd.Timestamp(start_date)) & (weather_data['DateTime'] <= pd.Timestamp(end_date))]
-
-    print("Filtered CTD Data Shape:", filtered_ctd_data.shape)
-    print("Filtered Weather Data Shape:", filtered_weather_data.shape)
 
     # Create filtered figures for both graphs
     fig1 = go.Figure()
@@ -260,10 +193,9 @@ elif page == "Instrument Data":
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
 
     # Add each y-column as a separate trace for the second graph using filtered weather data
-    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Out'], mode='lines', name='Temperature', line=dict(color='blue')))
-    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Speed'], mode='lines', name='Wind Speed', line=dict(color='purple')))
-    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Pt.'], mode='lines', name='Dew', line=dict(color='green')))
-    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Hum'], mode='lines', name='Humidity', line=dict(color='orange')))
+    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Temp_Out'], mode='lines', name='Temperature', line=dict(color='blue')))
+    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Dew_Pt'], mode='lines', name='Dew Point', line=dict(color='purple')))
+    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Out_Hum'], mode='lines', name='Humidity', line=dict(color='green')))
 
     # Function to update the layout for figure 1
     def update_layout_fig1(fig1, title):
