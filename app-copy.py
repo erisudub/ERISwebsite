@@ -72,7 +72,7 @@ page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data", "Ins
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
-weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
+weather_csv_file_path = 'new_weather_data.csv'  # Use the uploaded weather CSV file
 
 
 # Main Page
@@ -249,20 +249,19 @@ elif page == "Instrument Data":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
     ctd_data = pd.read_csv(ctd_csv_file_path)
-    weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
+    #weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
     
-    # Assign column names to weather_data and confirm them
-    weather_data.columns = [
-        'Date', 'Time', 'Temp_Out', 'Hi_Temp', 'Low_Temp', 'Out_Hum', 'Dew_Pt',
-       'Wind_Speed', 'Wind_Dir', 'Wind_Run', 'col10', 'col11', 'col12', 'col13',
-       'col14', 'col15', 'col16', 'col17', 'col18', 'col19', 'col20', 'col21',
-       'col22', 'col23', 'col24', 'col25', 'col26', 'col27', 'col28', 'col29',
-       'col30', 'col31', 'col32', 'Wind_Samp', 'Wind_Tx', 'ISS_Recept', 'Arc_Int', 'col38'
-    ]
+    weather_data = pd.read_csv(weather_csv_file_path, skiprows=3, names=[
+        'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
+        'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
+        'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
+        'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
+    ])
 
     # Combine Date and Time into DateTime for weather data
-    weather_data['DateTime'] = pd.to_datetime(weather_data['Date'] + ' ' + weather_data['Time'],
-                                               format="%m/%d/%Y %I:%M %p", errors='coerce')
+    weather_data['DateTime'] = pd.to_datetime(
+    weather_data['Date'] + ' ' + weather_data['Time'] + "m", format="%m/%d/%Y %I:%M%p", errors='coerce'
+    )
     weather_data = weather_data.dropna(subset=['DateTime'])  # Drop rows with NaT in DateTime
     
     # Convert ctd_data 'time' column to datetime
@@ -426,7 +425,7 @@ elif page == "Instrument Data":
 
 # 📌 **Instrument Descriptions Page**
 elif page == "Instrument Descriptions":
-    st.write("## Description of the Instruments")
+    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Instrument Descriptions</h1>", unsafe_allow_html=True)
     
     # Seabird CTD Section
     st.write("### Seabird CTD")
@@ -438,12 +437,12 @@ elif page == "Instrument Descriptions":
 
 # Meet the Team Page
 elif page == "Meet the Team":
-    st.write("## Team Members")
+    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Meet the Team</h1>", unsafe_allow_html=True)
 
 elif page == "Gallery":
 
     # 📌 **Gallery should appear **RIGHT BELOW** the slider**
-    st.title("Gallery")
+    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Gallery</h1>", unsafe_allow_html=True)
 
     gallery_photos = [
         "images/tub.jpg",
