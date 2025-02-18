@@ -8,6 +8,7 @@ import os
 import base64
 import threading
 
+
 # Function to encode images to base64
 def get_base64_image(image_path):
     try:
