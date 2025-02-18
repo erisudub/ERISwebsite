@@ -8,7 +8,6 @@ import os
 import base64
 import threading
 
-
 # Function to encode images to base64
 def get_base64_image(image_path):
     try:
@@ -19,9 +18,6 @@ def get_base64_image(image_path):
 
 # Set wide layout for the Streamlit page
 st.set_page_config(layout="wide")
-
-# Title for the entire page
-#st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
@@ -63,6 +59,8 @@ if page == "Main Page":
     else:
         valid_photos, valid_captions = zip(*valid_images)
 
+    st.write(f"Debug: Found {len(valid_images)} valid images.")
+
     # ✅ **Initialize session state**
     if "current_index" not in st.session_state:
         st.session_state.current_index = 0
@@ -73,7 +71,7 @@ if page == "Main Page":
 
     # ✅ **Function to change the displayed image**
     def change_image(direction):
-        if valid_photos:
+        if valid_photos:  # Only proceed if images exist
             st.session_state.current_index = (st.session_state.current_index + direction) % len(valid_photos)
             st.session_state.animation_key += 1  
             st.rerun()
@@ -83,57 +81,64 @@ if page == "Main Page":
     right_logo_path = "images/OceanTech Logo-PURPLE.png"  
 
     # ✅ **Convert images to base64**
-    if valid_photos:
-        base64_image = get_base64_image(valid_photos[st.session_state.current_index])
-        left_logo = get_base64_image(left_logo_path)
-        right_logo = get_base64_image(right_logo_path)
+    base64_image = get_base64_image(valid_photos[st.session_state.current_index]) if valid_photos else None
+    left_logo = get_base64_image(left_logo_path)
+    right_logo = get_base64_image(right_logo_path)
 
-        st.markdown(
-            f"""
-            <style>
-            .slider-container {{
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 100%;
+    st.markdown(
+        f"""
+        <style>
+        .slider-container {{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }}
+        .logo {{
+            width: 150px;
+            height: auto;
+            margin: 0 20px;
+        }}
+        .slide-image {{
+            max-width: 60%;
+            height: auto;
+            max-height: 500px;
+            animation: slideIn 0.7s ease-in-out;
+        }}
+        .caption {{
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }}
+        @keyframes slideIn {{
+            from {{
+                transform: translateX(100%);
+                opacity: 0;
             }}
-            .logo {{
-                width: 150px;
-                height: auto;
-                margin: 0 20px;
+            to {{
+                transform: translateX(0);
+                opacity: 1;
             }}
-            .slide-image {{
-                max-width: 60%;
-                height: auto;
-                max-height: 500px;
-                animation: slideIn 0.7s ease-in-out;
-            }}
-            .caption {{
-                text-align: center;
-                font-size: 18px;
-                font-weight: bold;
-                margin-top: 10px;
-            }}
-            @keyframes slideIn {{
-                from {{
-                    transform: translateX(100%);
-                    opacity: 0;
-                }}
-                to {{
-                    transform: translateX(0);
-                    opacity: 1;
-                }}
-            }}
-            </style>
-            <div class="slider-container">
-                {'<img src="data:image/png;base64,' + left_logo + '" class="logo">' if left_logo else ''}
-                <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
-                {'<img src="data:image/png;base64,' + right_logo + '" class="logo">' if right_logo else ''}
-            </div>
-            <p class="caption">{valid_captions[st.session_state.current_index]}</p>
-            """,
-            unsafe_allow_html=True
-        )
+        }}
+        </style>
+        <div class="slider-container">
+            {'<img src="data:image/png;base64,' + left_logo + '" class="logo">' if left_logo else ''}
+            {'<img src="data:image/jpeg;base64,' + base64_image + '" class="slide-image" key="' + str(st.session_state.animation_key) + '">' if base64_image else '<p>No image available</p>'}
+            {'<img src="data:image/png;base64,' + right_logo + '" class="logo">' if right_logo else ''}
+        </div>
+        <p class="caption">{valid_captions[st.session_state.current_index] if valid_captions else "No images available"}</p>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.write("### What is ERIS?")
+    st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW)...")
+
+    # ✅ **Auto-switch logic**
+    if st.session_state.auto_switch and valid_photos:
+        time.sleep(7)  
+        change_image(1)
 
         st.write("### What is ERIS?")
         st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW). Students work with ERIS through Ocean 462. ERIS, with its educational mission, enables undergraduate students to design, build, operate, and maintain a cabled underwater observatory that emulates the NSF")
