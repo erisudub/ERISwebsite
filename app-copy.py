@@ -54,7 +54,8 @@ st.markdown(
 )
 
 # ✅ Add a full-width logo to the top of the sidebar
-st.sidebar.image("images/New Oceanography-logo-banner-BLUE.png", use_column_width=True)
+st.sidebar.image("images/New Oceanography-logo-banner-BLUE.png", use_container_width=True)
+
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
