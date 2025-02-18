@@ -27,6 +27,31 @@ page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Data", "Instrumen
 if page == "Main Page":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Welcome to ERIS</h1>", unsafe_allow_html=True)
 
+    # Debugging: Check if image paths exist
+for photo in photos:
+    st.write(f"Checking: {photo} → Exists: {os.path.exists(photo)}")
+
+# ✅ **Filter out non-existing images**
+valid_images = [(photo, captions[i]) for i, photo in enumerate(photos) if os.path.exists(photo)]
+
+if not valid_images:
+    st.error("⚠️ No valid images found for the main gallery. Check file paths.")
+    st.write("Debug: Expected paths →", photos)
+    valid_photos, valid_captions = [], []
+else:
+    valid_photos, valid_captions = zip(*valid_images)
+
+st.write(f"Debug: Found {len(valid_images)} valid images.")
+
+# ✅ **Check if base64 encoding works**
+if valid_photos:
+    base64_image = get_base64_image(valid_photos[st.session_state.current_index])
+    if base64_image:
+        st.write("✅ Image successfully encoded!")
+    else:
+        st.error("❌ Base64 encoding failed! Check image format and path.")
+
+
     # 📌 **Main Image Slider**
     photos = [
         "images/tub.jpg",
