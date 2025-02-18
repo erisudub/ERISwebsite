@@ -25,7 +25,7 @@ st.markdown(
     <style>
         /* Change very top bar color */
         header[data-testid="stHeader"] {
-            background-color: #6A0DAD !important;  /* Dark Purple */
+            background-color: #00BFFF !important;  /* Ocean Light Blue */
         }
         /* Change top navigation bar color */
         section[data-testid="stHeader"] {
