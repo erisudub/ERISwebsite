@@ -23,7 +23,11 @@ st.set_page_config(layout="wide")
 st.markdown(
     """
     <style>
-        /* Change top bar color */
+        /* Change very top bar color */
+        header[data-testid="stHeader"] {
+            background-color: #6A0DAD !important;  /* Dark Purple */
+        }
+        /* Change top navigation bar color */
         section[data-testid="stHeader"] {
             background: #6A0DAD !important;  /* Dark Purple */
         }
@@ -195,7 +199,7 @@ if page == "Main Page":
 
         # ✅ **Auto-switch logic**
     if st.session_state.auto_switch and valid_photos:
-        time.sleep(7)  
+        time.sleep(5)  
         change_image(1)
 
 elif page == "Instrument Data":
