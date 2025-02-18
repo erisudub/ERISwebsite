@@ -19,7 +19,7 @@ def get_base64_image(image_path):
 # Set wide layout for the Streamlit page
 st.set_page_config(layout="wide")
 
-# ✅ Change top navigation bar to purple
+# ✅ Change top navigation bar to light blue
 st.markdown(
     """
     <style>
@@ -40,13 +40,21 @@ st.markdown(
             border-color: purple !important;
             box-shadow: 0 0 5px blue !important;
         }
+        /* Make sidebar logo full-width */
+        [data-testid="stSidebar"] {
+            padding-top: 0px !important;
+        }
+        .sidebar-logo-container img {
+            width: 100% !important;
+            display: block;
+        }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Title for the entire page
-# st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
+# ✅ Add a full-width logo to the top of the sidebar
+st.sidebar.image("images/New Oceanography-logo-banner-BLUE.png", use_column_width=True)
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
@@ -57,6 +65,7 @@ page = st.sidebar.selectbox("Go to", ["Main Page", "Instrument Data", "Instrumen
 # Load CSV data for each graph
 ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
 weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
+
 
 # Main Page
 if page == "Main Page":
