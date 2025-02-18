@@ -138,19 +138,6 @@ if page == "Main Page":
             unsafe_allow_html=True
         )
 
-        # ✅ **Auto-switch logic**
-        if st.session_state.auto_switch:
-            time.sleep(7)  
-            change_image(1)
-
-        st.write("### What is ERIS?")
-    st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW)...")
-
-    # ✅ **Auto-switch logic**
-    if st.session_state.auto_switch and valid_photos:
-        time.sleep(7)  
-        change_image(1)
-
     st.write("### What is ERIS?")
     st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW)...")
 
