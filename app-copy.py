@@ -61,7 +61,7 @@ st.sidebar.image("images/New Oceanography-logo-banner-BLUE.png", use_container_w
 st.sidebar.title("Navigation")
 
 # Sidebar navigation dropdown
-page = st.sidebar.selectbox("Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery")
+page = st.sidebar.selectbox("", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
