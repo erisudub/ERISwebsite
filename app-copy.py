@@ -72,7 +72,7 @@ page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data", "Ins
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
-weather_csv_file_path = 'weatherdata.csv'  # Use the uploaded weather CSV file
+weather_csv_file_path = 'new_weather_data.csv'  # Use the uploaded weather CSV file
 
 
 # Main Page
@@ -249,20 +249,19 @@ elif page == "Instrument Data":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
     ctd_data = pd.read_csv(ctd_csv_file_path)
-    weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
+    #weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
     
-    # Assign column names to weather_data and confirm them
-    weather_data.columns = [
-        'Date', 'Time', 'Temp_Out', 'Hi_Temp', 'Low_Temp', 'Out_Hum', 'Dew_Pt',
-       'Wind_Speed', 'Wind_Dir', 'Wind_Run', 'col10', 'col11', 'col12', 'col13',
-       'col14', 'col15', 'col16', 'col17', 'col18', 'col19', 'col20', 'col21',
-       'col22', 'col23', 'col24', 'col25', 'col26', 'col27', 'col28', 'col29',
-       'col30', 'col31', 'col32', 'Wind_Samp', 'Wind_Tx', 'ISS_Recept', 'Arc_Int', 'col38'
-    ]
+    weather_data = pd.read_csv(weather_csv_file_path, skiprows=3, names=[
+        'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
+        'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
+        'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
+        'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
+    ])
 
     # Combine Date and Time into DateTime for weather data
-    weather_data['DateTime'] = pd.to_datetime(weather_data['Date'] + ' ' + weather_data['Time'],
-                                               format="%m/%d/%Y %I:%M %p", errors='coerce')
+    weather_data['DateTime'] = pd.to_datetime(
+    weather_data['Date'] + ' ' + weather_data['Time'] + "m", format="%m/%d/%Y %I:%M%p", errors='coerce'
+    )
     weather_data = weather_data.dropna(subset=['DateTime'])  # Drop rows with NaT in DateTime
     
     # Convert ctd_data 'time' column to datetime
@@ -295,32 +294,26 @@ elif page == "Instrument Data":
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
 
     # Add each y-column as a separate trace for the second graph using filtered weather data
-    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Temp_Out'], mode='lines', name='Temperature', line=dict(color='blue')))
-    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Dew_Pt'], mode='lines', name='Dew Point', line=dict(color='purple')))
-    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Out_Hum'], mode='lines', name='Humidity', line=dict(color='green')))
+    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Temp'], mode='lines', name='Temperature', line=dict(color='red')))
+    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Speed'], mode='lines', name='Wind Speed', line=dict(color='purple')))
+    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Hum'], mode='lines', name='Humidity', line=dict(color='green')))
+    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Dew'], mode='lines', name='Dew', line=dict(color='blue')))
+    fig2.add_trace(go.Scatter(x=filtered_weather_data['DateTime'], y=filtered_weather_data['Density'], mode='lines', name='Density', line=dict(color='black')))
 
     # Function to update the layout for figure 1
     def update_layout_fig1(fig1, title):
         fig1.update_layout(
-            title={
-                'text': title,
-                'x': 0.5,
-                'y': 0.95,
-                'xanchor': 'center',
-                'yanchor': 'top',
-                'font': {'family': "Georgia, serif", 'size': 20, 'color': "black", 'weight': 'bold'}
-            },
             xaxis_title="Time",
             yaxis_title="Values",
-            width=700,
-            height=400,
+            width=800,
+            height=450,
             xaxis=dict(rangeslider=dict(visible=True), type="date", rangeselector=dict(
                 buttons=[dict(count=1, label="1d", step="day", stepmode="backward"),
                          dict(count=7, label="1w", step="day", stepmode="backward"),
                          dict(count=1, label="1m", step="month", stepmode="backward"),
                          dict(count=6, label="6m", step="month", stepmode="backward"),
                          dict(step="all")],
-                x=0.5, y=1.15, xanchor = 'center')),
+                x=0.5, y=1.15, xanchor = 'center', yanchor = 'bottom')),
             yaxis=dict(showgrid=True, gridcolor='lightgrey'),
             plot_bgcolor="white",
             paper_bgcolor="lightblue",
@@ -332,32 +325,24 @@ elif page == "Instrument Data":
               yanchor = 'middle',
               traceorder="normal", 
               bgcolor='rgba(255, 255, 255, 0.5)'),
-            margin=dict(l=50, r=120, t=120, b=50),
+            margin=dict(l=80, r=80, t=50, b=80),
             autosize=False
         )
 
     # Function to update the layout for figure 2
     def update_layout_fig2(fig2, title):
         fig2.update_layout(
-            title={
-                'text': title,
-                'x': 0.5,
-                'y': 0.95,
-                'xanchor': 'center',
-                'yanchor': 'top',
-                'font': {'family': "Georgia, serif", 'size': 20, 'color': "black", 'weight': 'bold'}
-            },
             xaxis_title="Time",
             yaxis_title="Values",
-            width=700,
-            height=400,
+            width=800,
+            height=450,
             xaxis=dict(rangeslider=dict(visible=True), type="date", rangeselector=dict(
                 buttons=[dict(count=1, label="1d", step="day", stepmode="backward"),
                          dict(count=7, label="1w", step="day", stepmode="backward"),
                          dict(count=1, label="1m", step="month", stepmode="backward"),
                          dict(count=6, label="6m", step="month", stepmode="backward"),
                          dict(step="all")],
-                x=0.5, y=1.15, xanchor = 'center')),
+                x=0.5, y=1.15, xanchor = 'center', yanchor = 'bottom')),
             yaxis=dict(showgrid=True, gridcolor='lightgrey'),
             plot_bgcolor="white",
             paper_bgcolor="lightblue",
@@ -369,7 +354,7 @@ elif page == "Instrument Data":
               yanchor = 'middle',
               traceorder="normal", 
               bgcolor='rgba(255, 255, 255, 0.5)'),
-            margin=dict(l=50, r=120, t=120, b=50),
+            margin=dict(l=80, r=80, t=50, b=80),
             autosize=False
         )
 
@@ -382,13 +367,15 @@ elif page == "Instrument Data":
 
     # Show the filtered plot in the first column
     with col1:
+        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>UW WEATHER STATION MEASUREMENTS</h2>", unsafe_allow_html=True)
         st.plotly_chart(fig1, use_container_width=True)
         csv1 = filtered_ctd_data.to_csv(index=False)
         st.download_button("Download CTD Data", csv1, "ctd_data.csv")
         st.dataframe(filtered_ctd_data)
-
+    
     # Show the filtered plot in the second column
     with col2:
+        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>UW WEATHER STATION MEASUREMENTS</h2>", unsafe_allow_html=True)
         st.plotly_chart(fig2, use_container_width=True)
         csv2 = filtered_weather_data.to_csv(index=False)
         st.download_button("Download Weather Data", csv2, "weather_data.csv")
@@ -426,7 +413,7 @@ elif page == "Instrument Data":
 
 # 📌 **Instrument Descriptions Page**
 elif page == "Instrument Descriptions":
-    st.write("## Description of the Instruments")
+    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Instrument Descriptions</h1>", unsafe_allow_html=True)
     
     # Seabird CTD Section
     st.write("### Seabird CTD")
@@ -438,12 +425,44 @@ elif page == "Instrument Descriptions":
 
 # Meet the Team Page
 elif page == "Meet the Team":
-    st.write("## Team Members")
+    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Meet the Team</h1>", unsafe_allow_html=True)
+
+    gallery_photos = [
+        "images/IMG_6540.jpg",
+        "images/IMG_4499.jpg",
+        "images/IMG_9981.jpg"
+    ]
+    gallery_captions = [
+        "Austin Karpf",
+        "Kelly Horak",
+        "Sophia Mangrubang"
+    ]
+
+    # ✅ **Filter valid gallery images**
+    valid_gallery = [(photo, caption) for photo, caption in zip(gallery_photos, gallery_captions) if os.path.exists(photo)]
+
+    if not valid_gallery:
+        st.error("⚠️ No valid images found for the gallery. Check file paths.")
+    else:
+        col1, col2, col3 = st.columns(3)
+        columns = [col1, col2, col3]
+
+        for i, (photo, caption) in enumerate(valid_gallery):
+            base64_img = get_base64_image(photo)
+            if base64_img:
+                img_html = f"""
+                <div style="text-align:center;">
+                    <img src="data:image/jpeg;base64,{base64_img}" style="width:100%; max-height:300px; object-fit:cover; border-radius:10px;">
+                    <p style="font-size:16px; font-weight:bold;">{caption}</p>
+                </div>
+                """
+                with columns[i % 3]:  # Distribute images evenly among columns
+                    st.markdown(img_html, unsafe_allow_html=True)
 
 elif page == "Gallery":
 
     # 📌 **Gallery should appear **RIGHT BELOW** the slider**
-    st.title("Gallery")
+    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Gallery</h1>", unsafe_allow_html=True)
 
     gallery_photos = [
         "images/tub.jpg",
