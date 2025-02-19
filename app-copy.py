@@ -303,6 +303,7 @@ elif page == "Instrument Data":
     # Function to update the layout for figure 1
     def update_layout_fig1(fig1, title):
         fig1.update_layout(
+            title = '',
             xaxis_title="Time",
             yaxis_title="Values",
             width=700,
