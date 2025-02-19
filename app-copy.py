@@ -358,7 +358,7 @@ elif page == "Instrument Data":
                          dict(count=1, label="1m", step="month", stepmode="backward"),
                          dict(count=6, label="6m", step="month", stepmode="backward"),
                          dict(step="all")],
-                x=0.5, y=1.1, xanchor = 'center')),
+                x=0.5, y=1.1, xanchor = 'center', yanchor = 'top')),
             yaxis=dict(showgrid=True, gridcolor='lightgrey'),
             plot_bgcolor="white",
             paper_bgcolor="lightblue",
