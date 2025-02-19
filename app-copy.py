@@ -303,11 +303,10 @@ elif page == "Instrument Data":
     # Function to update the layout for figure 1
     def update_layout_fig1(fig1, title):
         fig1.update_layout(
-            title = '',
             xaxis_title="Time",
             yaxis_title="Values",
-            width=700,
-            height=400,
+            width=800,
+            height=450,
             xaxis=dict(rangeslider=dict(visible=True), type="date", rangeselector=dict(
                 buttons=[dict(count=1, label="1d", step="day", stepmode="backward"),
                          dict(count=7, label="1w", step="day", stepmode="backward"),
@@ -326,7 +325,7 @@ elif page == "Instrument Data":
               yanchor = 'middle',
               traceorder="normal", 
               bgcolor='rgba(255, 255, 255, 0.5)'),
-            margin=dict(l=50, r=120, t=100, b=50),
+            margin=dict(l=80, r=80, t=50, b=80),
             autosize=False
         )
 
