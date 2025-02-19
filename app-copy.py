@@ -358,7 +358,7 @@ elif page == "Instrument Data":
                          dict(count=1, label="1m", step="month", stepmode="backward"),
                          dict(count=6, label="6m", step="month", stepmode="backward"),
                          dict(step="all")],
-                x=0.5, y=1.1, xanchor = 'center', yanchor = 'top')),
+                x=0.5, y=1.1, xanchor = 'center')),
             yaxis=dict(showgrid=True, gridcolor='lightgrey'),
             plot_bgcolor="white",
             paper_bgcolor="lightblue",
@@ -378,6 +378,9 @@ elif page == "Instrument Data":
     update_layout_fig1(fig1, "UW ERIS CTD MEASUREMENTS")
     update_layout_fig2(fig2, "UW WEATHER STATION MEASUREMENTS")
 
+    # Add title for the second graph
+    st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>UW WEATHER STATION MEASUREMENTS</h2>", unsafe_allow_html=True)
+
     # Create columns for displaying the two graphs side by side
     col1, col2 = st.columns(2)
 
@@ -387,6 +390,9 @@ elif page == "Instrument Data":
         csv1 = filtered_ctd_data.to_csv(index=False)
         st.download_button("Download CTD Data", csv1, "ctd_data.csv")
         st.dataframe(filtered_ctd_data)
+
+    # Add title for the second graph
+    st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>UW WEATHER STATION MEASUREMENTS</h2>", unsafe_allow_html=True)
 
     # Show the filtered plot in the second column
     with col2:
