@@ -435,6 +435,7 @@ elif page == "Meet the Team":
         """,
         unsafe_allow_html=True
     )
+    
 
     gallery_photos = [
         "images/IMG_6540.jpg",
