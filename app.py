@@ -2,7 +2,75 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
 import folium
+import firebase_admin
+import json
+
+from firebase_admin import credentials
 from streamlit_folium import st_folium
+from google.cloud import firestore
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+# Initializing the Firestore Database
+
+cred = credentials.Certificate("eris-db-firebase-adminsdk-fbsvc-0e9054933b.json")
+firebase_admin.initialize_app(cred)
+
+# Authenticate to Firestore with the JSON account key.
+db = firestore.Client.from_service_account_json("eris-db-firebase-adminsdk-fbsvc-0e9054933b.json")
+
+# CSV -> JSON
+data_path = "output.json"  # Define output JSON file path
+
+# Read CSV
+# df = pd.read_csv("ctddata.csv")  # Ensure you provide the correct CSV file
+
+# # Convert to JSON and save
+# df.to_json(data_path, orient="records")  
+
+# Read the JSON file back into a Python object
+#with open(data_path, "r") as infile:
+   # eris = json.load(infile)
+
+new_collection = []
+for record in data_path: ## change eris to be the name of the converted json file
+    
+    try:
+        date = datetime.fromisoformat(record["date"])
+    except:
+        continue
+
+    if date - datetime.fromisoformat('2024-01-01T00:00:00Z') < timedelta(0):
+        continue
+
+    # my json file needs some preprocessing
+    # your mileage may vary
+    new_rec = {}
+    new_rec['temperature'] = float(record.get('temperature', np.nan))
+    new_rec['conductivity'] = float(record.get('conductivity', np.nan))
+    new_rec['pressure'] = float(record.get('pressure', np.nan))
+    new_rec['oxygen'] = float(record.get('oxygen', np.nan))
+    new_rec['par'] = float(record.get('par', np.nan))
+    new_rec['turbidity'] = float(record.get('turbidity', np.nan))
+    new_rec['salinity'] = float(record.get('salinity', np.nan))
+    new_rec['instrument'] = record.get('instrument', "")
+    ##new_rec['depth1'] = record.get('depth1', np.nan)
+    ##new_rec['lat'] = record.get('lat', np.nan)
+    ##new_rec['lon'] = record.get('lon', np.nan)
+    ##new_rec['date'] = date
+
+    new_collection.append(new_rec)
+
+new_collection.sort(key=lambda x: x["date"])
+
+len(new_collection)
+
+# select the collection to write to
+CTD_ref = db.collection("CTD_data")
+
+# write records one by one
+for rec in new_collection:
+    CTD_ref.document().set(rec)
 
 # Set wide layout for the Streamlit page
 st.set_page_config(layout="wide")
