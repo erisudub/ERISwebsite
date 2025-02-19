@@ -66,7 +66,7 @@ new_collection.sort(key=lambda x: x["date"])
 len(new_collection)
 
 # select the collection to write to
-CTD_ref = db.collection("CTD_data")
+CTD_ref = db.collection("CTD_Data")
 
 # write records one by one
 for rec in new_collection:
