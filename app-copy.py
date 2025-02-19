@@ -427,6 +427,38 @@ elif page == "Instrument Descriptions":
 elif page == "Meet the Team":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Meet the Team</h1>", unsafe_allow_html=True)
 
+    gallery_photos = [
+        "images/IMG_4499.jpg",
+        "images/IMG_6540.jpg",
+        "images/IMG_9981.jpg"
+    ]
+    gallery_captions = [
+        "Austin Karpf",
+        "Kelly Horak",
+        "Sophia Mangrubang"
+    ]
+
+    # ✅ **Filter valid gallery images**
+    valid_gallery = [(photo, caption) for photo, caption in zip(gallery_photos, gallery_captions) if os.path.exists(photo)]
+
+    if not valid_gallery:
+        st.error("⚠️ No valid images found for the gallery. Check file paths.")
+    else:
+        col1, col2, col3 = st.columns(3)
+        columns = [col1, col2, col3]
+
+        for i, (photo, caption) in enumerate(valid_gallery):
+            base64_img = get_base64_image(photo)
+            if base64_img:
+                img_html = f"""
+                <div style="text-align:center;">
+                    <img src="data:image/jpeg;base64,{base64_img}" style="width:100%; max-height:300px; object-fit:cover; border-radius:10px;">
+                    <p style="font-size:16px; font-weight:bold;">{caption}</p>
+                </div>
+                """
+                with columns[i % 3]:  # Distribute images evenly among columns
+                    st.markdown(img_html, unsafe_allow_html=True)
+
 elif page == "Gallery":
 
     # 📌 **Gallery should appear **RIGHT BELOW** the slider**
