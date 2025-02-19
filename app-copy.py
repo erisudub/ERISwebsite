@@ -417,15 +417,24 @@ elif page == "Instrument Descriptions":
     
     # Seabird CTD Section
     st.write("### Seabird CTD")
-    st.write("Our Seabird SBE 16plus Conductivity-Temperature-Depth (CTD) sensor is a compact, durable oceanographic instrument. This robust and versatile sensor suite provides accurate measurements of key water quality parameters, making it an essential tool for marine research, environmental monitoring, and climate studies. Our CTD is equipped with sensors to provide data on conductivity (salinity), temperature, and pressure (depth).")
-
+    st.write("Working on it")
     # Weather Station Section
     st.write("### Weather Station")
-    st.write("Our weather station provides real-time atmospheric data, including temperature, humidity, wind speed, and barometric pressure, aiding in climate monitoring and marine research.")
+    st.write("Working on it")
 
 # Meet the Team Page
 elif page == "Meet the Team":
-    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Meet the Team</h1>", unsafe_allow_html=True)
+    # Title with Logos on Both Sides
+    st.markdown(
+        """
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+            <img src='images/OceanTech Logo-PURPLE.png' style='height:60px;'>
+            <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>Meet the Team</h1>
+            <img src='images/OceanTech Logo-PURPLE.png' style='height:60px;'>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     gallery_photos = [
         "images/IMG_6540.jpg",
@@ -458,6 +467,7 @@ elif page == "Meet the Team":
                 """
                 with columns[i % 3]:  # Distribute images evenly among columns
                     st.markdown(img_html, unsafe_allow_html=True)
+
 
 elif page == "Gallery":
 
