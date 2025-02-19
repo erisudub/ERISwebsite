@@ -306,7 +306,7 @@ elif page == "Instrument Data":
             title={
                 'text': title,
                 'x': 0.5,
-                'y': 0.98,
+                'y': 0.95,
                 'xanchor': 'center',
                 'yanchor': 'top',
                 'font': {'family': "Georgia, serif", 'size': 20, 'color': "black", 'weight': 'bold'}
@@ -321,7 +321,7 @@ elif page == "Instrument Data":
                          dict(count=1, label="1m", step="month", stepmode="backward"),
                          dict(count=6, label="6m", step="month", stepmode="backward"),
                          dict(step="all")],
-                x=0.5, y=1.2, xanchor = 'center')),
+                x=0.5, y=1.1, xanchor = 'center')),
             yaxis=dict(showgrid=True, gridcolor='lightgrey'),
             plot_bgcolor="white",
             paper_bgcolor="lightblue",
@@ -333,7 +333,7 @@ elif page == "Instrument Data":
               yanchor = 'middle',
               traceorder="normal", 
               bgcolor='rgba(255, 255, 255, 0.5)'),
-            margin=dict(l=50, r=120, t=150, b=50),
+            margin=dict(l=50, r=120, t=100, b=50),
             autosize=False
         )
 
@@ -343,7 +343,7 @@ elif page == "Instrument Data":
             title={
                 'text': title,
                 'x': 0.5,
-                'y': 0.98,
+                'y': 0.95,
                 'xanchor': 'center',
                 'yanchor': 'top',
                 'font': {'family': "Georgia, serif", 'size': 20, 'color': "black", 'weight': 'bold'}
@@ -358,7 +358,7 @@ elif page == "Instrument Data":
                          dict(count=1, label="1m", step="month", stepmode="backward"),
                          dict(count=6, label="6m", step="month", stepmode="backward"),
                          dict(step="all")],
-                x=0.5, y=1.2, xanchor = 'center')),
+                x=0.5, y=1.1, xanchor = 'center')),
             yaxis=dict(showgrid=True, gridcolor='lightgrey'),
             plot_bgcolor="white",
             paper_bgcolor="lightblue",
@@ -370,7 +370,7 @@ elif page == "Instrument Data":
               yanchor = 'middle',
               traceorder="normal", 
               bgcolor='rgba(255, 255, 255, 0.5)'),
-            margin=dict(l=50, r=120, t=150, b=50),
+            margin=dict(l=50, r=120, t=100, b=50),
             autosize=False
         )
 
