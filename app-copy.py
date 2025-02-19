@@ -428,8 +428,8 @@ elif page == "Meet the Team":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Meet the Team</h1>", unsafe_allow_html=True)
 
     gallery_photos = [
-        "images/IMG_4499.jpg",
         "images/IMG_6540.jpg",
+        "images/IMG_4499.jpg",
         "images/IMG_9981.jpg"
     ]
     gallery_captions = [
