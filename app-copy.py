@@ -411,32 +411,30 @@ elif page == "Instrument Data":
     # Display the map in full width
     st_folium(m, width=1500, height=500)
 
-# 📌 **Instrument Descriptions Page**
-elif page == "Instrument Descriptions":
-    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Instrument Descriptions</h1>", unsafe_allow_html=True)
-    
-    # Seabird CTD Section
-    st.write("### Seabird CTD")
-    st.write("Working on it")
-    # Weather Station Section
-    st.write("### Weather Station")
-    st.write("Working on it")
-
 # Meet the Team Page
 elif page == "Meet the Team":
+    # Convert logo to Base64
+    logo_path = "images/OceanTech Logo-PURPLE.png"
+    base64_logo = get_base64_image(logo_path)
+
+    if base64_logo:
+        logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='height:60px;'>"
+    else:
+        logo_html = "⚠️ Logo Not Found"
+
     # Title with Logos on Both Sides
     st.markdown(
-        """
+        f"""
         <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-            <img src='images/OceanTech Logo-PURPLE.png' style='height:60px;'>
+            {logo_html}
             <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>Meet the Team</h1>
-            <img src='images/OceanTech Logo-PURPLE.png' style='height:60px;'>
+            {logo_html}
         </div>
         """,
         unsafe_allow_html=True
     )
-    
 
+    # Gallery Images & Captions
     gallery_photos = [
         "images/IMG_6540.jpg",
         "images/IMG_4499.jpg",
@@ -448,7 +446,7 @@ elif page == "Meet the Team":
         "Sophia Mangrubang"
     ]
 
-    # ✅ **Filter valid gallery images**
+    # Validate image existence
     valid_gallery = [(photo, caption) for photo, caption in zip(gallery_photos, gallery_captions) if os.path.exists(photo)]
 
     if not valid_gallery:
@@ -468,6 +466,7 @@ elif page == "Meet the Team":
                 """
                 with columns[i % 3]:  # Distribute images evenly among columns
                     st.markdown(img_html, unsafe_allow_html=True)
+
 
 
 elif page == "Gallery":
