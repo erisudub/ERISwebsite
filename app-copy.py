@@ -418,7 +418,8 @@ elif page == "Meet the Team":
     base64_logo = get_base64_image(logo_path)
 
     if base64_logo:
-        logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='height:60px;'>"
+        # Set logo size to match the specified CSS size
+        logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>"
     else:
         logo_html = "⚠️ Logo Not Found"
 
@@ -466,7 +467,6 @@ elif page == "Meet the Team":
                 """
                 with columns[i % 3]:  # Distribute images evenly among columns
                     st.markdown(img_html, unsafe_allow_html=True)
-
 
 
 elif page == "Gallery":
