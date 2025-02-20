@@ -246,8 +246,27 @@ if page == "Main Page":
         change_image(1)
 
 elif page == "Instrument Data":
-    st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
+    # Convert logo to Base64
+    logo_path = "images/OceanTech Logo-PURPLE.png"
+    base64_logo = get_base64_image(logo_path)
 
+    if base64_logo:
+        # Set logo size to match the specified CSS size
+        logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>"
+    else:
+        logo_html = "⚠️ Logo Not Found"
+
+    # Title with Logos on Both Sides
+    st.markdown(
+        f"""
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+            {logo_html}
+            <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>UW ERIS CTD & Weather Station Data</h1>
+            {logo_html}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     ctd_data = pd.read_csv(ctd_csv_file_path)
     #weather_data = pd.read_csv(weather_csv_file_path, skiprows=1)
     
