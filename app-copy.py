@@ -584,6 +584,7 @@ elif page == "Gallery":
                 with columns[i % 3]:  # Distribute images evenly among columns
                     st.markdown(img_html, unsafe_allow_html=True)
 
+
 elif page == "BlackJack":
 
 # Card deck representation
