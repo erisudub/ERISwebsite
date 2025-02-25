@@ -585,32 +585,15 @@ elif page == "Gallery":
                     st.markdown(img_html, unsafe_allow_html=True)
 
 
-elif page == "BlackJack":
+elif page == "BlackJack":  # Ensure this is aligned with other 'elif' statements
 
-# Card deck representation
+    # Card deck representation
     suits = ['♠', '♥', '♦', '♣']
     values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
-          'J': 10, 'Q': 10, 'K': 10, 'A': 11}
+              'J': 10, 'Q': 10, 'K': 10, 'A': 11}
 
     def generate_deck():
         return [{'suit': suit, 'rank': rank, 'value': values[rank]} for suit in suits for rank in values]
-
-    def display_cards(cards, hide_first=False):
-        lines = ["", "", "", "", ""]
-        for i, card in enumerate(cards):
-            if i == 0 and hide_first:
-                rank, suit = "?", "?"
-            else:
-                rank, suit = card['rank'], card['suit']
-        
-            lines[0] += "┌───────┐  "
-            lines[1] += f"| {rank:<2}    |  "
-            lines[2] += f"|   {suit}   |  "
-            lines[3] += f"|    {rank:>2} |  "
-            lines[4] += "└───────┘  "
-    
-        for line in lines:
-            print(line)
 
     def calculate_score(hand):
         score = sum(card['value'] for card in hand)
@@ -620,53 +603,70 @@ elif page == "BlackJack":
             aces -= 1
         return score
 
-    def play_blackjack():
-        deck = generate_deck()
-        random.shuffle(deck)
-    
-        player_hand = [deck.pop(), deck.pop()]
-        dealer_hand = [deck.pop(), deck.pop()]
-    
-        print("Dealer's Hand:")
-        display_cards(dealer_hand, hide_first=True)
-        print("\nYour Hand:")
-        display_cards(player_hand)
-    
-    # Player's turn
-        while calculate_score(player_hand) < 21:
-            move = input("Hit or Stand? (h/s): ").lower()
-            if move == 'h':
-                player_hand.append(deck.pop())
-                print("\nYour Hand:")
-                display_cards(player_hand)
+    def display_cards(cards, hide_first=False):
+        """Create a string representation of cards for Streamlit display."""
+        display_text = ""
+        for i, card in enumerate(cards):
+            if i == 0 and hide_first:
+                display_text += "🂠 "  # Hidden card
             else:
-                break
-    
-        player_score = calculate_score(player_hand)
-        if player_score > 21:
-            print("Bust! You lose.")
-            return
-    
-    # Dealer's turn
-        print("\nDealer's Turn:")
-        display_cards(dealer_hand)
-        while calculate_score(dealer_hand) < 17:
-            dealer_hand.append(deck.pop())
-            display_cards(dealer_hand)
-    
-        dealer_score = calculate_score(dealer_hand)
-    
-    # Determine winner
-        print("\nFinal Scores:")
-        print(f"Your Score: {player_score}")
-        print(f"Dealer Score: {dealer_score}")
-    
-        if dealer_score > 21 or player_score > dealer_score:
-            print("You Win!")
-        elif player_score < dealer_score:
-            print("Dealer Wins.")
-        else:
-            print("It's a Tie!")
+                display_text += f"{card['rank']}{card['suit']} "
+        return display_text
 
-    if __name__ == "__main__":
-        play_blackjack()
+    # Initialize game state
+    if "deck" not in st.session_state:
+        st.session_state.deck = generate_deck()
+        random.shuffle(st.session_state.deck)
+        st.session_state.player_hand = [st.session_state.deck.pop(), st.session_state.deck.pop()]
+        st.session_state.dealer_hand = [st.session_state.deck.pop(), st.session_state.deck.pop()]
+        st.session_state.game_over = False
+
+    # Set page title
+    st.title("♠️♦️ BlackJack ♥️♣️")
+
+    # Display dealer's hand (first card hidden)
+    st.subheader("Dealer's Hand:")
+    st.write(display_cards(st.session_state.dealer_hand, hide_first=not st.session_state.game_over))
+
+    # Display player's hand
+    st.subheader("Your Hand:")
+    st.write(display_cards(st.session_state.player_hand))
+    st.write(f"Your Score: {calculate_score(st.session_state.player_hand)}")
+
+    # Player controls
+    if not st.session_state.game_over:
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Hit"):
+                st.session_state.player_hand.append(st.session_state.deck.pop())
+                if calculate_score(st.session_state.player_hand) > 21:
+                    st.session_state.game_over = True
+                    st.warning("Bust! You lose.")
+
+        with col2:
+            if st.button("Stand"):
+                # Dealer plays
+                while calculate_score(st.session_state.dealer_hand) < 17:
+                    st.session_state.dealer_hand.append(st.session_state.deck.pop())
+                st.session_state.game_over = True
+
+    # Show results if game is over
+    if st.session_state.game_over:
+        st.subheader("Final Dealer's Hand:")
+        st.write(display_cards(st.session_state.dealer_hand))
+        dealer_score = calculate_score(st.session_state.dealer_hand)
+        player_score = calculate_score(st.session_state.player_hand)
+
+        st.write(f"Dealer Score: {dealer_score}")
+        st.write(f"Your Score: {player_score}")
+
+        if dealer_score > 21 or player_score > dealer_score:
+            st.success("You Win! 🎉")
+        elif player_score < dealer_score:
+            st.error("Dealer Wins. 😞")
+        else:
+            st.warning("It's a Tie! 🤝")
+
+        if st.button("Play Again"):
+            del st.session_state.deck
+            st.rerun()  # Updated to the latest Streamlit function
