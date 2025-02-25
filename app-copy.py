@@ -7,6 +7,7 @@ import time
 import os
 import base64
 import threading
+import random
 
 # Function to encode images to base64
 def get_base64_image(image_path):
@@ -68,7 +69,7 @@ st.sidebar.image("images/New Oceanography-logo-banner-BLUE.png", use_container_w
 st.sidebar.title("Navigation")
 
 # Sidebar navigation dropdown (No "Go to" label, fixed spacing)
-page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
+page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery", "BlackJack"])
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
@@ -582,3 +583,89 @@ elif page == "Gallery":
                 """
                 with columns[i % 3]:  # Distribute images evenly among columns
                     st.markdown(img_html, unsafe_allow_html=True)
+
+elif page == "BlackJack":
+
+# Card deck representation
+    suits = ['♠', '♥', '♦', '♣']
+    values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
+          'J': 10, 'Q': 10, 'K': 10, 'A': 11}
+
+    def generate_deck():
+        return [{'suit': suit, 'rank': rank, 'value': values[rank]} for suit in suits for rank in values]
+
+    def display_cards(cards, hide_first=False):
+        lines = ["", "", "", "", ""]
+        for i, card in enumerate(cards):
+            if i == 0 and hide_first:
+                rank, suit = "?", "?"
+            else:
+                rank, suit = card['rank'], card['suit']
+        
+            lines[0] += "┌───────┐  "
+            lines[1] += f"| {rank:<2}    |  "
+            lines[2] += f"|   {suit}   |  "
+            lines[3] += f"|    {rank:>2} |  "
+            lines[4] += "└───────┘  "
+    
+        for line in lines:
+            print(line)
+
+    def calculate_score(hand):
+        score = sum(card['value'] for card in hand)
+        aces = sum(1 for card in hand if card['rank'] == 'A')
+        while score > 21 and aces:
+            score -= 10  # Adjust for Ace value
+            aces -= 1
+        return score
+
+    def play_blackjack():
+        deck = generate_deck()
+        random.shuffle(deck)
+    
+        player_hand = [deck.pop(), deck.pop()]
+        dealer_hand = [deck.pop(), deck.pop()]
+    
+        print("Dealer's Hand:")
+        display_cards(dealer_hand, hide_first=True)
+        print("\nYour Hand:")
+        display_cards(player_hand)
+    
+    # Player's turn
+        while calculate_score(player_hand) < 21:
+            move = input("Hit or Stand? (h/s): ").lower()
+            if move == 'h':
+                player_hand.append(deck.pop())
+                print("\nYour Hand:")
+                display_cards(player_hand)
+            else:
+                break
+    
+        player_score = calculate_score(player_hand)
+        if player_score > 21:
+            print("Bust! You lose.")
+            return
+    
+    # Dealer's turn
+        print("\nDealer's Turn:")
+        display_cards(dealer_hand)
+        while calculate_score(dealer_hand) < 17:
+            dealer_hand.append(deck.pop())
+            display_cards(dealer_hand)
+    
+        dealer_score = calculate_score(dealer_hand)
+    
+    # Determine winner
+        print("\nFinal Scores:")
+        print(f"Your Score: {player_score}")
+        print(f"Dealer Score: {dealer_score}")
+    
+        if dealer_score > 21 or player_score > dealer_score:
+            print("You Win!")
+        elif player_score < dealer_score:
+            print("Dealer Wins.")
+        else:
+            print("It's a Tie!")
+
+    if __name__ == "__main__":
+        play_blackjack()
