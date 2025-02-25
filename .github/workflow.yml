@@ -1,1 +1,2 @@
-
+env: 
+  FIRESTORE_KEY: ${{ secrets.ADMIN_KEY }}
