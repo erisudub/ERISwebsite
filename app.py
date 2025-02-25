@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 import folium
 import firebase_admin
 import json
+import os
 
 from firebase_admin import credentials
 from streamlit_folium import st_folium
@@ -13,11 +14,13 @@ from pathlib import Path
 
 # Initializing the Firestore Database
 
-cred = credentials.Certificate("eris-db-firebase-adminsdk-fbsvc-0e9054933b.json")
-firebase_admin.initialize_app(cred)
+cert = firestore_key = os.getenv("FIRESTORE_KEY")
+if cert is None:
+    raise ValueError("FIRESTORE_KEY is not set. Please configure GitHub Secrets.")
+cred = credentials.Certificate(cert)
+app = firebase_admin.initialize_app(cred)
+db = firestore.client()
 
-# Authenticate to Firestore with the JSON account key.
-db = firestore.Client.from_service_account_json("eris-db-firebase-adminsdk-fbsvc-0e9054933b.json")
 
 # CSV -> JSON
 data_path = "output.json"  # Define output JSON file path
