@@ -231,16 +231,26 @@ if page == "Main Page":
         st.write("ERIS will also encourage students to explore a range of technical considerations.")
     
     with col2:
+        #st.image("images/tub.jpg", use_container_width =True)
         st.markdown(
-            f'<div style="display: flex; justify-content: center;"><img src="images/tub.jpg" width="100%"></div>',
+            """
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                <img src="images/ctdmaintenence.jpg" style="max-width: 100%; height: auto; border-radius: 10px;">
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
     col3, col4 = st.columns([1, 1])
 
     with col3:
+        #st.image("images/ctdmaintenence.jpg", use_container_width =True)
         st.markdown(
-            f'<div style="display: flex; justify-content: center;"><img src="images/ctdmaintenence.jpg" width="100%"></div>',
+            """
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                <img src="images/tub.jpg" style="max-width: 100%; height: auto; border-radius: 10px;">
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
