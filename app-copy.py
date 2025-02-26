@@ -231,10 +231,10 @@ if page == "Main Page":
         st.write("ERIS will also encourage students to explore a range of technical considerations.")
     
     with col2:
-        st.image("images/tub.jpg", use_column_width=True)
+        st.image("images/tub.jpg", use_container_width=True)
 
     with col1:
-        st.image("images/ctdmaintenence.jpg", use_column_width=True)
+        st.image("images/ctdmaintenence.jpg", use_container_width=True)
 
     with col2:
         st.write("### Technology Questions:")
