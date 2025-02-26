@@ -585,7 +585,7 @@ elif page == "Gallery":
                     st.markdown(img_html, unsafe_allow_html=True)
 
 
-elif page == "BlackJack":  # Ensure correct indentation
+elif page == "BlackJack":
 
     suits = ['♠', '♥', '♦', '♣']
     values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
