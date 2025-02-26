@@ -232,26 +232,12 @@ if page == "Main Page":
         st.write("ERIS will also encourage students to explore a range of technical considerations.")
 
     with col2:
-        st.markdown(
-            """
-            <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-                <img src="static/images/ctdmaintenence.jpg" style="width: 90%; height: auto; border-radius: 10px; display: block; margin-left: auto; margin-right: auto;">
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        st.image("images/tub.jpg", use_container_width = True)
 
     col3, col4 = st.columns([1, 1])
 
     with col3:
-        st.markdown(
-            """
-            <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-                <img src="static/images/tub.jpg" style="width: 90%; height: auto; border-radius: 10px; display: block; margin-left: auto; margin-right: auto;">
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        st.image("images/ctdmaintenence.jpg", use_container_width = True)
 
     with col4:
         st.write("### Technology Questions:")
