@@ -217,7 +217,7 @@ if page == "Main Page":
     st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW). Students work with ERIS through Ocean 462. ERIS, with its educational mission, enables undergraduate students to design, build, operate, and maintain a cabled underwater observatory that emulates the NSF")
     st.write("Ocean Observatories Initiatives (OOI) Regional Cabled Array, by providing for a continuous data-stream for analysis, interpretation, and communication by students. From inspiration through implementation, this program is focused on the creation and operation of an underwater science sensor network that is physically located off the dock of the School of Oceanography at UW Seattle Campus.")
     
-    col1, col2 = st.columns([1, 2])
+    col1, col2 = st.columns([1, 1])
     
     with col1:
         st.write("### Key Science Questions")
@@ -248,9 +248,6 @@ if page == "Main Page":
         st.write("-  How will data be analyzed, interpreted, visualized, and communicated?")
         st.write(" ")
         st.write("As the observatory is being implemented, students focus on maintaining the components, as well as collecting, managing, and analyzing the continuous streams of data the observatory will produce. Integral to the ERIS program is the ability to distribute the collected data so that it may be interpreted by interested parties at the UW and worldwide.")
-
-
-
 
     st.write("### Course: OCEAN 462: Ocean Technology Studio")
     st.write("Hands-on experience to build technical, science, and management skills in ocean technology through small group projects. Projects may include instrument design and building, data analysis, and/or participation in an on-going ocean technology initiative. Offered: AWSp.  Can be taken fo 1-5 credits, with a max of 15.")
