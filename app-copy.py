@@ -217,8 +217,9 @@ if page == "Main Page":
     st.write("ERIS, which stands for Exploration and Remote Instrumentation by Students, is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW). Students work with ERIS through Ocean 462. ERIS, with its educational mission, enables undergraduate students to design, build, operate, and maintain a cabled underwater observatory that emulates the NSF")
     st.write("Ocean Observatories Initiatives (OOI) Regional Cabled Array, by providing for a continuous data-stream for analysis, interpretation, and communication by students. From inspiration through implementation, this program is focused on the creation and operation of an underwater science sensor network that is physically located off the dock of the School of Oceanography at UW Seattle Campus.")
     
+
     col1, col2 = st.columns([1, 1])
-    
+
     with col1:
         st.write("### Key Science Questions")
         st.write("-  How do anthropogenic processes mediate natural processes in the marine environment?")
@@ -229,13 +230,12 @@ if page == "Main Page":
         st.write("-  How are these systems impacted by both natural and anthropogenic events?")
         st.write(" ")
         st.write("ERIS will also encourage students to explore a range of technical considerations.")
-    
+
     with col2:
-        #st.image("images/tub.jpg", use_container_width =True)
         st.markdown(
             """
             <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-                <img src="images/ctdmaintenence.jpg" style="max-width: 100%; height: auto; border-radius: 10px;">
+                <img src="static/images/ctdmaintenence.jpg" style="width: 90%; height: auto; border-radius: 10px; display: block; margin-left: auto; margin-right: auto;">
             </div>
             """,
             unsafe_allow_html=True
@@ -244,11 +244,10 @@ if page == "Main Page":
     col3, col4 = st.columns([1, 1])
 
     with col3:
-        #st.image("images/ctdmaintenence.jpg", use_container_width =True)
         st.markdown(
             """
             <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-                <img src="images/tub.jpg" style="max-width: 100%; height: auto; border-radius: 10px;">
+                <img src="static/images/tub.jpg" style="width: 90%; height: auto; border-radius: 10px; display: block; margin-left: auto; margin-right: auto;">
             </div>
             """,
             unsafe_allow_html=True
@@ -268,7 +267,7 @@ if page == "Main Page":
         st.write("As the observatory is being implemented, students focus on maintaining the components, as well as collecting, managing, and analyzing the continuous streams of data the observatory will produce. Integral to the ERIS program is the ability to distribute the collected data so that it may be interpreted by interested parties at the UW and worldwide.")
 
     st.write("### Course: OCEAN 462: Ocean Technology Studio")
-    st.write("Hands-on experience to build technical, science, and management skills in ocean technology through small group projects. Projects may include instrument design and building, data analysis, and/or participation in an on-going ocean technology initiative. Offered: AWSp.  Can be taken fo 1-5 credits, with a max of 15.")
+    st.write("Hands-on experience to build technical, science, and management skills in ocean technology through small group projects. Projects may include instrument design and building, data analysis, and/or participation in an on-going ocean technology initiative. Offered: AWSp. Can be taken for 1-5 credits, with a max of 15.")
     st.write("For more information, visit [MyPlan](https://myplan.uw.edu/course/#/courses?states=N4Igwg9grgTgzgUwMoIIYwMYAsQC4TAA6IAZhDALYAiqALqsbkSBqhQA5RyPGJ20AbBMQA0xAJZwUGWuIgA7FOmyNaMKAjEhJASXlw1UGeSWYsjEqgGItARw0wAnkjXj5Acx4hRxACapHbjxmAEYLKxtiACZw601iAGZYyJAAFmT4kABWDK0ANgyAXy0DdFoAUXlfABVxCgQg3ABtAAYRAE48loBdLTcMAShfBAA5BQB5dgRFBBk5fVV1TP7B4YAlBtcZBF9pWQVGw2X5AaGEAAUYBCvbOA37cSvfRY0%2Bk9WEaoAjVD35w6WJSwEAA7uN5AJHOcMMhZvsFnhLHEgaDwZC9OdrnAFH8DkUUSCAEIwUGIXLELCoKRoMw7ckgXySAYQRAAQV8ADdUCcdqYVIiIghCiBCkA).")
 
         # ✅ **Auto-switch logic**
