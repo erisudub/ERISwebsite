@@ -586,7 +586,8 @@ elif page == "Gallery":
 
 
 elif page == "BlackJack":
-
+    
+    # Set up suits and values
     suits = ['♠', '♥', '♦', '♣']
     values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
               'J': 10, 'Q': 10, 'K': 10, 'A': 11}
@@ -634,7 +635,8 @@ elif page == "BlackJack":
         return f"<div style='display: flex; gap: 10px;'>{card_html}</div>"
 
     # **Initialize game state**
-    if "deck" not in st.session_state:
+    if "game_state" not in st.session_state:
+        st.session_state.game_state = "playing"
         st.session_state.deck = generate_deck()
         random.shuffle(st.session_state.deck)
         st.session_state.player_hand = [st.session_state.deck.pop(), st.session_state.deck.pop()]
@@ -654,14 +656,13 @@ elif page == "BlackJack":
     st.write(f"Your Score: {calculate_score(st.session_state.player_hand)}")
 
     # **Player Controls**
-    if not st.session_state.game_over:
+    if st.session_state.game_state == "playing":
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Hit"):
                 st.session_state.player_hand.append(st.session_state.deck.pop())
                 if calculate_score(st.session_state.player_hand) > 21:
-                    st.session_state.game_over = True
-                    st.warning("Bust! You lose.")
+                    st.session_state.game_state = "bust"
                 st.rerun()
 
         with col2:
@@ -669,11 +670,11 @@ elif page == "BlackJack":
                 # Dealer plays automatically
                 while calculate_score(st.session_state.dealer_hand) < 17:
                     st.session_state.dealer_hand.append(st.session_state.deck.pop())
-                st.session_state.game_over = True
+                st.session_state.game_state = "finished"
                 st.rerun()
 
     # **Show Results if Game is Over**
-    if st.session_state.game_over:
+    if st.session_state.game_state in ["bust", "finished"]:
         st.subheader("Final Dealer's Hand:")
         st.markdown(display_hand(st.session_state.dealer_hand), unsafe_allow_html=True)
         dealer_score = calculate_score(st.session_state.dealer_hand)
@@ -682,13 +683,16 @@ elif page == "BlackJack":
         st.write(f"Dealer Score: {dealer_score}")
         st.write(f"Your Score: {player_score}")
 
-        if dealer_score > 21 or player_score > dealer_score:
-            st.success("You Win! 🎉")
-        elif player_score < dealer_score:
-            st.error("Dealer Wins. 😞")
+        if st.session_state.game_state == "bust":
+            st.error("Bust! You lose. 😞")
         else:
-            st.warning("It's a Tie! 🤝")
+            if dealer_score > 21 or player_score > dealer_score:
+                st.success("You Win! 🎉")
+            elif player_score < dealer_score:
+                st.error("Dealer Wins. 😞")
+            else:
+                st.warning("It's a Tie! 🤝")
 
         if st.button("Play Again"):
-            del st.session_state.deck  # Reset the game
+            del st.session_state.game_state  # Reset the game
             st.rerun()
