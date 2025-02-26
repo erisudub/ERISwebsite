@@ -585,9 +585,8 @@ elif page == "Gallery":
                     st.markdown(img_html, unsafe_allow_html=True)
 
 
-elif page == "BlackJack":  # Ensure this is aligned with other 'elif' statements
+elif page == "BlackJack":  # Ensure correct indentation
 
-    # Card deck representation
     suits = ['♠', '♥', '♦', '♣']
     values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
               'J': 10, 'Q': 10, 'K': 10, 'A': 11}
@@ -596,24 +595,45 @@ elif page == "BlackJack":  # Ensure this is aligned with other 'elif' statements
         return [{'suit': suit, 'rank': rank, 'value': values[rank]} for suit in suits for rank in values]
 
     def calculate_score(hand):
+        """Calculate the score of a hand."""
         score = sum(card['value'] for card in hand)
         aces = sum(1 for card in hand if card['rank'] == 'A')
         while score > 21 and aces:
-            score -= 10  # Adjust for Ace value
+            score -= 10  # Reduce Ace value from 11 to 1 if needed
             aces -= 1
         return score
 
-    def display_cards(cards, hide_first=False):
-        """Create a string representation of cards for Streamlit display."""
-        display_text = ""
-        for i, card in enumerate(cards):
-            if i == 0 and hide_first:
-                display_text += "🂠 "  # Hidden card
-            else:
-                display_text += f"{card['rank']}{card['suit']} "
-        return display_text
+    def render_card(card, hidden=False):
+        """Returns an HTML representation of a playing card."""
+        if hidden:
+            return """
+            <div style='display: inline-block; width: 80px; height: 120px; 
+                        border: 2px solid black; border-radius: 8px; 
+                        text-align: center; font-size: 20px; 
+                        background-color: gray; color: white;'>
+                <br><br><strong>?</strong>
+            </div>
+            """
+        else:
+            return f"""
+            <div style='display: inline-block; width: 80px; height: 120px; 
+                        border: 2px solid black; border-radius: 8px; 
+                        text-align: center; font-size: 20px; 
+                        background-color: white; color: black;'>
+                <strong>{card['rank']}</strong> <br>
+                <span style="font-size:40px;">{card['suit']}</span> <br>
+                <strong>{card['rank']}</strong>
+            </div>
+            """
 
-    # Initialize game state
+    def display_hand(hand, hide_first=False):
+        """Displays a hand of cards in a horizontal layout."""
+        card_html = "".join(
+            render_card(card, hidden=(hide_first and i == 0)) for i, card in enumerate(hand)
+        )
+        return f"<div style='display: flex; gap: 10px;'>{card_html}</div>"
+
+    # **Initialize game state**
     if "deck" not in st.session_state:
         st.session_state.deck = generate_deck()
         random.shuffle(st.session_state.deck)
@@ -621,19 +641,19 @@ elif page == "BlackJack":  # Ensure this is aligned with other 'elif' statements
         st.session_state.dealer_hand = [st.session_state.deck.pop(), st.session_state.deck.pop()]
         st.session_state.game_over = False
 
-    # Set page title
+    # **Title**
     st.title("♠️♦️ BlackJack ♥️♣️")
 
-    # Display dealer's hand (first card hidden)
+    # **Dealer's Hand**
     st.subheader("Dealer's Hand:")
-    st.write(display_cards(st.session_state.dealer_hand, hide_first=not st.session_state.game_over))
+    st.markdown(display_hand(st.session_state.dealer_hand, hide_first=not st.session_state.game_over), unsafe_allow_html=True)
 
-    # Display player's hand
+    # **Player's Hand**
     st.subheader("Your Hand:")
-    st.write(display_cards(st.session_state.player_hand))
+    st.markdown(display_hand(st.session_state.player_hand), unsafe_allow_html=True)
     st.write(f"Your Score: {calculate_score(st.session_state.player_hand)}")
 
-    # Player controls
+    # **Player Controls**
     if not st.session_state.game_over:
         col1, col2 = st.columns(2)
         with col1:
@@ -642,18 +662,20 @@ elif page == "BlackJack":  # Ensure this is aligned with other 'elif' statements
                 if calculate_score(st.session_state.player_hand) > 21:
                     st.session_state.game_over = True
                     st.warning("Bust! You lose.")
+                st.rerun()
 
         with col2:
             if st.button("Stand"):
-                # Dealer plays
+                # Dealer plays automatically
                 while calculate_score(st.session_state.dealer_hand) < 17:
                     st.session_state.dealer_hand.append(st.session_state.deck.pop())
                 st.session_state.game_over = True
+                st.rerun()
 
-    # Show results if game is over
+    # **Show Results if Game is Over**
     if st.session_state.game_over:
         st.subheader("Final Dealer's Hand:")
-        st.write(display_cards(st.session_state.dealer_hand))
+        st.markdown(display_hand(st.session_state.dealer_hand), unsafe_allow_html=True)
         dealer_score = calculate_score(st.session_state.dealer_hand)
         player_score = calculate_score(st.session_state.player_hand)
 
@@ -668,5 +690,5 @@ elif page == "BlackJack":  # Ensure this is aligned with other 'elif' statements
             st.warning("It's a Tie! 🤝")
 
         if st.button("Play Again"):
-            del st.session_state.deck
-            st.rerun()  # Updated to the latest Streamlit function
+            del st.session_state.deck  # Reset the game
+            st.rerun()
