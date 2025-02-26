@@ -14,9 +14,9 @@ from pathlib import Path
 
 # Initializing the Firestore Database
 
-cert = firestore_key = os.getenv("FIRESTORE_KEY")
+cert = os.getenv("ADMIN_KEY")
 if cert is None:
-    raise ValueError("FIRESTORE_KEY is not set. Please configure GitHub Secrets.")
+    raise ValueError("ADMIN_KEY is not set. Please configure GitHub Secrets.")
 cred = credentials.Certificate(cert)
 app = firebase_admin.initialize_app(cred)
 db = firestore.client()
