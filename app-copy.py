@@ -88,8 +88,6 @@ if page == "Main Page":
         "images/ctd.jpg",
         "images/ctdmaintenence.jpg",
         "images/rasppitable.jpg",
-        "images/tunnelsetup.jpg",
-        "images/tunnelteam.jpg"
     ]
     captions = [
         "CTD Calibrations",
@@ -98,8 +96,6 @@ if page == "Main Page":
         "Seabird 16plus CTD",
         "CTD Maintenance",
         "Raspberry Pi Setup",
-        "Tunnel CTD Setup",
-        "Tunnel Team"
     ]
 
     # ✅ **Filter out non-existing images**
@@ -564,8 +560,6 @@ elif page == "Gallery":
         "images/ctd.jpg",
         "images/ctdmaintenence.jpg",
         "images/rasppitable.jpg",
-        "images/tunnelsetup.jpg",
-        "images/tunnelteam.jpg"
     ]
     gallery_captions = [
         "CTD Calibrations",
@@ -574,8 +568,6 @@ elif page == "Gallery":
         "Seabird 16plus CTD",
         "CTD Maintenance",
         "Raspberry Pi Setup",
-        "Tunnel CTD Setup",
-        "Tunnel Team"
     ]
 
     # ✅ **Filter valid gallery images**
