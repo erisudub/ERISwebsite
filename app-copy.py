@@ -233,10 +233,12 @@ if page == "Main Page":
     with col2:
         st.image("images/tub.jpg", use_container_width=True)
 
-    with col1:
+    col3, col4 = st.columns([1, 1])
+
+    with col3:
         st.image("images/ctdmaintenence.jpg", use_container_width=True)
 
-    with col2:
+    with col4:
         st.write("### Technology Questions:")
         st.write("-  What sensor(s) design is required?")
         st.write("-  What sample rate and duty cycle is needed?")
