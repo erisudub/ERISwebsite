@@ -233,7 +233,7 @@ if page == "Main Page":
     col3, col4 = st.columns([1, 1])
 
     with col3:
-        st.empty()
+        st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
         st.image("images/ctdmaintenence.jpg", use_container_width = True)
 
     with col4:
