@@ -233,10 +233,7 @@ if page == "Main Page":
     col3, col4 = st.columns([1, 1])
 
     with col3:
-        st.markdown(
-            "<div style='padding-top: 50px;'></div>",
-            unsafe_allow_html=True
-        )
+        st.markdown("<!-- This is an invisible comment -->", unsafe_allow_html=True)
         st.image("images/ctdmaintenence.jpg", use_container_width = True)
 
     with col4:
