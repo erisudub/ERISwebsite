@@ -233,8 +233,7 @@ if page == "Main Page":
     col3, col4 = st.columns([1, 1])
 
     with col3:
-        st.write(" ")
-        st.write(" ")
+        st.write("\n"*2)
         st.image("images/ctdmaintenence.jpg", use_container_width = True)
 
     with col4:
