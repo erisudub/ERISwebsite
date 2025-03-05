@@ -6,15 +6,13 @@ import firebase_admin
 import json
 import os
 
-from firebase_admin import credentials
+from firebase_admin import credentials, firestore
 from streamlit_folium import st_folium
-from google.cloud import firestore
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 # Initializing the Firestore Database
-
-cert = os.getenv("ADMIN_KEY")
+cert = json.loads(st.secrets.Certificate.data)
 if cert is None:
     raise ValueError("ADMIN_KEY is not set. Please configure GitHub Secrets.")
 cred = credentials.Certificate(cert)
@@ -25,6 +23,13 @@ db = firestore.client()
 # CSV -> JSON
 data_path = "output.json"  # Define output JSON file path
 
+
+weather_ref = db.collection("CTD_Data")
+docs = weather_ref.stream()
+for x in docs:
+    print(x.to_dict())
+
+'''
 # Read CSV
 # df = pd.read_csv("ctddata.csv")  # Ensure you provide the correct CSV file
 
@@ -186,3 +191,4 @@ elif page == "Gallery":
         for j, col in enumerate(cols):
             if i + j < len(photos):
                 col.image(photos[i + j], use_column_width=True, caption=captions[i + j])
+'''

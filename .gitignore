@@ -1,2 +1,3 @@
 #Streamlit -> streamlit.secret.section.value
 .streamlit/eris-db-firebase-adminsdk-fbsvc-516ee203c1.json
+.streamlit/secrets.toml
