@@ -4,6 +4,8 @@ import plotly.graph_objs as go
 import folium
 import firebase_admin
 import json
+import http.client
+import time
 import os
 
 from firebase_admin import credentials, firestore
@@ -19,6 +21,27 @@ cred = credentials.Certificate(cert)
 app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+current_time = round(time.time()*1000)
+
+conntection = http.client.HTTPConnection('')
+
+headers = {'Content-type': 'application/json'}
+
+values = {
+    "air_temp": 7.6,
+    "humidity": 80,
+    "wind_speed": 4.8,
+    "wind_direction": "ESE",
+    "date": {"$date": current_time}
+}
+
+json_values = json.dumps(values)
+
+connection.request('POST', '/', json_values, headers)
+
+response = connection.getresponse()
+
+print(response.read().decode())
 
 # CSV -> JSON
 data_path = "output.json"  # Define output JSON file path
