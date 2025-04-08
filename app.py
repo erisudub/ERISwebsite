@@ -21,11 +21,12 @@ cred = credentials.Certificate(cert)
 app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+
 current_time = round(time.time()*1000)
 
-conntection = http.client.HTTPConnection('')
+# conntection = http.client.HTTPConnection('')
 
-headers = {'Content-type': 'application/json'}
+# headers = {'Content-type': 'application/json'}
 
 values = {
     "air_temp": 7.6,
@@ -35,13 +36,16 @@ values = {
     "date": {"$date": current_time}
 }
 
-json_values = json.dumps(values)
+_, doc_ref = db.collection("CTD_Data").add(values)
+print(f"Added document with ID: {doc_ref.id}")
 
-connection.request('POST', '/', json_values, headers)
+# json_values = json.dumps(values)
 
-response = connection.getresponse()
+# connection.request('POST', '/', json_values, headers)
 
-print(response.read().decode())
+# response = connection.getresponse()
+
+# print(response.read().decode())
 
 # CSV -> JSON
 data_path = "output.json"  # Define output JSON file path
