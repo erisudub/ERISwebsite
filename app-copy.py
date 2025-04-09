@@ -590,3 +590,16 @@ elif page == "Gallery":
                 """
                 with columns[i % 3]:  # Distribute images evenly among columns
                     st.markdown(img_html, unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div style="
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 100;
+            ">
+                <img src="data:image/png;base64, {base64_logo}" style="width:120px; height:auto;">
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
