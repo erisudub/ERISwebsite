@@ -533,7 +533,8 @@ elif page == "Gallery":
 
     # Convert logo to Base64
     logo_path = "images/OceanTech Logo-PURPLE.png"
-    base64_logo = get_base64_image(logo_path)
+    logo_path1 = "New Oceanography-logo-banner-BLUE.png"
+    base64_logo = get_base64_image(logo_path1)
 
     if base64_logo:
         # Set logo size for header
