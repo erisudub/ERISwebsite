@@ -536,7 +536,7 @@ elif page == "Gallery":
     base64_logo = get_base64_image(logo_path)
 
     if base64_logo:
-        # Set logo size to match the specified CSS size
+        # Set logo size for header
         logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>"
     else:
         logo_html = "⚠️ Logo Not Found"
@@ -590,6 +590,8 @@ elif page == "Gallery":
                 """
                 with columns[i % 3]:  # Distribute images evenly among columns
                     st.markdown(img_html, unsafe_allow_html=True)
+
+        # ✅ Floating logo in bottom-right corner
         st.markdown(
             f"""
             <div style="
@@ -598,7 +600,7 @@ elif page == "Gallery":
                 right: 20px;
                 z-index: 100;
             ">
-                <img src="data:image/png;base64, {base64_logo}" style="width:120px; height:auto;">
+                <img src="data:image/png;base64,{base64_logo}" style="width:120px; height:auto;">
             </div>
             """,
             unsafe_allow_html=True
