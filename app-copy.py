@@ -143,7 +143,7 @@ if page == "Main Page":
                 width: 100%;
             }}
             .logo {{
-                width: 150px;
+                width: 250px;
                 height: auto;
                 margin: 0 20px;
             }}
