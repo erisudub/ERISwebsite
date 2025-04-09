@@ -534,11 +534,11 @@ elif page == "Gallery":
     # Convert logo to Base64
     logo_path = "images/OceanTech Logo-PURPLE.png"
     logo_path1 = "New Oceanography-logo-banner-BLUE.png"
-    base64_logo = get_base64_image(logo_path1)
+    base64_logo1 = get_base64_image(logo_path1)
 
-    if base64_logo:
+    if base64_logo1:
         # Set logo size for header
-        logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>"
+        logo_html = f"<img src='data:image/png;base64,{base64_logo1}' style='width:150px; height:auto;'>"
     else:
         logo_html = "⚠️ Logo Not Found"
 
@@ -601,7 +601,7 @@ elif page == "Gallery":
                 right: 20px;
                 z-index: 100;
             ">
-                <img src="data:image/png;base64,{base64_logo}" style="width:120px; height:auto;">
+                <img src="data:image/png;base64,{base64_logo1}" style="width:120px; height:auto;">
             </div>
             """,
             unsafe_allow_html=True
