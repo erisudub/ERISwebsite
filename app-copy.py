@@ -521,7 +521,7 @@ elif page == "Meet the Team":
             if base64_img:
                 img_html = f"""
                 <div style="text-align:center;">
-                    <img src="data:image/jpeg;base64,{base64_img}" style="width:250px; height:250px; object-fit:cover; border-radius:10px;">
+                    <img src="data:image/jpeg;base64,{base64_img}" style="width:300px; height:3000px; object-fit:cover; border-radius:10px;">
                     <p style="font-size:16px; font-weight:bold;">{caption}</p>
                 </div>
                 """
