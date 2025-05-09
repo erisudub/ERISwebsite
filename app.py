@@ -17,7 +17,7 @@ st.set_page_config(layout="wide")
 st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
 if not firebase_admin._apps:
-    cert = json.loads(st.secrets.credentials.firebase_json)
+    cert = json.loads(st.secrets.Certificate.data)
     cred = credentials.Certificate(cert)
     app = firebase_admin.initialize_app(cred)
 
