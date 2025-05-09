@@ -24,19 +24,19 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 @st.cache_data(max_entries=10, persist=True) # 1 week
-def fetch_weather_data(start_date: date, end_date: date):
+def fetch_ctd_data(start_date: date, end_date: date):
 
     if not isinstance(start_date, date): return None
     if not isinstance(end_date, date): return None
 
-    start_dt = datetime.combine(start_date, time(0, 0, 0))
-    end_dt = datetime.combine(end_date + timedelta(days=1), time(0, 0, 0))
+    start_dt = datetime.combine(start_date, time(0, 0, 0)).timestamp()
+    end_dt = datetime.combine(end_date + timedelta(days=1), time(0, 0, 0)).timestamp()
 
-    weather_ref = db.collection("weather_data")
-    docs = weather_ref.where(
-        filter=FieldFilter("datetime", ">=", start_dt)
+    ctd_ref = db.collection("CTD_data")
+    docs = ctd_ref.where(
+        filter=FieldFilter("date.$date", ">=", start_dt)
     ).where(
-        filter=FieldFilter("datetime", "<", end_dt),
+        filter=FieldFilter("date.$date", "<", end_dt),
     ).stream()
 
     out = []
@@ -46,7 +46,7 @@ def fetch_weather_data(start_date: date, end_date: date):
     return out
 
 
-def live_weather_data(start_date: date | None):
+def live_weather_data(start_date: date | None  = None):
 
     if start_date is None: start_date = date.today()
     if not isinstance(start_date, date): return None
@@ -76,7 +76,7 @@ ctd_data = pd.read_csv(ctd_csv_file_path)
 #    'Dew', 'Heat', 'EMC', 'Density', 'Samp', 'Tx', 'Recept', 'Int.'
 #])
 
-weather_data_raw = fetch_weather_data(date(2024, 1, 1), date.today())
+weather_data_raw = fetch_ctd_data(date(2024, 1, 1), date.today())
 weather_data = pd.DataFrame.from_records(weather_data_raw)
 
 #st.write("Weather Data Columns:", weather_data.columns.tolist())
