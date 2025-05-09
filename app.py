@@ -68,7 +68,7 @@ def live_weather_data(start_date: date | None  = None):
 ctd_csv_file_path = 'data/ctddata.csv'  # Replace with the actual path of the CTD CSV
 #weather_csv_file_path = 'data/new_weather_data.csv'  # Use the uploaded weather CSV file
 
-ctd_data = pd.read_csv(ctd_csv_file_path)
+#ctd_data = pd.read_csv(ctd_csv_file_path)
 #weather_data = pd.read_csv(weather_csv_file_path, skiprows=3, names=[
 #    'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
 #    'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
