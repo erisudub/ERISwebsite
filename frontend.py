@@ -13,6 +13,20 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
+import json
+import os
+from datetime import date, time, datetime, timedelta
+
+import pandas as pd
+import plotly.graph_objs as go
+import folium
+
+import streamlit as st
+from streamlit_folium import st_folium
+
+import firebase_admin
+from firebase_admin import credentials, firestore
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 # --- Streamlit Config ---
 st.set_page_config(layout="wide")
@@ -76,6 +90,51 @@ def fetch_ctd_data(start_date: date, end_date: date):
             continue
 
     return pd.DataFrame(data) if data else None
+
+# --- UI: Date Selection ---
+st.sidebar.header("Select Date Range")
+today = datetime.today().date()
+start = st.sidebar.date_input("Start Date", today - timedelta(days=30))
+end = st.sidebar.date_input("End Date", today)
+
+# --- Fetch and Display Data ---
+data = fetch_ctd_data(start, end)
+
+if data is None or data.empty:
+    st.warning("No CTD data found for the selected date range.")
+else:
+    # --- Line Chart ---
+    st.subheader("Temperature Over Time")
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=data["datetime"], y=data["temperature"],
+        mode='lines+markers',
+        name='Temperature (°C)'
+    ))
+    fig.update_layout(
+        xaxis_title='Date',
+        yaxis_title='Temperature (°C)',
+        template='plotly_white'
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+    # --- Map ---
+    st.subheader("Instrument Locations")
+    m = folium.Map(location=[data["lat"].mean(), data["lon"].mean()], zoom_start=10)
+    for _, row in data.iterrows():
+        folium.CircleMarker(
+            location=[row["lat"], row["lon"]],
+            radius=5,
+            popup=f"{row['instrument']}<br>{row['datetime'].strftime('%Y-%m-%d %H:%M:%S')}",
+            color='blue',
+            fill=True
+        ).add_to(m)
+    st_folium(m, width=700, height=500)
+
+    # --- Raw Data Table ---
+    st.subheader("Raw Data")
+    st.dataframe(data)
+
 # # --- Streamlit Config ---
 # st.set_page_config(layout="wide")
 
