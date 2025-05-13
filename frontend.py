@@ -53,6 +53,20 @@ def fetch_ctd_data(start_date: date, end_date: date):
 
     return [x.to_dict() for x in docs]
 
+# Example date range (customize with widgets as needed)
+start = date(2025, 4, 25)
+end = date(2025, 5, 6)
+
+data = fetch_ctd_data(start, end)
+
+if data:
+    st.write(f"Found {len(data)} records")
+    df = pd.DataFrame(data)
+    st.dataframe(df)
+else:
+    st.warning("No data found for the selected range.")
+
+
 # # --- Load CSV Paths ---
 # ctd_csv_file_path = "path_to_ctd_file.csv"  # Change to your path
 # weather_csv_file_path = "path_to_weather_file.csv"  # Change to your path
