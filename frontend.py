@@ -13,6 +13,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
+
 # --- Streamlit Config ---
 st.set_page_config(layout="wide")
 
@@ -21,7 +22,7 @@ st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS
 
 # --- Firebase Init ---
 if not firebase_admin._apps:
-    cert = json.loads(st.secrets.Certificate.data)
+    cert = json.loads(st.secrets["Certificate"]["data"])
     cred = credentials.Certificate(cert)
     firebase_admin.initialize_app(cred)
 
@@ -41,30 +42,92 @@ def fetch_ctd_data(start_date: date, end_date: date):
     if not isinstance(start_date, date) or not isinstance(end_date, date):
         return None
 
-    start_dt = datetime.combine(start_date, time(0, 0, 0)).timestamp()
-    end_dt = datetime.combine(end_date + timedelta(days=1), time(0, 0, 0)).timestamp()
+    start_ts = int(datetime.combine(start_date, time.min).timestamp())  # seconds
+    end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp())
 
     ctd_ref = db.collection("CTD_data")
     docs = ctd_ref.where(
-        filter=FieldFilter("date.$date", ">=", start_dt)
+        filter=FieldFilter("date.$date", ">=", start_ts)
     ).where(
-        filter=FieldFilter("date.$date", "<", end_dt),
+        filter=FieldFilter("date.$date", "<", end_ts),
     ).stream()
 
-    return [x.to_dict() for x in docs]
+    data = []
+    for doc in docs:
+        d = doc.to_dict()
+        try:
+            record = {
+                "datetime": datetime.fromtimestamp(d["date"]["$date"]),
+                "instrument": d.get("instrument"),
+                "lat": d.get("lat"),
+                "lon": d.get("lon"),
+                "depth1": d.get("depth1"),
+                "oxygen": d.get("oxygen"),
+                "conductivity": float(d.get("conductivity", "nan")),
+                "par": float(d.get("par", "nan")),
+                "pressure": float(d.get("pressure", "nan")),
+                "salinity": float(d.get("salinity", "nan")),
+                "temperature": float(d.get("temperature", "nan")),
+                "turbidity": float(d.get("turbidity", "nan")),
+            }
+            data.append(record)
+        except Exception as e:
+            print(f"Error processing document: {e}")
+            continue
 
-# Example date range (customize with widgets as needed)
-start = date(2025, 4, 25)
-end = date(2025, 5, 6)
+    return pd.DataFrame(data) if data else None
+# # --- Streamlit Config ---
+# st.set_page_config(layout="wide")
 
-data = fetch_ctd_data(start, end)
+# # --- Title ---
+# st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
-if data:
-    st.write(f"Found {len(data)} records")
-    df = pd.DataFrame(data)
-    st.dataframe(df)
-else:
-    st.warning("No data found for the selected range.")
+# # --- Firebase Init ---
+# if not firebase_admin._apps:
+#     cert = json.loads(st.secrets.Certificate.data)
+#     cred = credentials.Certificate(cert)
+#     firebase_admin.initialize_app(cred)
+
+# db = firestore.client()
+
+# # --- Image Helper ---
+# def get_base64_image(image_path):
+#     import base64
+#     if os.path.exists(image_path):
+#         with open(image_path, "rb") as img_file:
+#             return base64.b64encode(img_file.read()).decode()
+#     return None
+
+# # --- Firebase Query Caching ---
+# @st.cache_data(max_entries=10, persist=True)
+# def fetch_ctd_data(start_date: date, end_date: date):
+#     if not isinstance(start_date, date) or not isinstance(end_date, date):
+#         return None
+
+#     start_dt = datetime.combine(start_date, time(0, 0, 0)).timestamp()
+#     end_dt = datetime.combine(end_date + timedelta(days=1), time(0, 0, 0)).timestamp()
+
+#     ctd_ref = db.collection("CTD_data")
+#     docs = ctd_ref.where(
+#         filter=FieldFilter("date.$date", ">=", start_dt)
+#     ).where(
+#         filter=FieldFilter("date.$date", "<", end_dt),
+#     ).stream()
+
+#     return [x.to_dict() for x in docs]
+
+# # Example date range (customize with widgets as needed)
+# start = date(2025, 4, 25)
+# end = date(2025, 5, 6)
+
+# data = fetch_ctd_data(start, end)
+
+# if data:
+#     st.write(f"Found {len(data)} records")
+#     df = pd.DataFrame(data)
+#     st.dataframe(df)
+# else:
+#     st.warning("No data found for the selected range.")
 
 
 # # --- Load CSV Paths ---
