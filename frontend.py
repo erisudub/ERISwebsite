@@ -78,8 +78,8 @@ st.markdown(
 )
 
 # --- Load and Preprocess Data ---
-ctd_data = pd.read_csv(ctd_csv_file_path)
-weather_data = pd.read_csv(weather_csv_file_path, skiprows=3, names=[
+ctd_data = pd.read_csv('data/ctddata.csv')
+weather_data = pd.read_csv('new_weather_data.csv', skiprows=3, names=[
     'Date', 'Time', 'Out', 'Temp', 'Temp.1', 'Hum', 'Pt.',
     'Speed', 'Dir', 'Run', 'Speed.1', 'Dir.1', 'Chill', 'Index',
     'Index.1', 'Bar', 'Rain', 'Rate', 'D-D', 'D-D.1', 'Temp.2', 'Hum.1',
