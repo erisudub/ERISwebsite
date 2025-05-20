@@ -68,7 +68,7 @@ def fetch_ctd_data(start_date: date, end_date: date):
         d = doc.to_dict()
         try:
             ts = d.get("date", {}).get("$date")  # Firestore stores timestamp in milliseconds
-            if ts is None or not (start_ts <= ts < end_ts):
+            if ts is None:# or not (start_ts <= ts < end_ts):
                 continue
 
             record = {
