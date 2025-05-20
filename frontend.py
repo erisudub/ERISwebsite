@@ -61,7 +61,7 @@ def fetch_ctd_data(start_date: date, end_date: date):
     end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
 
     # Fetch all documents (Firestore doesn't support querying nested fields directly)
-    docs = db.collection("CTD_data").stream()
+    docs = db.collection("CTD_Data").stream()
 
     data = []
     for doc in docs:
