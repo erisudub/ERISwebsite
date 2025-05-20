@@ -50,26 +50,29 @@ def get_base64_image(image_path):
             return base64.b64encode(img_file.read()).decode()
     return None
 
+# --- Function to Fetch CTD Data ---
 @st.cache_data(max_entries=10, persist=True)
 def fetch_ctd_data(start_date: date, end_date: date):
     if not isinstance(start_date, date) or not isinstance(end_date, date):
         return None
 
-    start_ts = int(datetime.combine(start_date, time.min).timestamp())  # in seconds
-    end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp())  # in seconds
+    # Convert dates to milliseconds (to match Firestore timestamp format)
+    start_ts = int(datetime.combine(start_date, time.min).timestamp() * 1000)
+    end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
 
+    # Fetch all documents (Firestore doesn't support querying nested fields directly)
     docs = db.collection("CTD_data").stream()
 
     data = []
     for doc in docs:
         d = doc.to_dict()
         try:
-            ts = d.get("date", {}).get("$date")  # timestamp in milliseconds
-            if ts is None or not (start_ts * 1000 <= ts < end_ts * 1000):
+            ts = d.get("date", {}).get("$date")  # Firestore stores timestamp in milliseconds
+            if ts is None or not (start_ts <= ts < end_ts):
                 continue
 
             record = {
-                "datetime": datetime.fromtimestamp(ts / 1000),
+                "datetime": datetime.fromtimestamp(ts / 1000),  # convert ms to datetime
                 "instrument": d.get("instrument"),
                 "lat": d.get("lat"),
                 "lon": d.get("lon"),
@@ -89,13 +92,15 @@ def fetch_ctd_data(start_date: date, end_date: date):
 
     return pd.DataFrame(data) if data else None
 
-
-# --- UI: Date Selection ---
+# --- UI: Date Range Selection ---
 st.sidebar.header("Select Date Range")
-today = datetime.today().date()
-start = st.sidebar.date_input("Start Date", today - timedelta(days=30))
-end = st.sidebar.date_input("End Date", today)
 
+# Default to your target range (from provided ms timestamps)
+default_start = datetime.fromtimestamp(1745545207000 / 1000).date()  # July 25, 2025
+default_end = datetime.fromtimestamp(1747152607000 / 1000).date()    # August 12, 2025
+
+start = st.sidebar.date_input("Start Date", default_start)
+end = st.sidebar.date_input("End Date", default_end)
 # --- Fetch and Display Data ---
 data = fetch_ctd_data(start, end)
 
