@@ -55,22 +55,22 @@ def fetch_ctd_data(start_date: date, end_date: date):
     if not isinstance(start_date, date) or not isinstance(end_date, date):
         return None
 
-    start_ts = int(datetime.combine(start_date, time.min).timestamp())
+    start_ts = int(datetime.combine(start_date, time.min).timestamp())  # in seconds
     end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp())
 
-    ctd_ref = db.collection("CTD_data")
-    docs = (
-        ctd_ref.where("date.$date", ">=", start_ts)
-               .where("date.$date", "<", end_ts)
-               .stream()
-    )
+    # Fetch all documents (client-side filtering since nested field query not possible)
+    docs = db.collection("CTD_data").stream()
 
     data = []
     for doc in docs:
         d = doc.to_dict()
         try:
+            ts = d.get("date", {}).get("$date")  # Safely get nested timestamp
+            if ts is None or not (start_ts <= ts < end_ts):
+                continue  # Skip if no timestamp or outside date range
+
             record = {
-                "datetime": datetime.fromtimestamp(d["date"]["$date"]),
+                "datetime": datetime.fromtimestamp(ts),
                 "instrument": d.get("instrument"),
                 "lat": d.get("lat"),
                 "lon": d.get("lon"),
