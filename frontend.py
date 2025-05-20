@@ -56,6 +56,8 @@ def fetch_ctd_data(start_date: date, end_date: date):
     if not isinstance(start_date, date) or not isinstance(end_date, date):
         return None
 
+    start_date = 1745545207000
+    end_date = 1745545207000
     # Convert dates to milliseconds (to match Firestore timestamp format)
     start_ts = int(datetime.combine(start_date, time.min).timestamp() * 1000)
     end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
@@ -96,9 +98,8 @@ def fetch_ctd_data(start_date: date, end_date: date):
 st.sidebar.header("Select Date Range")
 
 # Default to your target range (from provided ms timestamps)
-default_start = datetime.datetime.utcfromtimestamp(1745545207000 / 1000).date()  # July 25, 2025
-default_end = datetime.datetime.utcfromtimestamp(1747152607000 / 1000).date()    # August 12, 2025
-
+default_start = datetime.fromtimestamp(1745545207000/ 1000).date()  # July 25, 2025
+default_end = datetime.fromtimestamp(1746781807000/1000).date()
 start = st.sidebar.date_input("Start Date", default_start)
 end = st.sidebar.date_input("End Date", default_end)
 # --- Fetch and Display Data ---
