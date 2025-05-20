@@ -56,8 +56,6 @@ def fetch_ctd_data(start_date: date, end_date: date):
     if not isinstance(start_date, date) or not isinstance(end_date, date):
         return None
 
-    start_date = 1745545207000
-    end_date = 1745545207000
     # Convert dates to milliseconds (to match Firestore timestamp format)
     start_ts = int(datetime.combine(start_date, time.min).timestamp() * 1000)
     end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
