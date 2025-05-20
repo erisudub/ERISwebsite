@@ -56,21 +56,20 @@ def fetch_ctd_data(start_date: date, end_date: date):
         return None
 
     start_ts = int(datetime.combine(start_date, time.min).timestamp())  # in seconds
-    end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp())
+    end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp())  # in seconds
 
-    # Fetch all documents (client-side filtering since nested field query not possible)
     docs = db.collection("CTD_data").stream()
 
     data = []
     for doc in docs:
         d = doc.to_dict()
         try:
-            ts = d.get("date", {}).get("$date")  # Safely get nested timestamp
-            if ts is None or not (start_ts <= ts < end_ts):
-                continue  # Skip if no timestamp or outside date range
+            ts = d.get("date", {}).get("$date")  # timestamp in milliseconds
+            if ts is None or not (start_ts * 1000 <= ts < end_ts * 1000):
+                continue
 
             record = {
-                "datetime": datetime.fromtimestamp(ts),
+                "datetime": datetime.fromtimestamp(ts / 1000),
                 "instrument": d.get("instrument"),
                 "lat": d.get("lat"),
                 "lon": d.get("lon"),
