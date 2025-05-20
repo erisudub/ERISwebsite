@@ -50,21 +50,20 @@ def get_base64_image(image_path):
             return base64.b64encode(img_file.read()).decode()
     return None
 
-# --- Firebase Query Caching ---
 @st.cache_data(max_entries=10, persist=True)
 def fetch_ctd_data(start_date: date, end_date: date):
     if not isinstance(start_date, date) or not isinstance(end_date, date):
         return None
 
-    start_ts = int(datetime.combine(start_date, time.min).timestamp())  # seconds
+    start_ts = int(datetime.combine(start_date, time.min).timestamp())
     end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp())
 
     ctd_ref = db.collection("CTD_data")
-    docs = ctd_ref.where(
-        filter=FieldFilter("date.$date", ">=", start_ts)
-    ).where(
-        filter=FieldFilter("date.$date", "<", end_ts),
-    ).stream()
+    docs = (
+        ctd_ref.where("date.$date", ">=", start_ts)
+               .where("date.$date", "<", end_ts)
+               .stream()
+    )
 
     data = []
     for doc in docs:
@@ -90,6 +89,7 @@ def fetch_ctd_data(start_date: date, end_date: date):
             continue
 
     return pd.DataFrame(data) if data else None
+
 
 # --- UI: Date Selection ---
 st.sidebar.header("Select Date Range")
