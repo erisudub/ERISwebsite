@@ -106,6 +106,7 @@ data = fetch_ctd_data(start, end)
 if data is None or data.empty:
     st.warning("No CTD data found for the selected date range.")
 else:
+    data = data.sort_values("datetime")
     # --- Line Chart ---
     st.subheader("Temperature Over Time")
     fig = go.Figure()
