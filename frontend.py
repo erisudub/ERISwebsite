@@ -108,19 +108,30 @@ if data is None or data.empty:
 else:
     data = data.sort_values("datetime")
     # --- Line Chart ---
+    # --- Line Chart ---
     st.subheader("Temperature Over Time")
+
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=data["datetime"], y=data["temperature"],
-        mode='lines+markers',
-        name='Temperature (°C)'
-    ))
+
+# Group by instrument or another column like 'depth1' if you prefer
+    for instrument, group in data.groupby("instrument"):
+        group = group.sort_values("datetime")
+        fig.add_trace(go.Scatter(
+            x=group["datetime"],
+            y=group["temperature"],
+            mode='lines+markers',
+            name=str(instrument)
+        ))
+
     fig.update_layout(
         xaxis_title='Date',
         yaxis_title='Temperature (°C)',
-        template='plotly_white'
+        template='plotly_white',
+        hovermode='x unified'
     )
+
     st.plotly_chart(fig, use_container_width=True)
+
 
     # --- Map ---
     st.subheader("Instrument Locations")
