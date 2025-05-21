@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import date, time, datetime, timedelta
+import folium
 
 import pandas as pd
 import plotly.graph_objs as go
@@ -16,7 +17,7 @@ st.set_page_config(layout="wide")
 # --- Title ---
 st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
-# --- Firebase Initialization ---
+# --- Firebase Init ---
 if not firebase_admin._apps:
     cert = json.loads(st.secrets["Certificate"]["data"])
     cred = credentials.Certificate(cert)
@@ -24,29 +25,33 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# --- Fetch CTD Data Function ---
+# --- Function to Fetch Filtered CTD Data from Firestore ---
 @st.cache_data(max_entries=10, persist=True)
 def fetch_ctd_data(start_date: date, end_date: date):
     if not isinstance(start_date, date) or not isinstance(end_date, date):
         return None
 
-    # Convert to Firestore-compatible timestamps (ms)
-    start_ts = int(datetime.combine(start_date, time.min).timestamp() * 1000)
-    end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
+    # Convert to seconds since Firestore stores date.$date as seconds
+    start_ts = datetime.combine(start_date, time.min).timestamp()
+    end_ts = datetime.combine(end_date + timedelta(days=1), time.min).timestamp()
 
-    # Pull all documents and filter manually
-    docs = db.collection("CTD_Data").stream()
+    ctd_ref = db.collection("CTD_Data")
+    docs = ctd_ref.where(
+        filter=FieldFilter("date.$date", ">=", start_ts)
+    ).where(
+        filter=FieldFilter("date.$date", "<", end_ts)
+    ).stream()
 
     data = []
     for doc in docs:
         d = doc.to_dict()
         try:
             ts = d.get("date", {}).get("$date")
-            if ts is None or not (start_ts <= ts < end_ts):
+            if ts is None:
                 continue
 
             record = {
-                "datetime": datetime.fromtimestamp(ts / 1000),
+                "datetime": datetime.fromtimestamp(ts),
                 "instrument": d.get("instrument"),
                 "lat": d.get("lat"),
                 "lon": d.get("lon"),
@@ -66,15 +71,18 @@ def fetch_ctd_data(start_date: date, end_date: date):
 
     return pd.DataFrame(data) if data else None
 
-# --- Sidebar: Date Range Selection ---
+# --- UI: Date Range Selection ---
 st.sidebar.header("Select Date Range")
-default_start = datetime.fromtimestamp(1745545207000 / 1000).date()  # Example start date
-default_end = datetime.fromtimestamp(1746781807000 / 1000).date()    # Example end date
+
+# Default range: today and 14 days ago
+today = datetime.utcnow().date()
+default_start = today - timedelta(days=14)
+default_end = today
 
 start = st.sidebar.date_input("Start Date", default_start)
 end = st.sidebar.date_input("End Date", default_end)
 
-# --- Fetch Data ---
+# --- Fetch and Display Data ---
 data = fetch_ctd_data(start, end)
 
 if data is None or data.empty:
@@ -82,11 +90,11 @@ if data is None or data.empty:
 else:
     data = data.sort_values("datetime")
 
-    # --- Plot Temperature Over Time ---
+    # --- Line Chart ---
     st.subheader("Temperature Over Time")
-
     fig = go.Figure()
 
+    # Group by instrument and depth1
     grouped = data.groupby(["instrument", "depth1"])
 
     for (instrument, depth), group in grouped:
@@ -96,7 +104,7 @@ else:
         fig.add_trace(go.Scatter(
             x=group["datetime"],
             y=group["temperature"],
-            mode='lines',
+            mode='lines+markers',
             name=f"{instrument} - {depth}m"
         ))
 
@@ -110,6 +118,7 @@ else:
 
     st.plotly_chart(fig, use_container_width=True)
 
+
     # --- Map ---
     st.subheader("Instrument Locations")
     m = folium.Map(location=[data["lat"].mean(), data["lon"].mean()], zoom_start=10)
@@ -121,7 +130,7 @@ else:
             color='blue',
             fill=True
         ).add_to(m)
-    st_folium(m, width=700, height=500)
+    folium(m, width=700, height=500)
 
     # --- Raw Data Table ---
     st.subheader("Raw Data")
