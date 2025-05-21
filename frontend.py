@@ -113,24 +113,30 @@ else:
 
     fig = go.Figure()
 
-# Group by instrument or another column like 'depth1' if you prefer
-    for instrument, group in data.groupby("instrument"):
+# Group by instrument and depth1 for better distinction
+    grouped = data.groupby(["instrument", "depth1"])
+
+    for (instrument, depth), group in grouped:
+        if len(group) < 2:
+            continue  # Skip very small groups
         group = group.sort_values("datetime")
         fig.add_trace(go.Scatter(
             x=group["datetime"],
             y=group["temperature"],
-            mode='lines+markers',
-            name=str(instrument)
+            mode='lines',
+            name=f"{instrument} - {depth}m"
         ))
 
     fig.update_layout(
         xaxis_title='Date',
         yaxis_title='Temperature (°C)',
         template='plotly_white',
-        hovermode='x unified'
+        hovermode='x unified',
+        legend_title="Instrument / Depth"
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
 
     # --- Map ---
