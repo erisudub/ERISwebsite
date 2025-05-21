@@ -4,25 +4,7 @@ from datetime import date, time, datetime, timedelta
 
 import pandas as pd
 import plotly.graph_objs as go
-import folium
-
 import streamlit as st
-from streamlit_folium import st_folium
-
-import firebase_admin
-from firebase_admin import credentials, firestore
-from google.cloud.firestore_v1.base_query import FieldFilter
-
-import json
-import os
-from datetime import date, time, datetime, timedelta
-
-import pandas as pd
-import plotly.graph_objs as go
-import folium
-
-import streamlit as st
-from streamlit_folium import st_folium
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -34,7 +16,7 @@ st.set_page_config(layout="wide")
 # --- Title ---
 st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
-# --- Firebase Init ---
+# --- Firebase Initialization ---
 if not firebase_admin._apps:
     cert = json.loads(st.secrets["Certificate"]["data"])
     cred = credentials.Certificate(cert)
@@ -42,37 +24,29 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# --- Image Helper ---
-def get_base64_image(image_path):
-    import base64
-    if os.path.exists(image_path):
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
-    return None
-
-# --- Function to Fetch CTD Data ---
+# --- Fetch CTD Data Function ---
 @st.cache_data(max_entries=10, persist=True)
 def fetch_ctd_data(start_date: date, end_date: date):
     if not isinstance(start_date, date) or not isinstance(end_date, date):
         return None
 
-    # Convert dates to milliseconds (to match Firestore timestamp format)
+    # Convert to Firestore-compatible timestamps (ms)
     start_ts = int(datetime.combine(start_date, time.min).timestamp() * 1000)
     end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
 
-    # Fetch all documents (Firestore doesn't support querying nested fields directly)
+    # Pull all documents and filter manually
     docs = db.collection("CTD_Data").stream()
 
     data = []
     for doc in docs:
         d = doc.to_dict()
         try:
-            ts = d.get("date", {}).get("$date")  # Firestore stores timestamp in milliseconds
+            ts = d.get("date", {}).get("$date")
             if ts is None or not (start_ts <= ts < end_ts):
                 continue
 
             record = {
-                "datetime": datetime.fromtimestamp(ts / 1000),  # convert ms to datetime
+                "datetime": datetime.fromtimestamp(ts / 1000),
                 "instrument": d.get("instrument"),
                 "lat": d.get("lat"),
                 "lon": d.get("lon"),
@@ -92,33 +66,32 @@ def fetch_ctd_data(start_date: date, end_date: date):
 
     return pd.DataFrame(data) if data else None
 
-# --- UI: Date Range Selection ---
+# --- Sidebar: Date Range Selection ---
 st.sidebar.header("Select Date Range")
+default_start = datetime.fromtimestamp(1745545207000 / 1000).date()  # Example start date
+default_end = datetime.fromtimestamp(1746781807000 / 1000).date()    # Example end date
 
-# Default to your target range (from provided ms timestamps)
-default_start = datetime.fromtimestamp(1745545207000/ 1000).date()  # July 25, 2025
-default_end = datetime.fromtimestamp(1746781807000/1000).date()
 start = st.sidebar.date_input("Start Date", default_start)
 end = st.sidebar.date_input("End Date", default_end)
-# --- Fetch and Display Data ---
+
+# --- Fetch Data ---
 data = fetch_ctd_data(start, end)
 
 if data is None or data.empty:
     st.warning("No CTD data found for the selected date range.")
 else:
     data = data.sort_values("datetime")
-    # --- Line Chart ---
-    # --- Line Chart ---
+
+    # --- Plot Temperature Over Time ---
     st.subheader("Temperature Over Time")
 
     fig = go.Figure()
 
-# Group by instrument and depth1 for better distinction
     grouped = data.groupby(["instrument", "depth1"])
 
     for (instrument, depth), group in grouped:
         if len(group) < 2:
-            continue  # Skip very small groups
+            continue
         group = group.sort_values("datetime")
         fig.add_trace(go.Scatter(
             x=group["datetime"],
@@ -136,8 +109,6 @@ else:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
-
 
     # --- Map ---
     st.subheader("Instrument Locations")
