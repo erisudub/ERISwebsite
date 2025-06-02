@@ -22,34 +22,6 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter, Or, And
 
-if not firebase_admin._apps:
-    cert = json.loads(st.secrets.Certificate.data)
-    cred = credentials.Certificate(cert)
-    app = firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
-@st.cache_data(max_entries=10, persist=True) # 1 week
-def fetch_ctd_data(start_date: date, end_date: date):
-
-    if not isinstance(start_date, date): return None
-    if not isinstance(end_date, date): return None
-
-    start_dt = datetime.combine(start_date, time(0, 0, 0)).timestamp()
-    end_dt = datetime.combine(end_date + timedelta(days=1), time(0, 0, 0)).timestamp()
-
-    ctd_ref = db.collection("CTD_data")
-    docs = ctd_ref.where(
-        filter=FieldFilter("date.$date", ">=", start_dt)
-    ).where(
-        filter=FieldFilter("date.$date", "<", end_dt),
-    ).stream()
-
-    out = []
-    for x in docs:
-        out.append(x.to_dict())
-
-    return out
 
 # Function to encode images to base64
 def get_base64_image(image_path):
