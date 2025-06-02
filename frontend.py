@@ -1,11 +1,28 @@
 import json
 import os
 from datetime import date, time, datetime, timedelta
-import folium
 
 import pandas as pd
 import plotly.graph_objs as go
+import folium
+
 import streamlit as st
+from streamlit_folium import st_folium
+
+import firebase_admin
+from firebase_admin import credentials, firestore
+from google.cloud.firestore_v1.base_query import FieldFilter
+
+import json
+import os
+from datetime import date, time, datetime, timedelta
+
+import pandas as pd
+import plotly.graph_objs as go
+import folium
+
+import streamlit as st
+from streamlit_folium import st_folium
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -25,33 +42,37 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# --- Function to Fetch Filtered CTD Data from Firestore ---
+# --- Image Helper ---
+def get_base64_image(image_path):
+    import base64
+    if os.path.exists(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    return None
+
+# --- Function to Fetch CTD Data ---
 @st.cache_data(max_entries=10, persist=True)
 def fetch_ctd_data(start_date: date, end_date: date):
     if not isinstance(start_date, date) or not isinstance(end_date, date):
         return None
 
-    # Convert to seconds since Firestore stores date.$date as seconds
-    start_ts = datetime.combine(start_date, time.min).timestamp()
-    end_ts = datetime.combine(end_date + timedelta(days=1), time.min).timestamp()
+    # Convert dates to milliseconds (to match Firestore timestamp format)
+    start_ts = int(datetime.combine(start_date, time.min).timestamp() * 1000)
+    end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
 
-    ctd_ref = db.collection("CTD_Data")
-    docs = ctd_ref.where(
-        filter=FieldFilter("date.$date", ">=", start_ts)
-    ).where(
-        filter=FieldFilter("date.$date", "<", end_ts)
-    ).stream()
+    # Fetch all documents (Firestore doesn't support querying nested fields directly)
+    docs = db.collection("CTD_Data").stream()
 
     data = []
     for doc in docs:
         d = doc.to_dict()
         try:
-            ts = d.get("date", {}).get("$date")
-            if ts is None:
+            ts = d.get("date", {}).get("$date")  # Firestore stores timestamp in milliseconds
+            if ts is None:# or not (start_ts <= ts < end_ts):
                 continue
 
             record = {
-                "datetime": datetime.fromtimestamp(ts),
+                "datetime": datetime.fromtimestamp(ts / 1000),  # convert ms to datetime
                 "instrument": d.get("instrument"),
                 "lat": d.get("lat"),
                 "lon": d.get("lon"),
@@ -74,50 +95,31 @@ def fetch_ctd_data(start_date: date, end_date: date):
 # --- UI: Date Range Selection ---
 st.sidebar.header("Select Date Range")
 
-# Default range: today and 14 days ago
-today = datetime.utcnow().date()
-default_start = today - timedelta(days=14)
-default_end = today
-
+# Default to your target range (from provided ms timestamps)
+default_start = datetime.fromtimestamp(1745545207000/ 1000).date()  # July 25, 2025
+default_end = datetime.fromtimestamp(1746781807000/1000).date()
 start = st.sidebar.date_input("Start Date", default_start)
 end = st.sidebar.date_input("End Date", default_end)
-
 # --- Fetch and Display Data ---
 data = fetch_ctd_data(start, end)
 
 if data is None or data.empty:
     st.warning("No CTD data found for the selected date range.")
 else:
-    data = data.sort_values("datetime")
-
     # --- Line Chart ---
     st.subheader("Temperature Over Time")
     fig = go.Figure()
-
-    # Group by instrument and depth1
-    grouped = data.groupby(["instrument", "depth1"])
-
-    for (instrument, depth), group in grouped:
-        if len(group) < 2:
-            continue
-        group = group.sort_values("datetime")
-        fig.add_trace(go.Scatter(
-            x=group["datetime"],
-            y=group["temperature"],
-            mode='lines+markers',
-            name=f"{instrument} - {depth}m"
-        ))
-
+    fig.add_trace(go.Scatter(
+        x=data["datetime"], y=data["temperature"],
+        mode='lines+markers',
+        name='Temperature (°C)'
+    ))
     fig.update_layout(
         xaxis_title='Date',
         yaxis_title='Temperature (°C)',
-        template='plotly_white',
-        hovermode='x unified',
-        legend_title="Instrument / Depth"
+        template='plotly_white'
     )
-
     st.plotly_chart(fig, use_container_width=True)
-
 
     # --- Map ---
     st.subheader("Instrument Locations")
@@ -130,7 +132,7 @@ else:
             color='blue',
             fill=True
         ).add_to(m)
-    folium(m, width=700, height=500)
+    st_folium(m, width=700, height=500)
 
     # --- Raw Data Table ---
     st.subheader("Raw Data")
