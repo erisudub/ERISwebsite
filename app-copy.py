@@ -399,15 +399,15 @@ elif page == "Instrument Data":
         )
 
     # Now apply the respective layout update functions to each figure
-    update_layout_fig1(fig1, "UW ERIS CTD MEASUREMENTS")
-    update_layout_fig2(fig2, "UW ERIS WEATHER STATION MEASUREMENTS")
+    update_layout_fig1(fig1, "UW CTD MEASUREMENTS")
+    update_layout_fig2(fig2, "UW WEATHER STATION MEASUREMENTS")
 
     # Create columns for displaying the two graphs side by side
     col1, col2 = st.columns(2)
 
     # Show the filtered plot in the first column
     with col1:
-        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>UW ERIS CTD MEASUREMENTS</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>UW CTD MEASUREMENTS</h2>", unsafe_allow_html=True)
         st.plotly_chart(fig1, use_container_width=True)
         csv1 = filtered_ctd_data.to_csv(index=False)
         st.download_button("Download CTD Data", csv1, "ctd_data.csv")
@@ -415,7 +415,7 @@ elif page == "Instrument Data":
     
     # Show the filtered plot in the second column
     with col2:
-        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>UW ERIS WEATHER STATION MEASUREMENTS</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>UW WEATHER STATION MEASUREMENTS</h2>", unsafe_allow_html=True)
         st.plotly_chart(fig2, use_container_width=True)
         csv2 = filtered_weather_data.to_csv(index=False)
         st.download_button("Download Weather Data", csv2, "weather_data.csv")
