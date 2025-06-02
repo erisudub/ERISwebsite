@@ -213,7 +213,7 @@ else:
             st.subheader("Temperature Over Time")
             fig = go.Figure()
             fig.add_trace(go.Scatter(
-                x=filtered["datetime"], y=filtered["temperature"],
+                x=filtered["datetime"], y=filtered["temperature", "salinity"],
                 mode='lines+markers',
                 name='Temperature (°C)'
             ))
