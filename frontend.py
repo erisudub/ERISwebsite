@@ -1,131 +1,6 @@
-# import firebase_admin
-# from firebase_admin import credentials, firestore
-# from google.cloud.firestore_v1.base_query import FieldFilter
-
-# import json
-# import os
-# from datetime import date, time, datetime, timedelta
-
-# import pandas as pd
-# import plotly.graph_objs as go
-# import folium
-
-# import streamlit as st
-# from streamlit_folium import st_folium
-
-
-# # --- Streamlit Config ---
-# st.set_page_config(layout="wide")
-
-# # --- Title ---
-# st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
-
-# # --- Firebase Init ---
-# if not firebase_admin._apps:
-#     cert = json.loads(st.secrets["Certificate"]["data"])
-#     cred = credentials.Certificate(cert)
-#     firebase_admin.initialize_app(cred)
-
-# db = firestore.client()
-
-# --- Image Helper ---
-# def get_base64_image(image_path):
-#     import base64
-#     if os.path.exists(image_path):
-#         with open(image_path, "rb") as img_file:
-#             return base64.b64encode(img_file.read()).decode()
-#     return None
-
-# # --- Function to Fetch CTD Data ---
-# @st.cache_data(max_entries=10, persist=True)
-# def fetch_ctd_data(start_date: date, end_date: date):
-#     if not isinstance(start_date, date) or not isinstance(end_date, date):
-#         return None
-
-#     # Convert dates to milliseconds (to match Firestore timestamp format)
-#     start_ts = int(datetime.combine(start_date, time.min).timestamp() * 1000)
-#     end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
-
-#     # Fetch all documents (Firestore doesn't support querying nested fields directly)
-#     docs = db.collection("CTD_Data").stream()
-
-#     data = []
-#     for doc in docs:
-#         d = doc.to_dict()
-#         try:
-#             ts = d.get("date", {}).get("$date")  # Firestore stores timestamp in milliseconds
-#             if ts is None:# or not (start_ts <= ts < end_ts):
-#                 continue
-
-#             record = {
-#                 "datetime": datetime.fromtimestamp(ts / 1000),  # convert ms to datetime
-#                 "instrument": d.get("instrument"),
-#                 "lat": d.get("lat"),
-#                 "lon": d.get("lon"),
-#                 "depth1": d.get("depth1"),
-#                 "oxygen": d.get("oxygen"),
-#                 "conductivity": float(d.get("conductivity", "nan")),
-#                 "par": float(d.get("par", "nan")),
-#                 "pressure": float(d.get("pressure", "nan")),
-#                 "salinity": float(d.get("salinity", "nan")),
-#                 "temperature": float(d.get("temperature", "nan")),
-#                 "turbidity": float(d.get("turbidity", "nan")),
-#             }
-#             data.append(record)
-#         except Exception as e:
-#             print(f"Error processing document: {e}")
-#             continue
-
-#     return pd.DataFrame(data) if data else None
-
-# # --- UI: Date Range Selection ---
-# st.sidebar.header("Select Date Range")
-
-# # Default to your target range (from provided ms timestamps)
-# default_start = datetime.fromtimestamp(1745545207000/ 1000).date()  # July 25, 2025
-# default_end = datetime.fromtimestamp(1746781807000/1000).date()
-# start = st.sidebar.date_input("Start Date", default_start)
-# end = st.sidebar.date_input("End Date", default_end)
-# # --- Fetch and Display Data ---
-# data = fetch_ctd_data(start, end)
-
-# if data is None or data.empty:
-#     st.warning("No CTD data found for the selected date range.")
-# else:
-#     # --- Line Chart ---
-#     st.subheader("Temperature Over Time")
-#     fig = go.Figure()
-#     fig.add_trace(go.Scatter(
-#         x=data["datetime"], y=data["temperature"],
-#         mode='lines+markers',
-#         name='Temperature (°C)'
-#     ))
-#     fig.update_layout(
-#         xaxis_title='Date',
-#         yaxis_title='Temperature (°C)',
-#         template='plotly_white'
-#     )
-#     st.plotly_chart(fig, use_container_width=True)
-
-#     # --- Map ---
-#     st.subheader("Instrument Locations")
-#     m = folium.Map(location=[data["lat"].mean(), data["lon"].mean()], zoom_start=10)
-#     for _, row in data.iterrows():
-#         folium.CircleMarker(
-#             location=[row["lat"], row["lon"]],
-#             radius=5,
-#             popup=f"{row['instrument']}<br>{row['datetime'].strftime('%Y-%m-%d %H:%M:%S')}",
-#             color='blue',
-#             fill=True
-#         ).add_to(m)
-#     st_folium(m, width=700, height=500)
-
-#     # --- Raw Data Table ---
-#     st.subheader("Raw Data")
-#     st.dataframe(data)
-
 import firebase_admin
 from firebase_admin import credentials, firestore
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 import json
 import os
@@ -141,6 +16,8 @@ from streamlit_folium import st_folium
 
 # --- Streamlit Config ---
 st.set_page_config(layout="wide")
+
+# --- Title ---
 st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>UW ERIS CTD & WEATHER STATION DATA</h1>", unsafe_allow_html=True)
 
 # --- Firebase Init ---
@@ -151,21 +28,37 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# --- Fetch All Data Once ---
-@st.cache_data(ttl=3600)
-def fetch_all_ctd_data():
-    docs = db.collection("CTD_Data").stream()
-    data = []
+#--- Image Helper ---
+def get_base64_image(image_path):
+    import base64
+    if os.path.exists(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    return None
 
+# --- Function to Fetch CTD Data ---
+@st.cache_data(max_entries=10, persist=True)
+def fetch_ctd_data(start_date: date, end_date: date):
+    if not isinstance(start_date, date) or not isinstance(end_date, date):
+        return None
+
+    # Convert dates to milliseconds (to match Firestore timestamp format)
+    start_ts = int(datetime.combine(start_date, time.min).timestamp() * 1000)
+    end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
+
+    # Fetch all documents (Firestore doesn't support querying nested fields directly)
+    docs = db.collection("CTD_Data").orderBy("date", "asc").stream()
+
+    data = []
     for doc in docs:
         d = doc.to_dict()
         try:
-            ts = d.get("date", {}).get("$date")
-            if ts is None:
+            ts = d.get("date", {}).get("$date")  # Firestore stores timestamp in milliseconds
+            if ts is None:# or not (start_ts <= ts < end_ts):
                 continue
 
             record = {
-                "datetime": datetime.fromtimestamp(ts / 1000),
+                "datetime": datetime.fromtimestamp(ts / 1000),  # convert ms to datetime
                 "instrument": d.get("instrument"),
                 "lat": d.get("lat"),
                 "lon": d.get("lon"),
@@ -185,58 +78,50 @@ def fetch_all_ctd_data():
 
     return pd.DataFrame(data) if data else None
 
-# --- Load and Filter Data ---
-full_data = fetch_all_ctd_data()
+# --- UI: Date Range Selection ---
+st.sidebar.header("Select Date Range")
 
-if full_data is None or full_data.empty:
-    st.warning("No CTD data found.")
+# Default to your target range (from provided ms timestamps)
+default_start = datetime.fromtimestamp(1745545207000/ 1000).date()  # July 25, 2025
+default_end = datetime.fromtimestamp(1746781807000/1000).date()
+start = st.sidebar.date_input("Start Date", default_start)
+end = st.sidebar.date_input("End Date", default_end)
+# --- Fetch and Display Data ---
+data = fetch_ctd_data(start, end)
+
+if data is None or data.empty:
+    st.warning("No CTD data found for the selected date range.")
 else:
-    full_data.sort_values("datetime", inplace=True)
+    # --- Line Chart ---
+    st.subheader("Temperature Over Time")
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=data["datetime"], y=data["temperature"],
+        mode='lines+markers',
+        name='Temperature (°C)'
+    ))
+    fig.update_layout(
+        xaxis_title='Date',
+        yaxis_title='Temperature (°C)',
+        template='plotly_white'
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
-    # --- Sidebar Date Range Selection ---
-    st.sidebar.header("Select Date Range")
-    min_date = full_data["datetime"].min().date()
-    max_date = full_data["datetime"].max().date()
+    # --- Map ---
+    st.subheader("Instrument Locations")
+    m = folium.Map(location=[data["lat"].mean(), data["lon"].mean()], zoom_start=10)
+    for _, row in data.iterrows():
+        folium.CircleMarker(
+            location=[row["lat"], row["lon"]],
+            radius=5,
+            popup=f"{row['instrument']}<br>{row['datetime'].strftime('%Y-%m-%d %H:%M:%S')}",
+            color='blue',
+            fill=True
+        ).add_to(m)
+    st_folium(m, width=700, height=500)
 
-    start = st.sidebar.date_input("Start Date", min_value=min_date, max_value=max_date, value=min_date)
-    end = st.sidebar.date_input("End Date", min_value=min_date, max_value=max_date, value=max_date)
+    # --- Raw Data Table ---
+    st.subheader("Raw Data")
+    st.dataframe(data)
 
-    if start > end:
-        st.error("Start date must be before end date.")
-    else:
-        filtered = full_data[(full_data["datetime"].dt.date >= start) & (full_data["datetime"].dt.date <= end)]
 
-        if filtered.empty:
-            st.warning("No data available in the selected date range.")
-        else:
-            # --- Line Chart ---
-            st.subheader("Temperature Over Time")
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=filtered["datetime"], y=filtered["temperature", "salinity"],
-                mode='lines+markers',
-                name='Temperature (°C)'
-            ))
-            fig.update_layout(
-                xaxis_title='Date',
-                yaxis_title='Temperature (°C)',
-                template='plotly_white'
-            )
-            st.plotly_chart(fig, use_container_width=True)
-
-            # --- Map ---
-            st.subheader("Instrument Locations")
-            m = folium.Map(location=[filtered["lat"].mean(), filtered["lon"].mean()], zoom_start=10)
-            for _, row in filtered.iterrows():
-                folium.CircleMarker(
-                    location=[row["lat"], row["lon"]],
-                    radius=5,
-                    popup=f"{row['instrument']}<br>{row['datetime'].strftime('%Y-%m-%d %H:%M:%S')}",
-                    color='blue',
-                    fill=True
-                ).add_to(m)
-            st_folium(m, width=700, height=500)
-
-            # --- Raw Data Table ---
-            st.subheader("Raw Data")
-            st.dataframe(filtered)
