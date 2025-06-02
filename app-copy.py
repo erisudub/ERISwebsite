@@ -407,7 +407,7 @@ elif page == "Instrument Data":
 
     # Show the filtered plot in the first column
     with col1:
-        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>UW CTD</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>ERIS CTD</h2>", unsafe_allow_html=True)
         st.plotly_chart(fig1, use_container_width=True)
         csv1 = filtered_ctd_data.to_csv(index=False)
         st.download_button("Download CTD Data", csv1, "ctd_data.csv")
@@ -415,7 +415,7 @@ elif page == "Instrument Data":
     
     # Show the filtered plot in the second column
     with col2:
-        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>UW WEATHER STATION</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>ERIS WEATHER STATION</h2>", unsafe_allow_html=True)
         st.plotly_chart(fig2, use_container_width=True)
         csv2 = filtered_weather_data.to_csv(index=False)
         st.download_button("Download Weather Data", csv2, "weather_data.csv")
