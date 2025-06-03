@@ -237,11 +237,8 @@ if data is None or data.empty:
 else:
     # --- Date Range Inputs (moved to main area) ---
     st.subheader("Select Date Range")
-    col1, col2 = st.columns(2)
-    with col1:
-        start = st.date_input("Start Date", datetime(2025, 5, 1).date())
-    with col2:
-        end = st.date_input("End Date", date.today(), min_value=start)
+    start = st.date_input("Start Date", datetime(2025, 5, 1).date())
+    end = st.date_input("End Date", date.today(), min_value=start)
 
     if end < start:
         st.error("End Date must be on or after Start Date.")
