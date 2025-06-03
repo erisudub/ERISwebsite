@@ -108,6 +108,31 @@ else:
         mode='lines+markers',
         name='Salinity (PSU))'
     ))
+    fig.add_trace(go.Scatter(
+        x=data["datetime"], y=data["par"],
+        mode='lines+markers',
+        name='PAR'
+    ))
+    fig.add_trace(go.Scatter(
+        x=data["datetime"], y=data["conductivity"],
+        mode='lines+markers',
+        name='Conductivity'
+    ))
+    fig.add_trace(go.Scatter(
+        x=data["datetime"], y=data["oxygen"],
+        mode='lines+markers',
+        name='Oxygen'
+    ))
+    fig.add_trace(go.Scatter(
+        x=data["datetime"], y=data["turbidity"],
+        mode='lines+markers',
+        name='turbidity'
+    ))
+    fig.add_trace(go.Scatter(
+        x=data["datetime"], y=data["pressure"],
+        mode='lines+markers',
+        name='Pressure'
+    ))
     fig.update_layout(
         xaxis_title='Date',
         yaxis_title='Values',
