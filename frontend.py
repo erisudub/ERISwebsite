@@ -339,3 +339,4 @@ folium.CircleMarker(
 # Display the map
 folium_static(m, width=1500, height=500)
 
+st.set_page_config(layout="wide")
