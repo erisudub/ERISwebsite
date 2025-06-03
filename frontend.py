@@ -159,25 +159,20 @@
 
 import firebase_admin
 from firebase_admin import credentials, firestore
-from google.cloud.firestore_v1.base_query import FieldFilter
+from datetime import date, time, datetime, timedelta
 
 import json
 import os
-from datetime import date, time, datetime, timedelta
-
 import pandas as pd
 import plotly.graph_objs as go
-import folium
-
 import streamlit as st
-from streamlit_folium import st_folium
 
 # --- Streamlit Config ---
 st.set_page_config(layout="wide")
 
 # --- Firebase Init ---
 if not firebase_admin._apps:
-    cert = json.loads(st.secrets["Certificate"]["data"])
+    cert = json.loads(st.secrets["Certificate"]["data"])  # Ensure secrets.toml is properly configured
     cred = credentials.Certificate(cert)
     firebase_admin.initialize_app(cred)
 
@@ -191,47 +186,21 @@ def get_base64_image(image_path):
             return base64.b64encode(img_file.read()).decode()
     return None
 
-# --- Logo + Title ---
-logo_path = "images/OceanTech Logo-PURPLE.png"
-base64_logo = get_base64_image(logo_path)
-
-if base64_logo:
-    logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>"
-else:
-    logo_html = "⚠️ Logo Not Found"
-
-st.markdown(
-    f"""
-    <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-        {logo_html}
-        <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>UW ERIS CTD & WEATHER STATION DATA</h1>
-        {logo_html}
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# --- Function to Fetch CTD Data ---
+# --- Fetch CTD Data ---
 @st.cache_data(max_entries=10, persist=True)
 def fetch_ctd_data(start_date: date, end_date: date):
-    if not isinstance(start_date, date) or not isinstance(end_date, date):
-        return None
-
     start_ts = int(datetime.combine(start_date, time.min).timestamp() * 1000)
     end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
 
-    docs = db.collection("CTD_Data")
-    query = docs.order_by("date")
-    results = query.get()
+    docs = db.collection("CTD_Data").order_by("date").get()
 
     data = []
-    for doc in results:
+    for doc in docs:
         d = doc.to_dict()
         try:
             ts = d.get("date", {}).get("$date")
             if ts is None:
                 continue
-
             record = {
                 "datetime": datetime.fromtimestamp(ts / 1000),
                 "instrument": d.get("instrument"),
@@ -253,33 +222,48 @@ def fetch_ctd_data(start_date: date, end_date: date):
 
     return pd.DataFrame(data) if data else None
 
-# --- Sidebar: Date Range ---
+# --- Sidebar Date Selection ---
 st.sidebar.header("Select Date Range")
-default_start = datetime.fromtimestamp(1745545207000 / 1000).date()  # July 25, 2025
+default_start = datetime.fromtimestamp(1745545207000 / 1000).date()
 default_end = datetime.fromtimestamp(1746781807000 / 1000).date()
 start = st.sidebar.date_input("Start Date", default_start)
 end = st.sidebar.date_input("End Date", default_end)
 
-# --- Fetch and Display Data ---
-data = fetch_ctd_data(start, end)
+# --- Main Title with Logos ---
+logo_path = "images/OceanTech Logo-PURPLE.png"
+base64_logo = get_base64_image(logo_path)
+logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>" if base64_logo else "⚠️ Logo Not Found"
+st.markdown(
+    f"""
+    <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+        {logo_html}
+        <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>UW ERIS CTD & WEATHER STATION DATA</h1>
+        {logo_html}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
+# --- Fetch & Filter Data ---
+data = fetch_ctd_data(start, end)
 if data is None or data.empty:
     st.warning("No CTD data found for the selected date range.")
 else:
-    # --- Section Header ---
-    st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>ERIS CTD</h2>", unsafe_allow_html=True)
+    filtered_data = data[(data["datetime"] >= pd.Timestamp(start)) & (data["datetime"] <= pd.Timestamp(end))]
 
-    # --- Line Chart ---
+    # --- Graph ---
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=data["datetime"], y=data["temperature"], mode='lines+markers', name='Temperature (°C)'))
-    fig.add_trace(go.Scatter(x=data["datetime"], y=data["salinity"], mode='lines+markers', name='Salinity (PSU)'))
-    fig.add_trace(go.Scatter(x=data["datetime"], y=data["par"], mode='lines+markers', name='PAR'))
-    fig.add_trace(go.Scatter(x=data["datetime"], y=data["conductivity"], mode='lines+markers', name='Conductivity'))
-    fig.add_trace(go.Scatter(x=data["datetime"], y=data["oxygen"], mode='lines+markers', name='Oxygen'))
-    fig.add_trace(go.Scatter(x=data["datetime"], y=data["turbidity"], mode='lines+markers', name='Turbidity'))
-    fig.add_trace(go.Scatter(x=data["datetime"], y=data["pressure"], mode='lines+markers', name='Pressure'))
+    fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["temperature"], mode='lines', name='Temperature', line=dict(color='blue')))
+    fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["salinity"], mode='lines', name='Salinity', line=dict(color='orange')))
+    fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["par"], mode='lines', name='PAR', line=dict(color='green')))
+    fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["conductivity"], mode='lines', name='Conductivity', line=dict(color='purple')))
+    fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["oxygen"], mode='lines', name='Oxygen', line=dict(color='gold')))
+    fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["turbidity"], mode='lines', name='Turbidity', line=dict(color='red')))
+    fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["pressure"], mode='lines', name='Pressure', line=dict(color='black')))
 
+    # --- Layout Styling ---
     fig.update_layout(
+        title="CTD Instrument Measurements",
         xaxis_title="Time",
         yaxis_title="Values",
         width=800,
@@ -303,20 +287,22 @@ else:
         paper_bgcolor="lightblue",
         font=dict(family="Georgia, serif", size=12, color="black"),
         legend=dict(
-            x=1.05,
-            y=0.5,
-            xanchor='left',
-            yanchor='middle',
-            traceorder="normal",
+            x=1.05, y=0.5, xanchor='left', yanchor='middle',
             bgcolor='rgba(255, 255, 255, 0.5)'
         ),
         margin=dict(l=80, r=80, t=50, b=80),
         autosize=False
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    # --- Graph Display & Download ---
+    col1, _ = st.columns([2, 1])  # Keep single-column appearance for now
+    with col1:
+        st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>ERIS CTD</h2>", unsafe_allow_html=True)
+        st.plotly_chart(fig, use_container_width=True)
 
-    # --- Download + Table ---
-    csv = data.to_csv(index=False)
-    st.download_button("Download CTD Data", csv, "ctd_data.csv")
-    st.dataframe(data, use_container_width=True)
+        # --- Download Button ---
+        csv_data = filtered_data.to_csv(index=False)
+        st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
+
+        # --- Data Table ---
+        st.dataframe(filtered_data, use_container_width=True)
