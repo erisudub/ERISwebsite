@@ -86,13 +86,12 @@ st.markdown(
 )
 
 # --- Fetch & Filter Data --
-with st.spinner("Loading CTD data..."):
-    data = fetch_ctd_data(start, end)
-
+data = fetch_ctd_data(start, end)
 if data is None or data.empty:
     st.warning("No CTD data found for the selected date range.")
 else:
-    filtered_data = data[(data["datetime"] >= pd.Timestamp(start)) & (data["datetime"] <= pd.Timestamp(end))]
+    #filtered_data = data[(data["datetime"] >= pd.Timestamp(start)) & (data["datetime"] <= pd.Timestamp(end))]
+
 
     #CODE TO LINK GRAPH TO RAW DATA
     start_dt = pd.Timestamp(start)
