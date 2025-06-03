@@ -164,6 +164,8 @@ import pandas as pd
 import plotly.graph_objs as go
 import streamlit as st
 
+from streamlit_folium import folium_static
+
 # --- Streamlit Config ---
 st.set_page_config(layout="wide")
 
@@ -302,33 +304,38 @@ else:
         # --- Data Table ---
         st.dataframe(filtered_data, use_container_width=True)
 
-           # Add a map of instrument locations
-    st.write("### Instrument Locations")
-    map_center = [47.649414, -122.312534]
-    m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
-    # Add a circle marker for the first location
-    folium.CircleMarker(
-        location=[47.649414, -122.312534],
-        radius=4,
-        color='red',
-        fill=True,
-        fill_color='red',
-        fill_opacity=0.7,
-        tooltip="CTD: 47.649414, -122.312534"
-    ).add_to(m)
 
-    # Add a circle marker for the second location
-    folium.CircleMarker(
-        location=[47.649572, -122.312467],
-        radius=4,
-        color='blue',
-        fill=True,
-        fill_color='blue',
-        fill_opacity=0.7,
-        tooltip="WEATHER STATION: 47.649572, -122.312467"
-    ).add_to(m)
 
-    # Display the map in full width
-    folium(m, width=1500, height=500)
+st.set_page_config(layout="wide")
 
-    st.set_page_config(layout="wide")
+st.write("### Instrument Location")
+
+# Center of the map
+map_center = [47.649414, -122.312534]
+m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
+
+# Add a circle marker for the first location
+folium.CircleMarker(
+    location=[47.649414, -122.312534],
+    radius=4,
+    color='red',
+    fill=True,
+    fill_color='red',
+    fill_opacity=0.7,
+    tooltip="CTD: 47.649414, -122.312534"
+).add_to(m)
+
+# Optional: Add a second location marker (uncomment to enable)
+# folium.CircleMarker(
+#     location=[47.649572, -122.312467],
+#     radius=4,
+#     color='blue',
+#     fill=True,
+#     fill_color='blue',
+#     fill_opacity=0.7,
+#     tooltip="WEATHER STATION: 47.649572, -122.312467"
+# ).add_to(m)
+
+# Display the map
+folium_static(m, width=1500, height=500)
+
