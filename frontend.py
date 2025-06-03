@@ -113,16 +113,14 @@ else:
     st.subheader("ERIS CTD Measurements")
     fig = go.Figure()
 
-    #temp
     fig.add_trace(go.Scatter(
-        x =data["datetime"],
+        x=data["datetime"],
         y=data["temperature"],
         mode='lines+markers',
-        name='Temperature (C)',
+        name='Temperature (°C)',
         yaxis='y1'
     ))
 
-    #Salinity
     fig.add_trace(go.Scatter(
         x=data["datetime"],
         y=data["salinity"],
@@ -131,29 +129,31 @@ else:
         yaxis='y2'
     ))
 
-    #Dual y-axis
     fig.update_layout(
-        xaxis_title='Date',
+        xaxis=dict(
+            title='Date',
+        ),
         yaxis=dict(
-            title="Temerature (C)",
+            title="Temperature (°C)",
             titlefont=dict(color='red'),
             tickfont=dict(color='red'),
             side='left',
-            anchor = 'x',
+            anchor='x',
         ),
         yaxis2=dict(
             title="Salinity (PSU)",
-            titlefont=dict(color="blue"),
-            tickfont=dict(color='green'),
+            titlefont=dict(color='blue'),
+            tickfont=dict(color='blue'),
             overlaying='y',
             side='right',
-            anchor = 'x',
+            anchor='x',
         ),
         legend=dict(x=0, y=1),
         template='plotly_white'
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
     # --- Map ---
     st.subheader("Instrument Locations")
