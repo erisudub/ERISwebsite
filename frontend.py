@@ -95,65 +95,25 @@ data = fetch_ctd_data(start, end)
 if data is None or data.empty:
     st.warning("No CTD data found for the selected date range.")
 else:
-    # # --- Line Chart ---
-    # st.subheader("Temperature Over Time")
-    # fig = go.Figure()
-    # fig.add_trace(go.Scatter(
-    #     x=data["datetime"], y=data["temperature"],
-    #     mode='lines+markers',
-    #     name='Temperature (°C)'
-    # ))
-    # fig.update_layout(
-    #     xaxis_title='Date',
-    #     yaxis_title='Temperature (°C)',
-    #     template='plotly_white'
-    # )
-    # st.plotly_chart(fig, use_container_width=True)
-
-    st.subheader("ERIS CTD Measurements")
+    # --- Line Chart ---
+    st.subheader("Temperature Over Time")
     fig = go.Figure()
-
     fig.add_trace(go.Scatter(
-        x=data["datetime"],
-        y=data["temperature"],
+        x=data["datetime"], y=data["temperature"],
         mode='lines+markers',
-        name='Temperature (°C)',
-        yaxis='y1'
+        name='Temperature (°C)'
     ))
-
     fig.add_trace(go.Scatter(
-        x=data["datetime"],
-        y=data["salinity"],
+        x=data["datetime"], y=data["salinity"],
         mode='lines+markers',
-        name='Salinity (PSU)',
-        yaxis='y2'
+        name='Salinity (PSU))'
     ))
-
     fig.update_layout(
-        xaxis=dict(
-            title='Date',
-        ),
-        yaxis=dict(
-            title="Temperature (°C)",
-            titlefont=dict(color='red'),
-            tickfont=dict(color='red'),
-            side='left',
-            anchor='x',
-        ),
-        yaxis2=dict(
-            title="Salinity (PSU)",
-            titlefont=dict(color='blue'),
-            tickfont=dict(color='blue'),
-            overlaying='y',
-            side='right',
-            anchor='x',
-        ),
-        legend=dict(x=0, y=1),
+        xaxis_title='Date',
+        yaxis_title='Values',
         template='plotly_white'
     )
-
     st.plotly_chart(fig, use_container_width=True)
-
 
     # --- Map ---
     st.subheader("Instrument Locations")
