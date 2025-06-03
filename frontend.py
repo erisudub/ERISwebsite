@@ -137,14 +137,17 @@ else:
         yaxis=dict(
             title="Temerature (C)",
             titlefont=dict(color='red'),
-            tickfont=dict(color='red')
+            tickfont=dict(color='red'),
+            side='left',
+            anchor = 'x',
         ),
         yaxis2=dict(
             title="Salinity (PSU)",
             titlefont=dict(color="blue"),
             tickfont=dict(color='green'),
             overlaying='y',
-            side='right'
+            side='right',
+            anchor = 'x',
         ),
         legend=dict(x=0, y=1),
         template='plotly_white'
