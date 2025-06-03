@@ -28,7 +28,7 @@ def get_base64_image(image_path):
     return None
 
 # --- Fetch CTD Data ---
-@st.cache_data(max_entries=10, persist=True)
+@st.cache_data(max_entries=10, persist=True, show_spinner=False)
 def fetch_ctd_data(start_date: date, end_date: date):
     start_ts = int(datetime.combine(start_date, time.min).timestamp() * 1000)
     end_ts = int(datetime.combine(end_date + timedelta(days=1), time.min).timestamp() * 1000)
