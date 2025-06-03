@@ -125,7 +125,7 @@ else:
     #Salinity
     fig.add_trace(go.Scatter(
         x=data["datetime"],
-        y=data["salintiy"],
+        y=data["salinity"],
         mode='lines+markers',
         name='Salinity (PSU)',
         yaxis='y2'
