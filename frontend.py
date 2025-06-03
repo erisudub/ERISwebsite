@@ -295,7 +295,7 @@ else:
     )
 
     # --- Graph Display & Download ---
-    col1, _ = st.columns([2, 1])  # Keep single-column appearance for now
+    col1, _ = st.columns([1, 2, 1])  # Keep single-column appearance for now
     with col1:
         st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>ERIS CTD</h2>", unsafe_allow_html=True)
         st.plotly_chart(fig, use_container_width=True)
