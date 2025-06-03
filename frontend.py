@@ -15,7 +15,7 @@ from streamlit_folium import folium_static
 import time
 
 # Auto-refresh every 30 minutes (1800 seconds)
-REFRESH_INTERVAL_SECONDS = 30
+REFRESH_INTERVAL_SECONDS = 15
 
 # Initialize session state timestamp if not present
 if "last_refresh_time" not in st.session_state:
@@ -25,8 +25,6 @@ if "last_refresh_time" not in st.session_state:
 if time.time() - st.session_state.last_refresh_time > REFRESH_INTERVAL_SECONDS:
     st.session_state.last_refresh_time = time.time()
     st.experimental_rerun()
-
-st.caption(f"Last refresh: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
 # --- Streamlit Config ---
 st.set_page_config(layout="wide")
@@ -48,7 +46,7 @@ def get_base64_image(image_path):
     return None
 
 # --- Fetch CTD Data ---
-@st.cache_resource(ttl=30)
+@st.cache_resource(ttl=15)
 def fetch_ctd_data():
     docs = db.collection("CTD_Data").order_by("date").get()
     data = []
