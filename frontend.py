@@ -304,17 +304,11 @@ else:
         # --- Data Table ---
         st.dataframe(filtered_data, use_container_width=True)
 
-
-
-st.set_page_config(layout="wide")
-
 st.write("### Instrument Location")
 
-# Center of the map
 map_center = [47.649414, -122.312534]
 m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
 
-# Add a circle marker for the first location
 folium.CircleMarker(
     location=[47.649414, -122.312534],
     radius=4,
@@ -325,7 +319,7 @@ folium.CircleMarker(
     tooltip="CTD: 47.649414, -122.312534"
 ).add_to(m)
 
-# Optional: Add a second location marker (uncomment to enable)
+# Optional additional marker
 # folium.CircleMarker(
 #     location=[47.649572, -122.312467],
 #     radius=4,
@@ -336,7 +330,4 @@ folium.CircleMarker(
 #     tooltip="WEATHER STATION: 47.649572, -122.312467"
 # ).add_to(m)
 
-# Display the map
 folium_static(m, width=1500, height=500)
-
-st.set_page_config(layout="wide")
