@@ -263,7 +263,6 @@ else:
 
     # --- Layout Styling ---
     fig.update_layout(
-        title="CTD Instrument Measurements",
         xaxis_title="Time",
         yaxis_title="Values",
         width=800,
@@ -295,7 +294,7 @@ else:
     )
 
     # --- Graph Display & Download ---
-    left, center, right = st.columns([1, 2, 1])  # Create three columns to center content
+    center, = st.columns([1])  
 
     with center:  # Put all your content in the center column
         st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>ERIS CTD</h2>", unsafe_allow_html=True)
