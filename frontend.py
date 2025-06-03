@@ -113,14 +113,13 @@ else:
     st.subheader("ERIS CTD Measurements")
     fig = go.Figure()
 
-    
     #temp
     fig.add_trace(go.Scatter(
         x =data["datetime"],
         y=data["temperature"],
         mode='lines+markers',
-        name ='Temperature (C)',
-        yaxis = 'y1'
+        name='Temperature (C)',
+        yaxis='y1'
     ))
 
     #Salinity
@@ -148,7 +147,7 @@ else:
             side='right'
         ),
         legend=dict(x=0, y=1),
-        template = 'plotly_white'
+        template='plotly_white'
     )
 
     st.plotly_chart(fig, use_container_width=True)
