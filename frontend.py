@@ -111,7 +111,7 @@ else:
     # st.plotly_chart(fig, use_container_width=True)
 
     st.subheader("ERIS CTD Measurements")
-    fig = go.figure()
+    fig = go.Figure()
 
     #temp
     fig.add_trace(go.Scatter(
