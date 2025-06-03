@@ -295,8 +295,9 @@ else:
     )
 
     # --- Graph Display & Download ---
-    col1, _ = st.columns([1, 2, 1])  # Keep single-column appearance for now
-    with col1:
+    left, center, right = st.columns([1, 2, 1])  # Create three columns to center content
+
+    with center:  # Put all your content in the center column
         st.markdown("<h2 style='text-align: center; font-family: Georgia, serif;'>ERIS CTD</h2>", unsafe_allow_html=True)
         st.plotly_chart(fig, use_container_width=True)
 
@@ -306,3 +307,4 @@ else:
 
         # --- Data Table ---
         st.dataframe(filtered_data, use_container_width=True)
+
