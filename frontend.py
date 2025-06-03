@@ -112,7 +112,7 @@ else:
 
     st.subheader("ERIS CTD Measurements")
     fig = go.Figure()
-
+    
     #temp
     fig.add_trace(go.Scatter(
         x =data["datetime"],
