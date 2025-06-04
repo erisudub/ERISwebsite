@@ -507,8 +507,8 @@ elif page == "Gallery":
                 # ✅ Uniform square image container with consistent formatting
                 img_html = f"""
                     <div style="text-align:center; margin-bottom:20px;">
-                        <div style="width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:10px; background:white;">
-                            <img src="data:image/jpeg;base64,{base64_img}" style="width:100%; height:100%; object-fit:contain; background-color:white;">
+                        <div style="width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:15px; background:white; display:flex; align-items:center; justify-content:center;">
+                            <img src="data:image/jpeg;base64,{base64_img}" style="width:100%; height:100%; object-fit:contain; border-radius:15px;">
                         </div>
                         <p style="font-size:16px; font-weight:bold; margin-top:8px;">{caption}</p>
                     </div>
