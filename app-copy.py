@@ -363,15 +363,15 @@ elif page == "Instrument Descriptions":
     # Seabird CTD Section
     st.write("### Seabird CTD")
     
-    st.write("##Overview")
+    st.write("###Overview")
     st.write("The SBE 16plus V2 SeaCAT is a high-precision conductivity and temperature recorder, optionally equipped with a pressure sensor, designed for long-term moored deployments in oceanographic research. Its robust design and versatile sensor integration make it ideal for collecting high-quality oceanographic data over extended periods")
     st.write("Our SBE 16plus V2 SeaCAT, 'Albi' is engineered for long-duration, fixed-site deployments, providing accurate measurements of conductivity, temperature, and optional pressure. It supports integration with various auxiliary sensors, including dissolved oxygen, pH, turbidity, fluorescence, oil-in-water, and Photosynthetically Active Radiation (PAR), enhancing its capability to monitor diverse oceanographic parameters")
     
-    st.write("##How it Works")
+    st.write("###How it Works")
     st.write("The instrument operates by recording data at user-programmable intervals ranging from 10 seconds to 4 hours. We have 'Albi' set to a 30 minute interval. Data is stored in internal memory and can also be output in real-time in engineering units or raw hexadecimal format. The SBE 16plus V2 is powered by nine alkaline D-cell batteries, providing sufficient energy for approximately 355,000 samples of conductivity and temperature")
     st.write("To mitigate biofouling, the device includes expendable anti-foulant devices and offers an optional pump for enhanced protection. Its durable construction allows for deployments at depths up to 10,500 meters, making it suitable for a wide range of oceanographic studies")
     
-    st.write("##Our Data Attributes")
+    st.write("###Our Data Attributes")
     st.write("- Conductivity")
     st.write("- Pressure")
     st.write("- Temperature")
