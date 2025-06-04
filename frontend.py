@@ -276,33 +276,23 @@ elif page == "Instrument Data":
         start_dt = pd.Timestamp(start)
         end_dt = pd.Timestamp(end) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
 
+        # Filter data within date range
         filtered_data = data[(data["datetime"] >= start_dt) & (data["datetime"] <= end_dt)].copy()
 
         if filtered_data.empty:
             st.warning("No CTD data for the selected date range.")
         else:
             expected_cols = ["temperature", "salinity", "par", "conductivity", "oxygen", "turbidity", "pressure"]
-            existing_cols = [
-                col for col in expected_cols 
-                if col in filtered_data.columns and pd.api.types.is_numeric_dtype(filtered_data[col])
-            ]
+
+            # Filter columns present AND numeric dtype
+            existing_cols = [col for col in expected_cols if col in filtered_data.columns and pd.api.types.is_numeric_dtype(filtered_data[col])]
 
             if not existing_cols:
                 st.warning("No numeric data columns found to plot.")
             else:
-                # Set datetime index and sort for resampling
-                filtered_data = filtered_data.set_index('datetime').sort_index()
+                # Sort by datetime to keep exact measurement times, no resampling
+                filtered_data = filtered_data.sort_values('datetime')
 
-                # Resample to hourly frequency with mean aggregation, creating gaps (NaNs) for missing hours
-                filtered_numeric = filtered_data[existing_cols].resample('H').mean()
-
-                # Limit resampled data to selected date range
-                filtered_numeric = filtered_numeric.loc[start_dt:end_dt]
-
-                # Reset index for plotting
-                filtered_data = filtered_numeric.reset_index()
-
-                # Plotly figure setup
                 fig = go.Figure()
                 color_map = {
                     "temperature": "blue",
@@ -318,7 +308,7 @@ elif page == "Instrument Data":
                     fig.add_trace(go.Scatter(
                         x=filtered_data["datetime"],
                         y=filtered_data[col],
-                        mode='lines',
+                        mode='lines+markers',  # Show exact data points with markers
                         name=col.capitalize(),
                         line=dict(color=color_map.get(col, "gray"))
                     ))
@@ -351,24 +341,24 @@ elif page == "Instrument Data":
 
                 st.plotly_chart(fig, use_container_width=True)
 
-                # CSV download
+                # Provide CSV download for filtered data as-is
                 csv_data = filtered_data.to_csv(index=False)
                 st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
 
                 st.dataframe(filtered_data, use_container_width=True)
 
-    # Instrument Location Map
-    st.write("### Instrument Location")
-    map_center = [47.64935, -122.3127]
-    m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
+        # Instrument Location Map
+        st.write("### Instrument Location")
+        map_center = [47.64935, -122.3127]
+        m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
 
-    folium.Marker(
-        location=[47.64935, -122.3127],
-        tooltip="CTD: 47.64935, -122.3127",
-        icon=folium.Icon(icon='star', prefix='fa', color='orange')  # golden star
-    ).add_to(m)
+        folium.Marker(
+            location=[47.64935, -122.3127],
+            tooltip="CTD: 47.64935, -122.3127",
+            icon=folium.Icon(icon='star', prefix='fa', color='orange')  # golden star
+        ).add_to(m)
 
-    folium_static(m, width=1500, height=500)
+        folium_static(m, width=1500, height=500)
 
 # 📌 **Instrument Descriptions Page**
 elif page == "What is our Instrument?":
