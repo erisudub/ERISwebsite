@@ -247,7 +247,7 @@ if page == "Main Page":
     st.write("Hands-on experience to build technical, science, and management skills in ocean technology through small group projects. Projects may include instrument design and building, data analysis, and/or participation in an on-going ocean technology initiative. Offered: AWSp. Can be taken for 1-5 credits, with a max of 15.")
     st.write("For more information, visit [MyPlan](https://myplan.uw.edu/course/#/courses?states=N4Igwg9grgTgzgUwMoIIYwMYAsQC4TAA6IAZhDALYAiqALqsbkSBqhQA5RyPGJ20AbBMQA0xAJZwUGWuIgA7FOmyNaMKAjEhJASXlw1UGeSWYsjEqgGItARw0wAnkjXj5Acx4hRxACapHbjxmAEYLKxtiACZw601iAGZYyJAAFmT4kABWDK0ANgyAXy0DdFoAUXlfABVxCgQg3ABtAAYRAE48loBdLTcMAShfBAA5BQB5dgRFBBk5fVV1TP7B4YAlBtcZBF9pWQVGw2X5AaGEAAUYBCvbOA37cSvfRY0%2Bk9WEaoAjVD35w6WJSwEAA7uN5AJHOcMMhZvsFnhLHEgaDwZC9OdrnAFH8DkUUSCAEIwUGIXLELCoKRoMw7ckgXySAYQRAAQV8ADdUCcdqYVIiIghCiBCkA).")
 
-elif page == "Instrument Data":
+if page == "Instrument Data":
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
     logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>" if base64_logo else "⚠️ Logo Not Found"
@@ -275,34 +275,50 @@ elif page == "Instrument Data":
 
         start_dt = pd.Timestamp(start)
         end_dt = pd.Timestamp(end) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
-
-        # --- FILTER AND FILL GAPS WITH NaNs: fix duplicates and reindex with full hourly range ---
         filtered_data = data[(data["datetime"] >= start_dt) & (data["datetime"] <= end_dt)].copy()
-
-        full_time_index = pd.date_range(start=start_dt.floor('H'), end=end_dt.ceil('H'), freq='H')
-
-        filtered_data = data[(data["datetime"] >= start_dt) & (data["datetime"] <= end_dt)].copy()
-        full_time_index = pd.date_range(start=start_dt.floor('H'), end=end_dt.ceil('H'), freq='H')
-
-        grouped = filtered_data.groupby('datetime')
-        numeric_cols = filtered_data.select_dtypes(include='number').columns
-        filtered_numeric = grouped[numeric_cols].mean()
-        filtered_numeric = filtered_numeric.reindex(full_time_index)
-        filtered_data = filtered_numeric.rename_axis('datetime').reset_index()
-
-        # --- End fix ---
 
         if filtered_data.empty:
             st.warning("No CTD data for the selected date range.")
         else:
+            # Create full hourly time index for gap handling
+            full_time_index = pd.date_range(start=start_dt.floor('H'), end=end_dt.ceil('H'), freq='H')
+
+            # List of expected columns to plot
+            expected_cols = ["temperature", "salinity", "par", "conductivity", "oxygen", "turbidity", "pressure"]
+            # Only keep columns present in filtered_data
+            existing_numeric_cols = [col for col in expected_cols if col in filtered_data.columns]
+
+            # Group by datetime and aggregate duplicates by mean if any
+            grouped = filtered_data.groupby('datetime')
+            filtered_numeric = grouped[existing_numeric_cols].mean()
+
+            # Reindex to full hourly range to insert gaps (NaNs) for missing times
+            filtered_numeric = filtered_numeric.reindex(full_time_index)
+
+            # Reset index to have datetime as a column
+            filtered_data = filtered_numeric.rename_axis('datetime').reset_index()
+
+            # Prepare the plotly figure
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["temperature"], mode='lines', name='Temperature', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["salinity"], mode='lines', name='Salinity', line=dict(color='orange')))
-            fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["par"], mode='lines', name='PAR', line=dict(color='green')))
-            fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["conductivity"], mode='lines', name='Conductivity', line=dict(color='purple')))
-            fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["oxygen"], mode='lines', name='Oxygen', line=dict(color='gold')))
-            fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["turbidity"], mode='lines', name='Turbidity', line=dict(color='red')))
-            fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["pressure"], mode='lines', name='Pressure', line=dict(color='black')))
+            color_map = {
+                "temperature": "blue",
+                "salinity": "orange",
+                "par": "green",
+                "conductivity": "purple",
+                "oxygen": "gold",
+                "turbidity": "red",
+                "pressure": "black"
+            }
+
+            # Add traces only for existing columns
+            for col in existing_numeric_cols:
+                fig.add_trace(go.Scatter(
+                    x=filtered_data["datetime"],
+                    y=filtered_data[col],
+                    mode='lines',
+                    name=col.capitalize(),
+                    line=dict(color=color_map.get(col, "gray"))
+                ))
 
             fig.update_layout(
                 xaxis_title="Time",
@@ -332,11 +348,13 @@ elif page == "Instrument Data":
 
             st.plotly_chart(fig, use_container_width=True)
 
+            # Provide CSV download for filtered data with gaps
             csv_data = filtered_data.to_csv(index=False)
             st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
 
             st.dataframe(filtered_data, use_container_width=True)
 
+    # Instrument Location Map
     st.write("### Instrument Location")
     map_center = [47.64935, -122.3127]
     m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
@@ -344,10 +362,11 @@ elif page == "Instrument Data":
     folium.Marker(
         location=[47.64935, -122.3127],
         tooltip="CTD: 47.64935, -122.3127",
-        icon=folium.Icon(icon='star', prefix='fa', color='orange')  # 'orange' looks close to gold
+        icon=folium.Icon(icon='star', prefix='fa', color='orange')  # golden star
     ).add_to(m)
 
     folium_static(m, width=1500, height=500)
+
 
 
 # 📌 **Instrument Descriptions Page**
