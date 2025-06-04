@@ -130,8 +130,8 @@ if page == "Main Page":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Welcome to ERIS</h1>", unsafe_allow_html=True)
 
     # ✅ STATIC IMAGE (Replace with desired image and caption)
-    main_image_path = "images/tub.jpg"  # You can change this image file
-    caption = "CTD Calibration in Progress"
+    main_image_path = "images/grads.jpg"  # You can change this image file
+    caption = "2024 Graduating Marine Technicians"
 
     left_logo_path = "images/OceanTech Logo-PURPLE.png"
     right_logo_path = "images/OceanTech Logo-PURPLE.png"
