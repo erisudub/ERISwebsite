@@ -88,9 +88,43 @@ st.sidebar.title("Navigation")
 # Sidebar navigation dropdown (No "Go to" label, fixed spacing)
 page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
 
-# Load CSV data for each graph
-ctd_csv_file_path = 'ctddata.csv'  # Replace with the actual path of the CTD CSV
-weather_csv_file_path = 'new_weather_data.csv'  # Use the uploaded weather CSV file
+# --- Firebase Init ---
+if not firebase_admin._apps:
+    cert = json.loads(st.secrets["Certificate"]["data"])
+    cred = credentials.Certificate(cert)
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+
+@st.cache_resource
+def fetch_ctd_data():
+    docs = db.collection("CTD_Data").order_by("date").get()
+    data = []
+    for doc in docs:
+        d = doc.to_dict()
+        try:
+            ts = d.get("date", {}).get("$date")
+            if ts is None:
+                continue
+            record = {
+                "datetime": datetime.fromtimestamp(ts / 1000),
+                "instrument": d.get("instrument"),
+                "lat": d.get("lat"),
+                "lon": d.get("lon"),
+                "depth1": d.get("depth1"),
+                "oxygen": d.get("oxygen"),
+                "conductivity": float(d.get("conductivity", "nan")),
+                "par": float(d.get("par", "nan")),
+                "pressure": float(d.get("pressure", "nan")),
+                "salinity": float(d.get("salinity", "nan")),
+                "temperature": float(d.get("temperature", "nan")),
+                "turbidity": float(d.get("turbidity", "nan")),
+            }
+            data.append(record)
+        except Exception as e:
+            print(f"Error processing document: {e}")
+            continue
+    return pd.DataFrame(data) if data else None
 
 # Main Page
 if page == "Main Page":
