@@ -460,7 +460,7 @@ if page == "Main Page":
     if st.session_state.auto_switch and valid_photos:
         # Schedule rerun by updating query params instead of time.sleep + rerun
         new_index = (st.session_state.current_index + 1) % len(valid_photos)
-        st.experimental_set_query_params(current=new_index)
+        st.query_params(current=new_index)
 
 
 if page == "Instrument Data":
