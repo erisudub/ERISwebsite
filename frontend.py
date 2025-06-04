@@ -281,13 +281,15 @@ elif page == "Instrument Data":
 
         full_time_index = pd.date_range(start=start_dt.floor('H'), end=end_dt.ceil('H'), freq='H')
 
-        filtered_data = (
-            filtered_data.groupby('datetime')
-            .mean()  # aggregate duplicates by mean if any
-            .reindex(full_time_index)  # insert gaps for missing times
-            .rename_axis('datetime')
-            .reset_index()
-        )
+        filtered_data = data[(data["datetime"] >= start_dt) & (data["datetime"] <= end_dt)].copy()
+        full_time_index = pd.date_range(start=start_dt.floor('H'), end=end_dt.ceil('H'), freq='H')
+
+        grouped = filtered_data.groupby('datetime')
+        numeric_cols = filtered_data.select_dtypes(include='number').columns
+        filtered_numeric = grouped[numeric_cols].mean()
+        filtered_numeric = filtered_numeric.reindex(full_time_index)
+        filtered_data = filtered_numeric.rename_axis('datetime').reset_index()
+
         # --- End fix ---
 
         if filtered_data.empty:
