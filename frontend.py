@@ -247,7 +247,7 @@ if page == "Main Page":
     st.write("Hands-on experience to build technical, science, and management skills in ocean technology through small group projects. Projects may include instrument design and building, data analysis, and/or participation in an on-going ocean technology initiative. Offered: AWSp. Can be taken for 1-5 credits, with a max of 15.")
     st.write("For more information, visit [MyPlan](https://myplan.uw.edu/course/#/courses?states=N4Igwg9grgTgzgUwMoIIYwMYAsQC4TAA6IAZhDALYAiqALqsbkSBqhQA5RyPGJ20AbBMQA0xAJZwUGWuIgA7FOmyNaMKAjEhJASXlw1UGeSWYsjEqgGItARw0wAnkjXj5Acx4hRxACapHbjxmAEYLKxtiACZw601iAGZYyJAAFmT4kABWDK0ANgyAXy0DdFoAUXlfABVxCgQg3ABtAAYRAE48loBdLTcMAShfBAA5BQB5dgRFBBk5fVV1TP7B4YAlBtcZBF9pWQVGw2X5AaGEAAUYBCvbOA37cSvfRY0%2Bk9WEaoAjVD35w6WJSwEAA7uN5AJHOcMMhZvsFnhLHEgaDwZC9OdrnAFH8DkUUSCAEIwUGIXLELCoKRoMw7ckgXySAYQRAAQV8ADdUCcdqYVIiIghCiBCkA).")
 
-if page == "Instrument Data":
+elif page == "Instrument Data":
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
     logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>" if base64_logo else "⚠️ Logo Not Found"
@@ -275,30 +275,35 @@ if page == "Instrument Data":
 
         start_dt = pd.Timestamp(start)
         end_dt = pd.Timestamp(end) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
-        filtered_data = data[(data["datetime"] >= start_dt) & (data["datetime"] <= end_dt)].copy()
+        # Existing code ...
+    filtered_data = data[(data["datetime"] >= start_dt) & (data["datetime"] <= end_dt)].copy()
 
-        if filtered_data.empty:
-            st.warning("No CTD data for the selected date range.")
+    if filtered_data.empty:
+        st.warning("No CTD data for the selected date range.")
+    else:
+    # Create full hourly time index for gap handling
+        full_time_index = pd.date_range(start=start_dt.floor('H'), end=end_dt.ceil('H'), freq='H')
+
+    # List of expected columns to plot
+        expected_cols = ["temperature", "salinity", "par", "conductivity", "oxygen", "turbidity", "pressure"]
+
+    # Filter columns present AND numeric dtype
+        existing_cols = [col for col in expected_cols if col in filtered_data.columns and pd.api.types.is_numeric_dtype(filtered_data[col])]
+
+        if not existing_cols:
+            st.warning("No numeric data columns found to plot.")
         else:
-            # Create full hourly time index for gap handling
-            full_time_index = pd.date_range(start=start_dt.floor('H'), end=end_dt.ceil('H'), freq='H')
-
-            # List of expected columns to plot
-            expected_cols = ["temperature", "salinity", "par", "conductivity", "oxygen", "turbidity", "pressure"]
-            # Only keep columns present in filtered_data
-            existing_numeric_cols = [col for col in expected_cols if col in filtered_data.columns]
-
-            # Group by datetime and aggregate duplicates by mean if any
+        # Group by datetime and aggregate duplicates by mean if any
             grouped = filtered_data.groupby('datetime')
-            filtered_numeric = grouped[existing_numeric_cols].mean()
+            filtered_numeric = grouped[existing_cols].mean()
 
-            # Reindex to full hourly range to insert gaps (NaNs) for missing times
+        # Reindex to full hourly range to insert gaps (NaNs) for missing times
             filtered_numeric = filtered_numeric.reindex(full_time_index)
 
-            # Reset index to have datetime as a column
+        # Reset index to have datetime as a column
             filtered_data = filtered_numeric.rename_axis('datetime').reset_index()
 
-            # Prepare the plotly figure
+        # Prepare the plotly figure
             fig = go.Figure()
             color_map = {
                 "temperature": "blue",
@@ -310,8 +315,8 @@ if page == "Instrument Data":
                 "pressure": "black"
             }
 
-            # Add traces only for existing columns
-            for col in existing_numeric_cols:
+        # Add traces only for existing columns
+            for col in existing_cols:
                 fig.add_trace(go.Scatter(
                     x=filtered_data["datetime"],
                     y=filtered_data[col],
@@ -319,6 +324,9 @@ if page == "Instrument Data":
                     name=col.capitalize(),
                     line=dict(color=color_map.get(col, "gray"))
                 ))
+
+       
+
 
             fig.update_layout(
                 xaxis_title="Time",
