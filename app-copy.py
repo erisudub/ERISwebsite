@@ -129,25 +129,8 @@ def fetch_ctd_data():
 if page == "Main Page":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Welcome to ERIS</h1>", unsafe_allow_html=True)
 
-    # ✅ STATIC IMAGE (Replace with desired image and caption)
-    main_image_path = "images/grads.jpg"  # You can change this image file
+    main_image_path = "images/grads.jpg"
     caption = "2024 Graduating Marine Technicians"
-    
-    if os.path.exists(main_image_path):
-        main_image_base64 = get_base64_image(main_image_path)
-        st.markdown(
-            f"""
-            <div style="text-align: center;">
-                <img src="data:image/jpeg;base64,{main_image_base64}" 
-                    style="max-width: 70%; height: auto; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-                <p style="font-size: 18px; font-weight: bold; margin-top: 10px;">{caption}</p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-    else:
-        st.warning("⚠️ Main image not found. Check the path.")
-
     left_logo_path = "images/OceanTech Logo-PURPLE.png"
     right_logo_path = "images/OceanTech Logo-PURPLE.png"
 
@@ -174,6 +157,8 @@ if page == "Main Page":
                 max-width: 60%;
                 height: auto;
                 max-height: 500px;
+                border-radius: 15px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             }}
             .caption {{
                 text-align: center;
