@@ -506,13 +506,14 @@ elif page == "Gallery":
             if base64_img:
                 # ✅ Uniform square image container with consistent formatting
                 img_html = f"""
-                <div style="text-align:center; margin-bottom:20px;">
-                    <div style="width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:10px;">
-                        <img src="data:image/jpeg;base64,{base64_img}" style="width:100%; height:100%; object-fit:cover;">
+                    <div style="text-align:center; margin-bottom:20px;">
+                        <div style="width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:10px; background:white;">
+                            <img src="data:image/jpeg;base64,{base64_img}" style="width:100%; height:100%; object-fit:contain; background-color:white;">
+                        </div>
+                        <p style="font-size:16px; font-weight:bold; margin-top:8px;">{caption}</p>
                     </div>
-                    <p style="font-size:16px; font-weight:bold; margin-top:8px;">{caption}</p>
-                </div>
-                """
+                    """
+
                 with columns[i % 3]:  # Distribute images evenly
                     st.markdown(img_html, unsafe_allow_html=True)
 
