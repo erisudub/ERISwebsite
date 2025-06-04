@@ -275,92 +275,87 @@ elif page == "Instrument Data":
 
         start_dt = pd.Timestamp(start)
         end_dt = pd.Timestamp(end) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
-        # Existing code ...
-    filtered_data = data[(data["datetime"] >= start_dt) & (data["datetime"] <= end_dt)].copy()
 
-    if filtered_data.empty:
-        st.warning("No CTD data for the selected date range.")
-    else:
-    # Create full hourly time index for gap handling
-        full_time_index = pd.date_range(start=start_dt.floor('H'), end=end_dt.ceil('H'), freq='H')
+        filtered_data = data[(data["datetime"] >= start_dt) & (data["datetime"] <= end_dt)].copy()
 
-    # List of expected columns to plot
-        expected_cols = ["temperature", "salinity", "par", "conductivity", "oxygen", "turbidity", "pressure"]
-
-    # Filter columns present AND numeric dtype
-        existing_cols = [col for col in expected_cols if col in filtered_data.columns and pd.api.types.is_numeric_dtype(filtered_data[col])]
-
-        if not existing_cols:
-            st.warning("No numeric data columns found to plot.")
+        if filtered_data.empty:
+            st.warning("No CTD data for the selected date range.")
         else:
-        # Group by datetime and aggregate duplicates by mean if any
-            grouped = filtered_data.groupby('datetime')
-            filtered_numeric = grouped[existing_cols].mean()
+            expected_cols = ["temperature", "salinity", "par", "conductivity", "oxygen", "turbidity", "pressure"]
+            existing_cols = [
+                col for col in expected_cols 
+                if col in filtered_data.columns and pd.api.types.is_numeric_dtype(filtered_data[col])
+            ]
 
-        # Reindex to full hourly range to insert gaps (NaNs) for missing times
-            filtered_numeric = filtered_numeric.reindex(full_time_index)
+            if not existing_cols:
+                st.warning("No numeric data columns found to plot.")
+            else:
+                # Set datetime index and sort for resampling
+                filtered_data = filtered_data.set_index('datetime').sort_index()
 
-        # Reset index to have datetime as a column
-            filtered_data = filtered_numeric.rename_axis('datetime').reset_index()
+                # Resample to hourly frequency with mean aggregation, creating gaps (NaNs) for missing hours
+                filtered_numeric = filtered_data[existing_cols].resample('H').mean()
 
-        # Prepare the plotly figure
-            fig = go.Figure()
-            color_map = {
-                "temperature": "blue",
-                "salinity": "orange",
-                "par": "green",
-                "conductivity": "purple",
-                "oxygen": "gold",
-                "turbidity": "red",
-                "pressure": "black"
-            }
+                # Limit resampled data to selected date range
+                filtered_numeric = filtered_numeric.loc[start_dt:end_dt]
 
-        # Add traces only for existing columns
-            for col in existing_cols:
-                fig.add_trace(go.Scatter(
-                    x=filtered_data["datetime"],
-                    y=filtered_data[col],
-                    mode='lines',
-                    name=col.capitalize(),
-                    line=dict(color=color_map.get(col, "gray"))
-                ))
+                # Reset index for plotting
+                filtered_data = filtered_numeric.reset_index()
 
-       
+                # Plotly figure setup
+                fig = go.Figure()
+                color_map = {
+                    "temperature": "blue",
+                    "salinity": "orange",
+                    "par": "green",
+                    "conductivity": "purple",
+                    "oxygen": "gold",
+                    "turbidity": "red",
+                    "pressure": "black"
+                }
 
+                for col in existing_cols:
+                    fig.add_trace(go.Scatter(
+                        x=filtered_data["datetime"],
+                        y=filtered_data[col],
+                        mode='lines',
+                        name=col.capitalize(),
+                        line=dict(color=color_map.get(col, "gray"))
+                    ))
 
-            fig.update_layout(
-                xaxis_title="Time",
-                yaxis_title="Values",
-                height=450,
-                xaxis=dict(
-                    rangeslider=dict(visible=True),
-                    type="date",
-                    rangeselector=dict(
-                        buttons=[
-                            dict(count=1, label="1d", step="day", stepmode="backward"),
-                            dict(count=7, label="1w", step="day", stepmode="backward"),
-                            dict(count=1, label="1m", step="month", stepmode="backward"),
-                            dict(count=6, label="6m", step="month", stepmode="backward"),
-                            dict(step="all")
-                        ],
-                        x=0.5, y=1.15, xanchor='center', yanchor='bottom'
-                    )
-                ),
-                yaxis=dict(showgrid=True, gridcolor='lightgrey'),
-                plot_bgcolor="white",
-                paper_bgcolor="lightblue",
-                font=dict(family="Georgia, serif", size=12, color="black"),
-                legend=dict(x=1.05, y=0.5, xanchor='left', yanchor='middle', bgcolor='rgba(255, 255, 255, 0.5)'),
-                margin=dict(l=80, r=80, t=50, b=80),
-            )
+                fig.update_layout(
+                    xaxis_title="Time",
+                    yaxis_title="Values",
+                    height=450,
+                    xaxis=dict(
+                        rangeslider=dict(visible=True),
+                        type="date",
+                        rangeselector=dict(
+                            buttons=[
+                                dict(count=1, label="1d", step="day", stepmode="backward"),
+                                dict(count=7, label="1w", step="day", stepmode="backward"),
+                                dict(count=1, label="1m", step="month", stepmode="backward"),
+                                dict(count=6, label="6m", step="month", stepmode="backward"),
+                                dict(step="all")
+                            ],
+                            x=0.5, y=1.15, xanchor='center', yanchor='bottom'
+                        )
+                    ),
+                    yaxis=dict(showgrid=True, gridcolor='lightgrey'),
+                    plot_bgcolor="white",
+                    paper_bgcolor="lightblue",
+                    font=dict(family="Georgia, serif", size=12, color="black"),
+                    legend=dict(x=1.05, y=0.5, xanchor='left', yanchor='middle', bgcolor='rgba(255, 255, 255, 0.5)'),
+                    margin=dict(l=80, r=80, t=50, b=80),
+                )
 
-            st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True)
 
-            # Provide CSV download for filtered data with gaps
-            csv_data = filtered_data.to_csv(index=False)
-            st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
+                # CSV download
+                csv_data = filtered_data.to_csv(index=False)
+                st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
 
-            st.dataframe(filtered_data, use_container_width=True)
+                st.dataframe(filtered_data, use_container_width=True)
 
     # Instrument Location Map
     st.write("### Instrument Location")
@@ -374,8 +369,6 @@ elif page == "Instrument Data":
     ).add_to(m)
 
     folium_static(m, width=1500, height=500)
-
-
 
 # 📌 **Instrument Descriptions Page**
 elif page == "What is our Instrument?":
