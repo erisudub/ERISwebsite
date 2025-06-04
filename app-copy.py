@@ -86,7 +86,7 @@ st.sidebar.image("images/New Oceanography-logo-banner-BLUE.png", use_container_w
 st.sidebar.title("Navigation")
 
 # Sidebar navigation dropdown (No "Go to" label, fixed spacing)
-page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data", "Instrument Descriptions", "Meet the Team", "Gallery"])
+page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data", "What is our Instrument?", "Meet the Team", "Gallery"])
 
 # --- Firebase Init ---
 if not firebase_admin._apps:
@@ -339,7 +339,7 @@ if page == "Instrument Data":
     folium_static(m, width=1500, height=500)
 
 # 📌 **Instrument Descriptions Page**
-elif page == "Instrument Descriptions":
+elif page == "What is our Instrument?":
     # Convert logo to Base64
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
