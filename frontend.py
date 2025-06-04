@@ -247,8 +247,7 @@ if page == "Main Page":
     st.write("Hands-on experience to build technical, science, and management skills in ocean technology through small group projects. Projects may include instrument design and building, data analysis, and/or participation in an on-going ocean technology initiative. Offered: AWSp. Can be taken for 1-5 credits, with a max of 15.")
     st.write("For more information, visit [MyPlan](https://myplan.uw.edu/course/#/courses?states=N4Igwg9grgTgzgUwMoIIYwMYAsQC4TAA6IAZhDALYAiqALqsbkSBqhQA5RyPGJ20AbBMQA0xAJZwUGWuIgA7FOmyNaMKAjEhJASXlw1UGeSWYsjEqgGItARw0wAnkjXj5Acx4hRxACapHbjxmAEYLKxtiACZw601iAGZYyJAAFmT4kABWDK0ANgyAXy0DdFoAUXlfABVxCgQg3ABtAAYRAE48loBdLTcMAShfBAA5BQB5dgRFBBk5fVV1TP7B4YAlBtcZBF9pWQVGw2X5AaGEAAUYBCvbOA37cSvfRY0%2Bk9WEaoAjVD35w6WJSwEAA7uN5AJHOcMMhZvsFnhLHEgaDwZC9OdrnAFH8DkUUSCAEIwUGIXLELCoKRoMw7ckgXySAYQRAAQV8ADdUCcdqYVIiIghCiBCkA).")
 
-
-if page == "Instrument Data":
+elif page == "Instrument Data":
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
     logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>" if base64_logo else "⚠️ Logo Not Found"
@@ -277,14 +276,19 @@ if page == "Instrument Data":
         start_dt = pd.Timestamp(start)
         end_dt = pd.Timestamp(end) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
 
-        # Filter data in the selected date range
+        # --- FILTER AND FILL GAPS WITH NaNs: fix duplicates and reindex with full hourly range ---
         filtered_data = data[(data["datetime"] >= start_dt) & (data["datetime"] <= end_dt)].copy()
 
-        # Create a continuous hourly datetime index (adjust 'freq' as needed)
         full_time_index = pd.date_range(start=start_dt.floor('H'), end=end_dt.ceil('H'), freq='H')
 
-        # Reindex to include missing times as NaNs for gaps in the plot
-        filtered_data = filtered_data.set_index('datetime').reindex(full_time_index).rename_axis('datetime').reset_index()
+        filtered_data = (
+            filtered_data.groupby('datetime')
+            .mean()  # aggregate duplicates by mean if any
+            .reindex(full_time_index)  # insert gaps for missing times
+            .rename_axis('datetime')
+            .reset_index()
+        )
+        # --- End fix ---
 
         if filtered_data.empty:
             st.warning("No CTD data for the selected date range.")
@@ -342,6 +346,7 @@ if page == "Instrument Data":
     ).add_to(m)
 
     folium_static(m, width=1500, height=500)
+
 
 # 📌 **Instrument Descriptions Page**
 elif page == "What is our Instrument?":
