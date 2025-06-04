@@ -361,7 +361,7 @@ elif page == "What is our Instrument?":
         unsafe_allow_html=True
     )
     # Seabird CTD Section
-    st.write("### Seabird CTD")
+    st.write("### Our Seabird CTD (SBE 16plus V2 SeaCAT)")
     
     st.write("#### Overview")
     st.write("The SBE 16plus V2 SeaCAT is a high-precision conductivity and temperature recorder, optionally equipped with a pressure sensor, designed for long-term moored deployments in oceanographic research. Its robust design and versatile sensor integration make it ideal for collecting high-quality oceanographic data over extended periods")
