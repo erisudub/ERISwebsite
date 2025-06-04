@@ -380,21 +380,7 @@ elif page == "What is our Instrument?":
     st.write("- PAR")
     st.write("- Turbidity")
 
-
-import streamlit as st
-import base64
-
-def get_base64_image(image_path):
-    try:
-        with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode()
-    except FileNotFoundError:
-        return None
-
-# Page selection logic
-page = st.sidebar.selectbox("Select a page", ["Main Page", "Meet the Team"])
-
-if page == "Meet the Team":
+elif page == "Meet the Team":
     # Convert logo to Base64
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
