@@ -339,12 +339,12 @@ if page == "Instrument Data":
     # folium_static(m, width=1500, height=500)
 
     st.write("### Instrument Location")
-    map_center = [47.649414, -122.312534]
+    map_center = [47.64935, -122.3127]
     m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
 
     folium.Marker(
-        location=[47.649414, -122.312534],
-        tooltip="CTD: 47.649414, -122.312534",
+        location=[47.64935, -122.3127],
+        tooltip="CTD: 47.64935, -122.3127",
         icon=folium.Icon(icon='star', prefix='fa', color='orange')  # 'orange' looks close to gold
     ).add_to(m)
 
