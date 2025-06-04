@@ -425,16 +425,22 @@ elif page == "Meet the Team":
 
     for i, col in enumerate(cols):
         with col:
-            st.image(gallery_photos[i], use_column_width=True)
-            st.markdown(
-                f"""
-                <div style="text-align: center;">
-                    <p style="font-weight: bold; margin-bottom: 4px;">{gallery_captions[i]}</p>
-                    <p style="font-size: 0.9em; color: gray; margin-top: 0;">{gallery_subtitles[i]}</p>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            image_base64 = get_base64_image(gallery_photos[i])
+            if image_base64:
+                st.markdown(
+                    f"""
+                    <div style="text-align: center;">
+                        <img src="data:image/jpg;base64,{image_base64}"
+                             style="width: 250px; height: 250px; object-fit: cover; border-radius: 8px;" />
+                        <p style="font-weight: bold; margin-bottom: 4px;">{gallery_captions[i]}</p>
+                        <p style="font-size: 0.9em; color: gray; margin-top: 0;">{gallery_subtitles[i]}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+            else:
+                st.warning(f"Image not found: {gallery_photos[i]}")
+
 
 
 # # Meet the Team Page
