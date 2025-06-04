@@ -323,20 +323,33 @@ if page == "Instrument Data":
 
             st.dataframe(filtered_data, use_container_width=True)
 
+    # st.write("### Instrument Location")
+    # map_center = [47.649414, -122.312534]
+    # m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
+    # folium.CircleMarker(
+    #     location=[47.649414, -122.312534],
+    #     radius=4,
+    #     color='red',
+    #     fill=True,
+    #     fill_color='red',
+    #     fill_opacity=0.7,
+    #     tooltip="CTD: 47.649414, -122.312534"
+    # ).add_to(m)
+
+    # folium_static(m, width=1500, height=500)
+
     st.write("### Instrument Location")
     map_center = [47.649414, -122.312534]
     m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
-    folium.CircleMarker(
+
+    folium.Marker(
         location=[47.649414, -122.312534],
-        radius=4,
-        color='red',
-        fill=True,
-        fill_color='red',
-        fill_opacity=0.7,
-        tooltip="CTD: 47.649414, -122.312534"
+        tooltip="CTD: 47.649414, -122.312534",
+        icon=folium.Icon(icon='star', prefix='fa', color='orange')  # 'orange' looks close to gold
     ).add_to(m)
 
     folium_static(m, width=1500, height=500)
+
 
 # 📌 **Instrument Descriptions Page**
 elif page == "What is our Instrument?":
