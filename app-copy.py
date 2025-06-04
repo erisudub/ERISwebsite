@@ -381,8 +381,20 @@ elif page == "What is our Instrument?":
     st.write("- Turbidity")
 
 
-# Meet the Team Page
-elif page == "Meet the Team":
+import streamlit as st
+import base64
+
+def get_base64_image(image_path):
+    try:
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode()
+    except FileNotFoundError:
+        return None
+
+# Page selection logic
+page = st.sidebar.selectbox("Select a page", ["Main Page", "Meet the Team"])
+
+if page == "Meet the Team":
     # Convert logo to Base64
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
@@ -405,7 +417,7 @@ elif page == "Meet the Team":
         unsafe_allow_html=True
     )
 
-    # Gallery Images & Captions
+    # Gallery Images, Captions & Subtitles
     gallery_photos = [
         "images/IMG_6540.jpg",
         "images/IMG_4499.jpg",
@@ -416,27 +428,85 @@ elif page == "Meet the Team":
         "Kelly Horak",
         "Sophia Mangrubang"
     ]
+    gallery_subtitles = [
+        "Software Engineer/Web Developer",
+        "Software Engineer/Web Developer",
+        "Software Engineer/Web Developer"
+    ]
 
-    # Validate image existence
-    valid_gallery = [(photo, caption) for photo, caption in zip(gallery_photos, gallery_captions) if os.path.exists(photo)]
+    # Display in columns
+    cols = st.columns(len(gallery_photos))
 
-    if not valid_gallery:
-        st.error("⚠️ No valid images found for the gallery. Check file paths.")
-    else:
-        col1, col2, col3 = st.columns(3)
-        columns = [col1, col2, col3]
-
-        for i, (photo, caption) in enumerate(valid_gallery):
-            base64_img = get_base64_image(photo)
-            if base64_img:
-                img_html = f"""
-                <div style="text-align:center;">
-                    <img src="data:image/jpeg;base64,{base64_img}" style="width:325px; height:325px; object-fit:cover; border-radius:10px;">
-                    <p style="font-size:16px; font-weight:bold;">{caption}</p>
+    for i, col in enumerate(cols):
+        with col:
+            st.image(gallery_photos[i], use_column_width=True)
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <p style="font-weight: bold; margin-bottom: 4px;">{gallery_captions[i]}</p>
+                    <p style="font-size: 0.9em; color: gray; margin-top: 0;">{gallery_subtitles[i]}</p>
                 </div>
-                """
-                with columns[i % 3]:  # Distribute images evenly among columns
-                    st.markdown(img_html, unsafe_allow_html=True)
+                """,
+                unsafe_allow_html=True
+            )
+
+
+# # Meet the Team Page
+# elif page == "Meet the Team":
+#     # Convert logo to Base64
+#     logo_path = "images/OceanTech Logo-PURPLE.png"
+#     base64_logo = get_base64_image(logo_path)
+
+#     if base64_logo:
+#         # Set logo size to match the specified CSS size
+#         logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>"
+#     else:
+#         logo_html = "⚠️ Logo Not Found"
+
+#     # Title with Logos on Both Sides
+#     st.markdown(
+#         f"""
+#         <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+#             {logo_html}
+#             <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>Meet the Team</h1>
+#             {logo_html}
+#         </div>
+#         """,
+#         unsafe_allow_html=True
+#     )
+
+#     # Gallery Images & Captions
+#     gallery_photos = [
+#         "images/IMG_6540.jpg",
+#         "images/IMG_4499.jpg",
+#         "images/IMG_9981.jpg"
+#     ]
+#     gallery_captions = [
+#         "Austin Karpf",
+#         "Kelly Horak",
+#         "Sophia Mangrubang"
+#     ]
+
+#     # Validate image existence
+#     valid_gallery = [(photo, caption) for photo, caption in zip(gallery_photos, gallery_captions) if os.path.exists(photo)]
+
+#     if not valid_gallery:
+#         st.error("⚠️ No valid images found for the gallery. Check file paths.")
+#     else:
+#         col1, col2, col3 = st.columns(3)
+#         columns = [col1, col2, col3]
+
+#         for i, (photo, caption) in enumerate(valid_gallery):
+#             base64_img = get_base64_image(photo)
+#             if base64_img:
+#                 img_html = f"""
+#                 <div style="text-align:center;">
+#                     <img src="data:image/jpeg;base64,{base64_img}" style="width:325px; height:325px; object-fit:cover; border-radius:10px;">
+#                     <p style="font-size:16px; font-weight:bold;">{caption}</p>
+#                 </div>
+#                 """
+#                 with columns[i % 3]:  # Distribute images evenly among columns
+#                     st.markdown(img_html, unsafe_allow_html=True)
 
 
 elif page == "Gallery":
