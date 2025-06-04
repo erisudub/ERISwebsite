@@ -465,6 +465,7 @@ elif page == "Gallery":
         unsafe_allow_html=True
     )
 
+    # Gallery image paths and captions
     gallery_photos = [
         "images/tub.jpg",
         "images/group.jpg",
@@ -484,12 +485,15 @@ elif page == "Gallery":
         "CTD Maintenance",
         "Raspberry Pi Setup",
         "CTD Maintenance Team",
-        "CTD Recovery Team",
+        "CTD Recovery",
         "Website Development Team",
     ]
 
-    # ✅ **Filter valid gallery images**
-    valid_gallery = [(photo, caption) for photo, caption in zip(gallery_photos, gallery_captions) if os.path.exists(photo)]
+    # ✅ Filter valid gallery images
+    valid_gallery = [
+        (photo, caption) for photo, caption in zip(gallery_photos, gallery_captions)
+        if os.path.exists(photo)
+    ]
 
     if not valid_gallery:
         st.error("⚠️ No valid images found for the gallery. Check file paths.")
@@ -500,11 +504,15 @@ elif page == "Gallery":
         for i, (photo, caption) in enumerate(valid_gallery):
             base64_img = get_base64_image(photo)
             if base64_img:
+                # ✅ Uniform square image container with consistent formatting
                 img_html = f"""
-                <div style="text-align:center;">
-                    <img src="data:image/jpeg;base64,{base64_img}" style="width:100%; max-height:300px; object-fit:cover; border-radius:10px;">
-                    <p style="font-size:16px; font-weight:bold;">{caption}</p>
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:10px;">
+                        <img src="data:image/jpeg;base64,{base64_img}" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <p style="font-size:16px; font-weight:bold; margin-top:8px;">{caption}</p>
                 </div>
                 """
-                with columns[i % 3]:  # Distribute images evenly among columns
+                with columns[i % 3]:  # Distribute images evenly
                     st.markdown(img_html, unsafe_allow_html=True)
+
