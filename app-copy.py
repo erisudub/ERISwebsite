@@ -248,7 +248,7 @@ if page == "Main Page":
     st.write("For more information, visit [MyPlan](https://myplan.uw.edu/course/#/courses?states=N4Igwg9grgTgzgUwMoIIYwMYAsQC4TAA6IAZhDALYAiqALqsbkSBqhQA5RyPGJ20AbBMQA0xAJZwUGWuIgA7FOmyNaMKAjEhJASXlw1UGeSWYsjEqgGItARw0wAnkjXj5Acx4hRxACapHbjxmAEYLKxtiACZw601iAGZYyJAAFmT4kABWDK0ANgyAXy0DdFoAUXlfABVxCgQg3ABtAAYRAE48loBdLTcMAShfBAA5BQB5dgRFBBk5fVV1TP7B4YAlBtcZBF9pWQVGw2X5AaGEAAUYBCvbOA37cSvfRY0%2Bk9WEaoAjVD35w6WJSwEAA7uN5AJHOcMMhZvsFnhLHEgaDwZC9OdrnAFH8DkUUSCAEIwUGIXLELCoKRoMw7ckgXySAYQRAAQV8ADdUCcdqYVIiIghCiBCkA).")
 
 
-if page == "Instrument Data":
+elif page == "Instrument Data":
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
     logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>" if base64_logo else "⚠️ Logo Not Found"
@@ -322,21 +322,6 @@ if page == "Instrument Data":
             st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
 
             st.dataframe(filtered_data, use_container_width=True)
-
-    # st.write("### Instrument Location")
-    # map_center = [47.649414, -122.312534]
-    # m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
-    # folium.CircleMarker(
-    #     location=[47.649414, -122.312534],
-    #     radius=4,
-    #     color='red',
-    #     fill=True,
-    #     fill_color='red',
-    #     fill_opacity=0.7,
-    #     tooltip="CTD: 47.649414, -122.312534"
-    # ).add_to(m)
-
-    # folium_static(m, width=1500, height=500)
 
     st.write("### Instrument Location")
     map_center = [47.64935, -122.3127]
@@ -528,4 +513,3 @@ elif page == "Gallery":
 
                 with columns[i % 3]:  # Distribute images evenly
                     st.markdown(img_html, unsafe_allow_html=True)
-
