@@ -441,66 +441,6 @@ elif page == "Meet the Team":
             else:
                 st.warning(f"Image not found: {gallery_photos[i]}")
 
-
-
-# # Meet the Team Page
-# elif page == "Meet the Team":
-#     # Convert logo to Base64
-#     logo_path = "images/OceanTech Logo-PURPLE.png"
-#     base64_logo = get_base64_image(logo_path)
-
-#     if base64_logo:
-#         # Set logo size to match the specified CSS size
-#         logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>"
-#     else:
-#         logo_html = "⚠️ Logo Not Found"
-
-#     # Title with Logos on Both Sides
-#     st.markdown(
-#         f"""
-#         <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-#             {logo_html}
-#             <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>Meet the Team</h1>
-#             {logo_html}
-#         </div>
-#         """,
-#         unsafe_allow_html=True
-#     )
-
-#     # Gallery Images & Captions
-#     gallery_photos = [
-#         "images/IMG_6540.jpg",
-#         "images/IMG_4499.jpg",
-#         "images/IMG_9981.jpg"
-#     ]
-#     gallery_captions = [
-#         "Austin Karpf",
-#         "Kelly Horak",
-#         "Sophia Mangrubang"
-#     ]
-
-#     # Validate image existence
-#     valid_gallery = [(photo, caption) for photo, caption in zip(gallery_photos, gallery_captions) if os.path.exists(photo)]
-
-#     if not valid_gallery:
-#         st.error("⚠️ No valid images found for the gallery. Check file paths.")
-#     else:
-#         col1, col2, col3 = st.columns(3)
-#         columns = [col1, col2, col3]
-
-#         for i, (photo, caption) in enumerate(valid_gallery):
-#             base64_img = get_base64_image(photo)
-#             if base64_img:
-#                 img_html = f"""
-#                 <div style="text-align:center;">
-#                     <img src="data:image/jpeg;base64,{base64_img}" style="width:325px; height:325px; object-fit:cover; border-radius:10px;">
-#                     <p style="font-size:16px; font-weight:bold;">{caption}</p>
-#                 </div>
-#                 """
-#                 with columns[i % 3]:  # Distribute images evenly among columns
-#                     st.markdown(img_html, unsafe_allow_html=True)
-
-
 elif page == "Gallery":
 
     # Convert logo to Base64
@@ -532,6 +472,9 @@ elif page == "Gallery":
         "images/ctd.jpg",
         "images/ctdmaintenence.jpg",
         "images/rasppitable.jpg",
+        "images/ctdmainetence.jpg",
+        "images/ctdrecovery.jpg",
+        "images/websiteteam.jpg",
     ]
     gallery_captions = [
         "CTD Calibrations",
@@ -540,6 +483,9 @@ elif page == "Gallery":
         "Seabird 16plus CTD",
         "CTD Maintenance",
         "Raspberry Pi Setup",
+        "CTD Maintenance Team",
+        "CTD Recovery Team",
+        "Website Development Team",
     ]
 
     # ✅ **Filter valid gallery images**
