@@ -303,61 +303,25 @@ def fetch_ctd_data():
     #     time.sleep(0.5)  
     #     change_image(1)
 
-# Main Page
 if page == "Main Page":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Welcome to ERIS</h1>", unsafe_allow_html=True)
 
-    # 📌 Main Image Slider
-    photos = [
-        "images/tub.jpg",
-        "images/group.jpg",
-        "images/grads.jpg",
-        "images/ctd.jpg",
-        "images/ctdmaintenence.jpg",
-        "images/rasppitable.jpg",
-    ]
-    captions = [
-        "CTD Calibrations",
-        "Deployment Day Spring 2024",
-        "2024 Graduating Marine Technicians",
-        "Seabird 16plus CTD",
-        "CTD Maintenance",
-        "Raspberry Pi Setup",
-    ]
+    # ✅ STATIC IMAGE (Replace with desired image and caption)
+    main_image_path = "images/tub.jpg"  # You can change this image file
+    caption = "CTD Calibration in Progress"
 
-    valid_images = [(photo, captions[i]) for i, photo in enumerate(photos) if os.path.exists(photo)]
-    if not valid_images:
-        st.error("⚠️ No valid images found for the main gallery. Check file paths.")
-        st.write("Debug: Expected paths →", photos)
-        valid_photos, valid_captions = [], []
-    else:
-        valid_photos, valid_captions = zip(*valid_images)
+    left_logo_path = "images/OceanTech Logo-PURPLE.png"
+    right_logo_path = "images/OceanTech Logo-PURPLE.png"
 
-    if "current_index" not in st.session_state:
-        st.session_state.current_index = 0
-    if "auto_switch" not in st.session_state:
-        st.session_state.auto_switch = True
-    if "animation_key" not in st.session_state:
-        st.session_state.animation_key = 0  
-
-    def change_image(direction):
-        if valid_photos:
-            st.session_state.current_index = (st.session_state.current_index + direction) % len(valid_photos)
-            st.session_state.animation_key += 1  
-            st.rerun()
-
-    left_logo_path = "images/OceanTech Logo-PURPLE.png" 
-    right_logo_path = "images/OceanTech Logo-PURPLE.png"  
-
-    if valid_photos:
-        base64_image = get_base64_image(valid_photos[st.session_state.current_index])
-        left_logo = get_base64_image(left_logo_path)
-        right_logo = get_base64_image(right_logo_path)
+    if os.path.exists(main_image_path):
+        base64_image = get_base64_image(main_image_path)
+        left_logo = get_base64_image(left_logo_path) if os.path.exists(left_logo_path) else None
+        right_logo = get_base64_image(right_logo_path) if os.path.exists(right_logo_path) else None
 
         st.markdown(
             f"""
             <style>
-            .slider-container {{
+            .static-image-container {{
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -368,11 +332,10 @@ if page == "Main Page":
                 height: auto;
                 margin: 0 20px;
             }}
-            .slide-image {{
+            .main-image {{
                 max-width: 60%;
                 height: auto;
                 max-height: 500px;
-                animation: slideIn 0.7s ease-in-out;
             }}
             .caption {{
                 text-align: center;
@@ -380,27 +343,20 @@ if page == "Main Page":
                 font-weight: bold;
                 margin-top: 10px;
             }}
-            @keyframes slideIn {{
-                from {{
-                    transform: translateX(100%);
-                    opacity: 0;
-                }}
-                to {{
-                    transform: translateX(0);
-                    opacity: 1;
-                }}
-            }}
             </style>
-            <div class="slider-container">
+            <div class="static-image-container">
                 {'<img src="data:image/png;base64,' + left_logo + '" class="logo">' if left_logo else ''}
-                <img src="data:image/jpeg;base64,{base64_image}" class="slide-image" key="{st.session_state.animation_key}">
+                <img src="data:image/jpeg;base64,{base64_image}" class="main-image">
                 {'<img src="data:image/png;base64,' + right_logo + '" class="logo">' if right_logo else ''}
             </div>
-            <p class="caption">{valid_captions[st.session_state.current_index]}</p>
+            <p class="caption">{caption}</p>
             """,
             unsafe_allow_html=True
         )
+    else:
+        st.error("⚠️ Static image not found. Please check the file path.")
 
+    # 📹 Navigation Tutorial Button
     st.markdown(
         """
         <style>
@@ -425,14 +381,16 @@ if page == "Main Page":
         unsafe_allow_html=True
     )
 
+    # 🔬 Educational Content
     st.write("### What is ERIS?")
-    st.write("ERIS (Exploration and Remote Instrumentation by Students) is a student designed and built...")
+    st.write("ERIS (Exploration and Remote Instrumentation by Students) is a student-designed and built platform for exploring marine technology...")
 
     col1, col2 = st.columns([1, 1])
     with col1:
         st.write("### Key Science Questions")
         st.write("-  How do anthropogenic processes mediate natural processes in the marine environment?")
-        st.write("-  What are the temporal and spatial scales...")
+        st.write("-  What are the temporal and spatial scales of these effects?")
+        st.write("-  How do physical, chemical, and biological parameters interact?")
 
     with col2:
         st.image("images/tub.jpg", use_container_width=True)
@@ -445,7 +403,7 @@ if page == "Main Page":
         st.write("### Technology Questions:")
         st.write("-  What sensor(s) design is required?")
         st.write("-  What sample rate and duty cycle is needed?")
-        st.write("-  What measurement accuracy is need and what can be achieved?")
+        st.write("-  What measurement accuracy is needed and what can be achieved?")
         st.write("-  How should remote observations be made?")
         st.write("-  How can sensors be deployed and serviced?")
         st.write("-  What are the power requirements?")
@@ -453,16 +411,7 @@ if page == "Main Page":
         st.write("-  How will data be analyzed, interpreted, visualized, and communicated?")
 
     st.write("### Course: OCEAN 462: Ocean Technology Studio")
-    st.write("Hands-on experience to build technical, science, and management skills...")
-
-    # ✅ FIXED SECTION: Removed `time.sleep()` + `st.rerun()` error
-    # Replaced with `st.experimental_set_query_params()` trigger alternative
-    if st.session_state.auto_switch and valid_photos:
-        # Schedule rerun by updating query params instead of time.sleep + rerun
-        new_index = (st.session_state.current_index + 1) % len(valid_photos)
-        st.experimental_set_query_params(current=new_index)
-
-
+    st.write("Hands-on experience to build technical, science, and management skills in ocean instrumentation and exploration.")
 
 if page == "Instrument Data":
     logo_path = "images/OceanTech Logo-PURPLE.png"
