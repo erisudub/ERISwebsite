@@ -381,37 +381,49 @@ if page == "Main Page":
         unsafe_allow_html=True
     )
 
-    # 🔬 Educational Content
+    #🔬 Educational Content
     st.write("### What is ERIS?")
-    st.write("ERIS (Exploration and Remote Instrumentation by Students) is a student-designed and built platform for exploring marine technology...")
+    st.write("ERIS (Exploration and Remote Instrumentation by Students) is a student designed and built cabled observatory that serves as an underwater learning facility at the University of Washington (UW). Students work with ERIS through Ocean 462. ERIS, with its educational mission, enables undergraduate students to design, build, operate, and maintain a cabled underwater observatory that emulates the NSF Ocean Observatories Initiatives (OOI) Regional Cabled Array, by providing for a continuous data-stream for analysis, interpretation, and communication by students. From inspiration through implementation, this program is focused on the creation and operation of an underwater science sensor network that is physically located off the dock of the School of Oceanography at UW Seattle Campus.")
 
     col1, col2 = st.columns([1, 1])
+
     with col1:
         st.write("### Key Science Questions")
         st.write("-  How do anthropogenic processes mediate natural processes in the marine environment?")
-        st.write("-  What are the temporal and spatial scales of these effects?")
-        st.write("-  How do physical, chemical, and biological parameters interact?")
+        st.write("-  What are the temporal and spatial scales over which anthropogenic activities occur?")
+        st.write("-  How does the temperature, light, chemistry, and velocity of the marine environment change temporally and spatially?")
+        st.write("-  What unique ecological systems are present?")
+        st.write("-  What is the composition, configuration, and concentration of organisms in the different ecological systems?")
+        st.write("-  How are these systems impacted by both natural and anthropogenic events?")
+        st.write(" ")
+        st.write("ERIS will also encourage students to explore a range of technical considerations.")
 
     with col2:
-        st.image("images/tub.jpg", use_container_width=True)
+        st.image("images/tub.jpg", use_container_width = True)
 
     col3, col4 = st.columns([1, 1])
+
     with col3:
-        st.image("images/ctdmaintenence.jpg", use_container_width=True)
+        st.markdown("<!-- This is an invisible comment -->", unsafe_allow_html=True)
+        st.image("images/ctdmaintenence.jpg", use_container_width = True)
 
     with col4:
         st.write("### Technology Questions:")
         st.write("-  What sensor(s) design is required?")
         st.write("-  What sample rate and duty cycle is needed?")
-        st.write("-  What measurement accuracy is needed and what can be achieved?")
+        st.write("-  What measurement accuracy is need and what can be achieved?")
         st.write("-  How should remote observations be made?")
         st.write("-  How can sensors be deployed and serviced?")
         st.write("-  What are the power requirements?")
         st.write("-  How will data be delivered, stored, and accessed?")
         st.write("-  How will data be analyzed, interpreted, visualized, and communicated?")
+        st.write(" ")
+        st.write("As the observatory is being implemented, students focus on maintaining the components, as well as collecting, managing, and analyzing the continuous streams of data the observatory will produce. Integral to the ERIS program is the ability to distribute the collected data so that it may be interpreted by interested parties at the UW and worldwide.")
 
     st.write("### Course: OCEAN 462: Ocean Technology Studio")
-    st.write("Hands-on experience to build technical, science, and management skills in ocean instrumentation and exploration.")
+    st.write("Hands-on experience to build technical, science, and management skills in ocean technology through small group projects. Projects may include instrument design and building, data analysis, and/or participation in an on-going ocean technology initiative. Offered: AWSp. Can be taken for 1-5 credits, with a max of 15.")
+    st.write("For more information, visit [MyPlan](https://myplan.uw.edu/course/#/courses?states=N4Igwg9grgTgzgUwMoIIYwMYAsQC4TAA6IAZhDALYAiqALqsbkSBqhQA5RyPGJ20AbBMQA0xAJZwUGWuIgA7FOmyNaMKAjEhJASXlw1UGeSWYsjEqgGItARw0wAnkjXj5Acx4hRxACapHbjxmAEYLKxtiACZw601iAGZYyJAAFmT4kABWDK0ANgyAXy0DdFoAUXlfABVxCgQg3ABtAAYRAE48loBdLTcMAShfBAA5BQB5dgRFBBk5fVV1TP7B4YAlBtcZBF9pWQVGw2X5AaGEAAUYBCvbOA37cSvfRY0%2Bk9WEaoAjVD35w6WJSwEAA7uN5AJHOcMMhZvsFnhLHEgaDwZC9OdrnAFH8DkUUSCAEIwUGIXLELCoKRoMw7ckgXySAYQRAAQV8ADdUCcdqYVIiIghCiBCkA).")
+
 
 if page == "Instrument Data":
     logo_path = "images/OceanTech Logo-PURPLE.png"
