@@ -293,30 +293,69 @@ elif page == "Instrument Data":
             fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["pressure"], mode='lines', name='Pressure', line=dict(color='black')))
 
             fig.update_layout(
-                xaxis_title="Time",
-                yaxis_title="Values",
-                height=450,
-                xaxis=dict(
-                    rangeslider=dict(visible=True),
-                    type="date",
-                    rangeselector=dict(
-                        buttons=[
-                            dict(count=1, label="1d", step="day", stepmode="backward"),
-                            dict(count=7, label="1w", step="day", stepmode="backward"),
-                            dict(count=1, label="1m", step="month", stepmode="backward"),
-                            dict(count=6, label="6m", step="month", stepmode="backward"),
-                            dict(step="all")
-                        ],
-                        x=0.5, y=1.15, xanchor='center', yanchor='bottom'
-                    )
-                ),
-                yaxis=dict(showgrid=True, gridcolor='lightgrey'),
-                plot_bgcolor="white",
-                paper_bgcolor="lightblue",
-                font=dict(family="Georgia, serif", size=12, color="black"),
-                legend=dict(x=1.05, y=0.5, xanchor='left', yanchor='middle', bgcolor='rgba(255, 255, 255, 0.5)'),
-                margin=dict(l=80, r=80, t=50, b=80),
-            )
+            xaxis_title="Time",
+            yaxis_title="Values",
+            height=450,
+            xaxis=dict(
+                rangeslider=dict(visible=True),
+                type="date",
+                angeselector=dict(
+                    buttons=[
+                        dict(count=1, label="1d", step="day", stepmode="backward"),
+                        dict(count=7, label="1w", step="day", stepmode="backward"),
+                        dict(count=1, label="1m", step="month", stepmode="backward"),
+                        dict(count=6, label="6m", step="month", stepmode="backward"),
+                        dict(step="all")
+                    ],
+                    x=0.5,
+                    y=1.15,
+                    xanchor='center',
+                    yanchor='bottom',
+                    bgcolor="#444",  # neutral dark gray background
+                    font=dict(color="#FFF"),  # white text
+                    activecolor="#74bcf7"  # highlight color
+                )
+            ),
+
+            yaxis=dict(showgrid=True, gridcolor='lightgrey'),
+            plot_bgcolor="#1e1e1e",  # dark gray background
+            paper_bgcolor="#1e1e1e",
+            font=dict(family="Georgia, serif", size=12, color="white"),
+            legend=dict(
+                x=1.05,
+                y=0.5,
+                xanchor='left',
+                yanchor='middle',
+                bgcolor='rgba(255, 255, 255, 0.1)'  # light transparent background
+            ),
+            margin=dict(l=80, r=80, t=50, b=80),
+)
+
+            # fig.update_layout(
+            #     xaxis_title="Time",
+            #     yaxis_title="Values",
+            #     height=450,
+            #     xaxis=dict(
+            #         rangeslider=dict(visible=True),
+            #         type="date",
+            #         rangeselector=dict(
+            #             buttons=[
+            #                 dict(count=1, label="1d", step="day", stepmode="backward"),
+            #                 dict(count=7, label="1w", step="day", stepmode="backward"),
+            #                 dict(count=1, label="1m", step="month", stepmode="backward"),
+            #                 dict(count=6, label="6m", step="month", stepmode="backward"),
+            #                 dict(step="all")
+            #             ],
+            #             x=0.5, y=1.15, xanchor='center', yanchor='bottom'
+            #         )
+            #     ),
+            #     yaxis=dict(showgrid=True, gridcolor='lightgrey'),
+            #     plot_bgcolor="white",
+            #     paper_bgcolor="lightblue",
+            #     font=dict(family="Georgia, serif", size=12, color="black"),
+            #     legend=dict(x=1.05, y=0.5, xanchor='left', yanchor='middle', bgcolor='rgba(255, 255, 255, 0.5)'),
+            #     margin=dict(l=80, r=80, t=50, b=80),
+            # )
 
             st.plotly_chart(fig, use_container_width=True)
 
