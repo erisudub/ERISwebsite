@@ -280,8 +280,8 @@ elif page == "Instrument Data":
 
     # Load CTD data
     ctd_data = pd.read_csv(ctd_csv_file_path)
-    ctd_data['time'] = pd.to_datetime(ctd_data['time'], errors='coerce')
-    ctd_data = ctd_data.dropna(subset=['time'])
+    ctd_data['date'] = pd.to_datetime(ctd_data['date'], errors='coerce')
+    ctd_data = ctd_data.dropna(subset=['date'])
 
     # Date range filtering
     st.write("### Date Range Selection")
@@ -289,19 +289,19 @@ elif page == "Instrument Data":
     end_date = st.date_input("End Date", value=ctd_data['time'].max().date())
 
     filtered_ctd_data = ctd_data[
-        (ctd_data['time'] >= pd.Timestamp(start_date)) &
-        (ctd_data['time'] <= pd.Timestamp(end_date))
+        (ctd_data['date'] >= pd.Timestamp(start_date)) &
+        (ctd_data['date'] <= pd.Timestamp(end_date))
     ]
 
     # Create CTD graph
     fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', line=dict(color='black')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', line=dict(color='black')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
 
     # Update layout
     fig1.update_layout(
