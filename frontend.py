@@ -192,7 +192,7 @@ if page == "Instrument Data":
         ("conductivity", "Conductivity", "purple", 'y'),
         ("oxygen", "Oxygen", "gold", 'y'),
         ("turbidity", "Turbidity", "red", 'y'),
-        ("pressure", "Pressure", "black", 'y2'),  # Secondary axis
+        ("pressure", "Pressure", "black", 'y'),  # Secondary axis
     ]
 
     for col, label, color, yaxis in parameters:
@@ -200,7 +200,6 @@ if page == "Instrument Data":
             add_lines_with_gaps(fig, filtered_data, col, label, color, yaxis)
 
     fig.update_layout(
-        title="UW ERIS CTD MEASUREMENTS (Combined Firebase & CSV Data)",
         xaxis_title="Time",
         yaxis_title="Values",
         height=500,
@@ -221,13 +220,13 @@ if page == "Instrument Data":
         yaxis=dict(
             showgrid=True,
             gridcolor='lightgrey',
-            title="Temp, Salinity, PAR, Conductivity, Oxygen, Turbidity"
+            title="Values"
         ),
-        yaxis2=dict(
-            overlaying='y',
-            side='right',
-            title="Pressure"
-        ),
+        #yaxis2=dict(
+        #    overlaying='y',
+        #    side='right',
+         #   title="Pressure"
+        #),
         plot_bgcolor="white",
         paper_bgcolor="lightblue",
         font=dict(family="Georgia, serif", size=12, color="black"),
