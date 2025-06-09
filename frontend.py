@@ -53,16 +53,21 @@ def fetch_ctd_data():
         except Exception as e:
             print(f"Error processing document: {e}")
             continue
-    return pd.DataFrame(data) if data else None
+    df = pd.DataFrame(data) if data else pd.DataFrame()
+    df['source'] = 'Firebase'
+    return df
 
 # --- Function to load CSV data and preprocess ---
 @st.cache_data(ttl=600)
 def load_ctd_csv_data(csv_path):
-    df = pd.read_csv(csv_path)
+    try:
+        df = pd.read_csv(csv_path)
+    except Exception as e:
+        st.error(f"Failed to read CSV: {e}")
+        return pd.DataFrame()
 
     if 'date' in df.columns:
         df['datetime'] = pd.to_datetime(df['date'], utc=True, errors='coerce')
-        st.write(f"CSV data date range: {df['datetime'].min()} to {df['datetime'].max()}")
         df.drop(columns=['date'], inplace=True)
     else:
         df['datetime'] = pd.NaT
@@ -71,14 +76,13 @@ def load_ctd_csv_data(csv_path):
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce')
             df = df[(df[col] > -1000) & (df[col] < 1000)]
-            st.write(f"{col}: {df[col].notna().sum()} non-empty values")
 
+    df['source'] = 'CSV'
     return df
 
 # --- Streamlit page layout ---
 st.set_page_config(layout="wide")
 
-# --- Sidebar and Navigation ---
 st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data"])
 
@@ -98,27 +102,25 @@ if page == "Instrument Data":
     with st.spinner("Loading CTD data from Firebase..."):
         firebase_data = fetch_ctd_data()
 
+    ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
     with st.spinner("Loading CTD data from CSV..."):
-        ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
         csv_data = load_ctd_csv_data(ctd_csv_file_path)
 
-    if firebase_data is None and csv_data is None:
+    st.subheader("CSV Data Preview")
+    st.write(csv_data.head())
+
+    if firebase_data.empty and csv_data.empty:
         st.warning("No CTD data available from Firebase or CSV.")
         st.stop()
 
-    firebase_data['source'] = 'Firebase'
-    csv_data['source'] = 'CSV'
-
-    common_cols = list(set(firebase_data.columns).intersection(set(csv_data.columns)))
-    firebase_data = firebase_data[common_cols]
-    csv_data = csv_data[common_cols]
-
-    combined_df = pd.concat([firebase_data, csv_data], ignore_index=True)
+    combined_df = pd.concat([firebase_data, csv_data], ignore_index=True, sort=False)
     combined_df['datetime'] = pd.to_datetime(combined_df['datetime'], errors='coerce')
     combined_df = combined_df.dropna(subset=['datetime'])
     combined_df = combined_df.sort_values('datetime')
 
-    st.write("Combined columns:", combined_df.columns)
+    st.subheader("Combined Data Preview")
+    st.write(combined_df.head())
+    st.write(f"Total rows combined: {combined_df.shape[0]}")
 
     st.subheader("Date Range Selection")
     min_date = combined_df['datetime'].min().date()
@@ -135,15 +137,16 @@ if page == "Instrument Data":
     end_dt = pd.Timestamp(end_date) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
 
     filtered_data = combined_df[(combined_df['datetime'] >= start_dt) & (combined_df['datetime'] <= end_dt)]
+    st.write(f"Filtered data range: {filtered_data['datetime'].min()} to {filtered_data['datetime'].max()}")
 
     if filtered_data.empty:
         st.warning("No CTD data for the selected date range.")
         st.stop()
 
-    def add_lines_with_gaps(fig, df, y_col, name, color, yaxis='y'):
-        nan_indices = df[y_col].isna() if y_col in df.columns else []
-        if len(nan_indices) == 0:
+    def add_lines_with_gaps(fig, df, y_col, name, color, yaxis='y', source_label=None):
+        if y_col not in df.columns:
             return
+        nan_indices = df[y_col].isna()
         segments = []
         current_segment = []
         for i, is_nan in enumerate(nan_indices):
@@ -158,17 +161,19 @@ if page == "Instrument Data":
 
         for idx, seg in enumerate(segments):
             seg_df = df.iloc[seg]
+            label = f"{name} ({source_label})" if source_label and idx == 0 else None
             fig.add_trace(go.Scatter(
                 x=seg_df['datetime'],
                 y=seg_df[y_col],
                 mode='lines',
-                name=f"{name} ({seg_df['source'].iloc[0]})" if 'source' in seg_df.columns else name,
+                name=label,
                 line=dict(color=color),
                 yaxis=yaxis,
                 showlegend=idx == 0
             ))
 
     fig = go.Figure()
+
     parameters = [
         ("temperature", "Temperature", "blue", 'y'),
         ("salinity", "Salinity", "orange", 'y'),
@@ -181,7 +186,8 @@ if page == "Instrument Data":
 
     for col, label, color, yaxis in parameters:
         if col in filtered_data.columns:
-            add_lines_with_gaps(fig, filtered_data, col, label, color, yaxis)
+            add_lines_with_gaps(fig, filtered_data[filtered_data['source'] == 'Firebase'], col, label, color, yaxis, "Firebase")
+            add_lines_with_gaps(fig, filtered_data[filtered_data['source'] == 'CSV'], col, label, color, yaxis, "CSV")
 
     fig.update_layout(
         xaxis_title="Time",
@@ -201,23 +207,31 @@ if page == "Instrument Data":
                 x=0.5, y=1.15, xanchor='center', yanchor='bottom'
             )
         ),
-        yaxis=dict(showgrid=True, gridcolor='lightgrey', title="Values"),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='lightgrey',
+            title="Values"
+        ),
         plot_bgcolor="white",
         paper_bgcolor="lightblue",
         font=dict(family="Georgia, serif", size=12, color="black"),
-        legend=dict(x=1.05, y=0.5, xanchor='left', yanchor='middle', bgcolor='rgba(255, 255, 255, 0.5)'),
+        legend=dict(
+            x=1.05,
+            y=0.5,
+            xanchor='left',
+            yanchor='middle',
+            bgcolor='rgba(255, 255, 255, 0.5)'
+        ),
         margin=dict(l=80, r=80, t=50, b=80),
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
-    display_cols = ['datetime', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
+    display_cols = ['datetime', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity', 'source']
     filtered_display = filtered_data[display_cols].copy()
 
     st.download_button("Download Combined CTD Data", filtered_display.to_csv(index=False), "combined_ctd_data.csv")
     st.dataframe(filtered_display, use_container_width=True)
-
-
 
 # import streamlit as st
 # import pandas as pd
