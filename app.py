@@ -259,16 +259,10 @@ if page == "Main Page":
 
 # ✅ Instrument Data Page
 if page == "Instrument Data":
-    # Convert logo to Base64
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
+    logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>" if base64_logo else "⚠️ Logo Not Found"
 
-    if base64_logo:
-        logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>"
-    else:
-        logo_html = "⚠️ Logo Not Found"
-
-    # Title with Logos on Both Sides
     st.markdown(
         f"""
         <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
@@ -284,40 +278,29 @@ if page == "Instrument Data":
     ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
     ctd_data = pd.read_csv(ctd_csv_file_path)
 
-    ctd_data['date'] = pd.to_datetime(ctd_data['date'], errors='coerce')
-    ctd_data = ctd_data.dropna(subset=['date'])
-    ctd_data.rename(columns={'date': 'time'}, inplace=True)
-
-    # 🔧 CHANGED: Clean data to remove extreme/invalid values
-    for col in ['temperature', 'conductivity', 'par', 'turbidity', 'salinity', 'pressure', 'oxygen']:
-        if col in ctd_data.columns:
-            ctd_data[col] = pd.to_numeric(ctd_data[col], errors='coerce')
-            ctd_data = ctd_data[(ctd_data[col] > -1000) & (ctd_data[col] < 1000)]
+    ctd_data['datetime'] = pd.to_datetime(ctd_data['datetime'], errors='coerce')  # 🔧 Changed 'date' to 'datetime'
+    ctd_data = ctd_data.dropna(subset=['datetime'])
 
     # ✅ Date range filtering
     st.write("### Date Range Selection")
-    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date())).tz_localize('UTC')
-    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date())).tz_localize('UTC')
+    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['datetime'].min().date())).tz_localize('UTC')
+    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['datetime'].max().date())).tz_localize('UTC')
 
     filtered_ctd_data = ctd_data[
-        (ctd_data['time'] >= start_date) &
-        (ctd_data['time'] <= end_date)
+        (ctd_data['datetime'] >= start_date) &
+        (ctd_data['datetime'] <= end_date)
     ]
 
     # ✅ CTD Plot
     fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
-    
-    # 🔧 CHANGED: Move pressure to secondary y-axis to avoid flattening graph
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', yaxis='y2', line=dict(color='black')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', line=dict(color='black')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
 
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
-
-    # 🔧 CHANGED: Add secondary y-axis config
     fig1.update_layout(
         title="UW ERIS CTD MEASUREMENTS",
         xaxis_title="Time",
@@ -338,16 +321,7 @@ if page == "Instrument Data":
                 x=0.5, y=1.15, xanchor='center', yanchor='bottom'
             )
         ),
-        yaxis=dict(
-            title="Temp, Cond., PAR, Turbidity, Salinity, Oxygen",
-            showgrid=True,
-            gridcolor='lightgrey'
-        ),
-        yaxis2=dict(
-            title="Pressure",
-            overlaying='y',
-            side='right'
-        ),
+        yaxis=dict(showgrid=True, gridcolor='lightgrey'),
         plot_bgcolor="white",
         paper_bgcolor="lightblue",
         font=dict(family="Georgia, serif", size=12, color="black"),
@@ -365,4 +339,18 @@ if page == "Instrument Data":
 
     st.plotly_chart(fig1, use_container_width=True)
     st.download_button("Download CTD Data", filtered_ctd_data.to_csv(index=False), "ctd_data.csv")
-    st.dataframe(filtered_ctd_data)
+
+    # ✅ Formatted Raw Data Table (highlighted section)
+    raw_data_display = filtered_ctd_data.rename(columns={
+        'depth': 'depth1'  # 🔧 If 'depth' exists, rename to match expected
+    })
+
+    display_columns = [
+        'datetime', 'instrument', 'lat', 'lon', 'depth1',
+        'oxygen', 'conductivity', 'par', 'pressure',
+        'salinity', 'temperature', 'turbidity'
+    ]
+
+    display_columns = [col for col in display_columns if col in raw_data_display.columns]
+    st.dataframe(raw_data_display[display_columns])
+
