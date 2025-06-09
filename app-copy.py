@@ -299,7 +299,7 @@ elif page == "Instrument Data":
             xaxis=dict(
                 rangeslider=dict(visible=True),
                 type="date",
-                angeselector=dict(
+                rangeselector=dict(
                     buttons=[
                         dict(count=1, label="1d", step="day", stepmode="backward"),
                         dict(count=7, label="1w", step="day", stepmode="backward"),
