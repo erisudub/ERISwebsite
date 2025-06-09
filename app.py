@@ -364,6 +364,17 @@ if page == "Instrument Data":
     )
 
     st.plotly_chart(fig1, use_container_width=True)
-    st.download_button("Download CTD Data", filtered_ctd_data.to_csv(index=False), "ctd_data.csv")
-    st.dataframe(filtered_ctd_data)
+    
+    # ✅ Define the columns to show and their order
+    columns_to_display = ['time', 'temperature', 'conductivity', 'par', 'turbidity', 'salinity', 'pressure', 'oxygen']
+
+# ✅ Subset and reorder the filtered data
+    filtered_display_data = filtered_ctd_data[columns_to_display]
+
+# ✅ Show the selected columns in order
+    st.dataframe(filtered_display_data)
+
+# ✅ Download button with reordered/filtered data
+    st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
+
 
