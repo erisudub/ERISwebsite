@@ -295,7 +295,9 @@ if page == "Instrument Data":
 
     # ✅ Date range filtering UI
     st.write("### Date Range Selection")
-    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date()))
+    fixed_start = pd.to_datetime("2015-12-22 19:38:34+00:00")
+    start_date = pd.to_datetime(st.date_input("Start Date", value=fixed_start.date()))
+
     end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date()))
 
     # ✅ Filter data within date range
