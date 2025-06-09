@@ -296,8 +296,8 @@ if page == "Instrument Data":
 
     # ✅ Date range filtering
     st.write("### Date Range Selection")
-    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date())).tz_localize('UTC')
-    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date())).tz_localize('UTC')
+    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['datetime'].min().date())).tz_localize('UTC')
+    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['datetime'].max().date())).tz_localize('UTC')
 
     filtered_ctd_data = ctd_data[
         (ctd_data['datetime'] >= start_date) &
