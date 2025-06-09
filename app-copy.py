@@ -329,7 +329,7 @@ elif page == "Instrument Data":
                 bgcolor='rgba(255, 255, 255, 0.1)'  # light transparent background
             ),
             margin=dict(l=80, r=80, t=50, b=80),
-)
+            )
 
             # fig.update_layout(
             #     xaxis_title="Time",
