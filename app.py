@@ -296,9 +296,17 @@ if page == "Instrument Data":
     # ✅ Date range filtering UI
     st.write("### Date Range Selection")
     fixed_start = pd.to_datetime("2015-12-22 19:38:34+00:00")
-    start_date = pd.to_datetime(st.date_input("Start Date", value=fixed_start.date()))
 
-    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date()))
+# Make sure start_date has timezone info
+    start_date = st.date_input("Start Date", value=fixed_start.date())
+
+# Convert to datetime with UTC timezone (timezone-aware)
+    start_date = pd.to_datetime(start_date).tz_localize('UTC')
+
+# Similarly for end_date (assuming you want timezone-aware)
+    end_date = st.date_input("End Date", value=ctd_data['time'].max().date())
+    end_date = pd.to_datetime(end_date).tz_localize('UTC')
+
 
     # ✅ Filter data within date range
     filtered_ctd_data = ctd_data[
