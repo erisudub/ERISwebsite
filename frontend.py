@@ -60,19 +60,28 @@ def fetch_ctd_data():
 @st.cache_data(ttl=600)
 def load_ctd_csv_data(csv_path):
     df = pd.read_csv(csv_path)
-    # CHANGED: convert 'date' column to datetime and rename to 'datetime'
+
     if 'date' in df.columns:
-        df['datetime'] = pd.to_datetime(df['date'], errors='coerce')
+        # Parse ISO 8601 datetimes with timezone awareness
+        df['datetime'] = pd.to_datetime(df['date'], utc=True, errors='coerce')
+
+        # DEBUG: show min/max dates
+        min_date_csv = df['datetime'].min()
+        max_date_csv = df['datetime'].max()
+        st.write(f"CSV data date range: {min_date_csv} to {max_date_csv}")
+
         df.drop(columns=['date'], inplace=True)
     else:
-        df['datetime'] = pd.NaT  # <-- ADDED fallback
-    # Clean numeric columns safely
+        df['datetime'] = pd.NaT
+
+    # Filter numeric columns
     for col in ['temperature', 'conductivity', 'par', 'turbidity', 'salinity', 'pressure', 'oxygen']:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce')
-            # Filter out extreme values, keep realistic ranges only
             df = df[(df[col] > -1000) & (df[col] < 1000)]
+
     return df
+
 
 # --- Streamlit page layout ---
 st.set_page_config(layout="wide")
