@@ -395,14 +395,18 @@ elif page == "CTD Data (2015 to 2024)":
     )
 
     # ✅ Load and prepare CTD data
-    ctd_data = pd.read_csv(ctd_csv_file_path)
+    try:
+        ctd_data = pd.read_csv(ctd_csv_file_path)
+    except Exception as e:
+        st.error(f"Failed to load CTD data: {e}")
+        st.stop()
 
     # Convert to datetime and clean
     ctd_data['date'] = pd.to_datetime(ctd_data['date'], errors='coerce')
     ctd_data = ctd_data.dropna(subset=['date'])
     ctd_data.rename(columns={'date': 'time'}, inplace=True)
 
-    # ✅ Clean numeric columns, but preserve rows
+    # ✅ Clean numeric columns
     for col in ['temperature', 'conductivity', 'par', 'turbidity', 'salinity', 'pressure', 'oxygen']:
         if col in ctd_data.columns:
             ctd_data[col] = pd.to_numeric(ctd_data[col], errors='coerce')
@@ -412,25 +416,18 @@ elif page == "CTD Data (2015 to 2024)":
     st.write("### Date Range Selection")
     fixed_start = pd.to_datetime("2015-12-22 19:38:34+00:00")
 
-# Make sure start_date has timezone info
+    # Ensure timezone-aware
     start_date = st.date_input("Start Date", value=fixed_start.date())
-
-# Convert to datetime with UTC timezone (timezone-aware)
     start_date = pd.to_datetime(start_date).tz_localize('UTC')
 
-# Similarly for end_date (assuming you want timezone-aware)
     end_date = st.date_input("End Date", value=ctd_data['time'].max().date())
     end_date = pd.to_datetime(end_date).tz_localize('UTC')
 
-
     # ✅ Filter data within date range
     filtered_ctd_data = ctd_data[
-        (ctd_data['time'] >= start_date) &
+        (ctd_data['time'] >= start_date) & 
         (ctd_data['time'] <= end_date)
     ].sort_values('time')
-
-    # ✅ OPTIONAL: Interpolate missing values (if desired)
-    # filtered_ctd_data = filtered_ctd_data.interpolate(method="time")
 
     # ✅ Plotting
     fig1 = go.Figure()
@@ -442,7 +439,6 @@ elif page == "CTD Data (2015 to 2024)":
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', line=dict(color='black')))
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
 
-    # ✅ Layout config
     fig1.update_layout(
         title="UW ERIS CTD MEASUREMENTS",
         xaxis_title="Time",
@@ -460,19 +456,16 @@ elif page == "CTD Data (2015 to 2024)":
                     dict(count=6, label="6m", step="month", stepmode="backward"),
                     dict(step="all")
                 ],
-                x=0.5, y=1.15, xanchor='center', yanchor='bottom', bgcolor ="#444", font=dict(color="#FFF"), activecolor="#74bcf7"
+                x=0.5, y=1.15, xanchor='center', yanchor='bottom',
+                bgcolor="#444",
+                font=dict(color="#FFF"),
+                activecolor="#74bcf7"
             )
         ),
         yaxis=dict(
-            title="Temp, Cond., PAR, Turbidity, Salinity, Oxygen",
             showgrid=True,
             gridcolor='lightgrey'
         ),
-        # yaxis2=dict(
-        #     title="Pressure",
-        #     overlaying='y',
-        #     side='right'
-        # ),
         plot_bgcolor="white",
         paper_bgcolor="lightblue",
         font=dict(family="Georgia, serif", size=12, color="black"),
@@ -495,7 +488,6 @@ elif page == "CTD Data (2015 to 2024)":
     filtered_display_data = filtered_ctd_data[columns_to_display]
     st.dataframe(filtered_display_data)
     st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
-
 
 # 📌 **Instrument Descriptions Page**
 elif page == "What is our Instrument?":
