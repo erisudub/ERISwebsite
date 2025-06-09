@@ -2,31 +2,29 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
 import json
-import base64
 from datetime import datetime, date
+import base64
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# --- Initialize Firebase ---
+# --- Firebase Initialization ---
 if not firebase_admin._apps:
     cert = json.loads(st.secrets["Certificate"]["data"])
     cred = credentials.Certificate(cert)
     firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-# --- Load CSV Data ---
-csv_data = pd.read_csv('ERIS_data_2015-2024.csv')
-csv_data['datetime'] = pd.to_datetime(csv_data['date'], errors='coerce')
-csv_data = csv_data.dropna(subset=['datetime'])
+# --- Helper function to get base64 image for logos ---
+def get_base64_image(image_path):
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except FileNotFoundError:
+        return None
 
-# --- Clean and tag CSV data ---
-csv_data = csv_data.rename(columns={'date': 'time'})
-csv_data['source'] = 'CSV'
-csv_data = csv_data[['datetime', 'temperature', 'salinity', 'par', 'conductivity', 'oxygen', 'turbidity', 'pressure', 'source']]
-
-# --- Load Firestore Data ---
+# --- Fetch CTD data from Firebase ---
 @st.cache_data(ttl=600)
-def fetch_firestore_data():
+def fetch_ctd_data_from_firebase():
     docs = db.collection("CTD_Data").order_by("date").get()
     data = []
     for doc in docs:
@@ -35,73 +33,172 @@ def fetch_firestore_data():
             ts = d.get("date", {}).get("$date")
             if ts is None:
                 continue
-            data.append({
+            record = {
                 "datetime": datetime.fromtimestamp(ts / 1000),
-                "temperature": float(d.get("temperature", "nan")),
-                "salinity": float(d.get("salinity", "nan")),
-                "par": float(d.get("par", "nan")),
-                "conductivity": float(d.get("conductivity", "nan")),
-                "oxygen": float(d.get("oxygen", "nan")),
-                "turbidity": float(d.get("turbidity", "nan")),
-                "pressure": float(d.get("pressure", "nan")),
-                "source": "Firebase"
-            })
+                "instrument": d.get("instrument"),
+                "lat": d.get("lat"),
+                "lon": d.get("lon"),
+                "depth1": d.get("depth1"),
+                "oxygen": float(d.get("oxygen", float('nan'))),
+                "conductivity": float(d.get("conductivity", float('nan'))),
+                "par": float(d.get("par", float('nan'))),
+                "pressure": float(d.get("pressure", float('nan'))),
+                "salinity": float(d.get("salinity", float('nan'))),
+                "temperature": float(d.get("temperature", float('nan'))),
+                "turbidity": float(d.get("turbidity", float('nan'))),
+            }
+            data.append(record)
         except Exception as e:
-            print(f"Error: {e}")
-    return pd.DataFrame(data)
+            print(f"Error processing document: {e}")
+            continue
+    return pd.DataFrame(data) if data else pd.DataFrame()
 
-firebase_data = fetch_firestore_data()
+# --- Load CTD CSV data ---
+@st.cache_data(ttl=600)
+def load_ctd_csv_data(csv_path):
+    df = pd.read_csv(csv_path)
+    df['datetime'] = pd.to_datetime(df['date'], errors='coerce')
+    df.drop(columns=['date'], inplace=True)
+    # Convert numeric columns safely
+    numeric_cols = ['temperature', 'conductivity', 'par', 'turbidity', 'salinity', 'pressure', 'oxygen']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+    return df
 
-# --- Combine datasets ---
-combined = pd.concat([csv_data, firebase_data], ignore_index=True)
+# --- Streamlit page config ---
+st.set_page_config(layout="wide")
 
-# --- Filter by date ---
-st.subheader("Date Range Selection")
-start = st.date_input("Start Date", combined['datetime'].min().date())
-end = st.date_input("End Date", combined['datetime'].max().date())
+# --- Sidebar navigation ---
+st.sidebar.title("Navigation")
+page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data"])
 
-mask = (combined['datetime'] >= pd.to_datetime(start)) & (combined['datetime'] <= pd.to_datetime(end))
-filtered = combined[mask]
+if page == "Instrument Data":
+    # Logos
+    logo_path = "images/OceanTech Logo-PURPLE.png"
+    base64_logo = get_base64_image(logo_path)
+    logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>" if base64_logo else "⚠️ Logo Not Found"
 
-# --- Plot ---
-fig = go.Figure()
+    st.markdown(f"""
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+            {logo_html}
+            <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>UW ERIS CTD Data</h1>
+            {logo_html}
+        </div>
+    """, unsafe_allow_html=True)
 
-# Helper to plot lines for both sources
-def add_trace(col, name, color):
-    for source in ['CSV', 'Firebase']:
-        source_df = filtered[filtered['source'] == source]
-        fig.add_trace(go.Scatter(
-            x=source_df['datetime'],
-            y=source_df[col],
-            mode='lines',
-            name=f"{name} ({source})",
-            line=dict(color=color, dash='solid' if source == 'CSV' else 'dot')
-        ))
+    # Fetch data
+    with st.spinner("Loading Firebase CTD data..."):
+        firebase_data = fetch_ctd_data_from_firebase()
 
-add_trace("temperature", "Temperature", "blue")
-add_trace("salinity", "Salinity", "orange")
-add_trace("par", "PAR", "green")
-add_trace("conductivity", "Conductivity", "purple")
-add_trace("oxygen", "Oxygen", "gold")
-add_trace("turbidity", "Turbidity", "red")
-add_trace("pressure", "Pressure", "black")
+    with st.spinner("Loading CSV CTD data..."):
+        csv_data = load_ctd_csv_data('ERIS_data_2015-2024.csv')
 
-fig.update_layout(
-    title="Combined CTD Measurements (CSV + Firebase)",
-    xaxis_title="Time",
-    yaxis_title="Values",
-    xaxis=dict(
-        rangeslider=dict(visible=True),
-        type="date"
-    ),
-    legend=dict(x=1.05, y=0.5, xanchor='left'),
-    plot_bgcolor="white",
-    paper_bgcolor="lightblue"
-)
+    # Combine datasets
+    combined_df = pd.concat([firebase_data, csv_data], ignore_index=True, sort=False)
 
-st.plotly_chart(fig, use_container_width=True)
-st.download_button("Download Combined Data", filtered.to_csv(index=False), "combined_ctd.csv")
-st.dataframe(filtered, use_container_width=True)
+    # Drop rows without datetime
+    combined_df = combined_df.dropna(subset=['datetime'])
+
+    # Sort by datetime
+    combined_df = combined_df.sort_values('datetime')
+
+    # Date range selection
+    min_date = combined_df['datetime'].min().date() if not combined_df.empty else date.today()
+    max_date = combined_df['datetime'].max().date() if not combined_df.empty else date.today()
+
+    start_date = st.date_input("Start Date", value=min_date, min_value=min_date, max_value=max_date)
+    end_date = st.date_input("End Date", value=max_date, min_value=start_date, max_value=max_date)
+
+    # Filter by date range
+    mask = (combined_df['datetime'] >= pd.Timestamp(start_date)) & (combined_df['datetime'] <= pd.Timestamp(end_date) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1))
+    filtered_data = combined_df.loc[mask]
+
+    if filtered_data.empty:
+        st.warning("No CTD data found for the selected date range.")
+    else:
+        # Plotting
+        fig = go.Figure()
+
+        # Helper to add lines ignoring gaps
+        def add_lines_with_gaps(fig, df, y_col, name, color):
+            nan_mask = df[y_col].isna()
+            segments = []
+            current_segment = []
+            for i, is_nan in enumerate(nan_mask):
+                if not is_nan:
+                    current_segment.append(i)
+                else:
+                    if current_segment:
+                        segments.append(current_segment)
+                        current_segment = []
+            if current_segment:
+                segments.append(current_segment)
+
+            for idx, seg in enumerate(segments):
+                seg_df = df.iloc[seg]
+                fig.add_trace(go.Scatter(
+                    x=seg_df['datetime'],
+                    y=seg_df[y_col],
+                    mode='lines',
+                    name=name if idx == 0 else None,  # Show legend only once
+                    line=dict(color=color),
+                    showlegend=idx == 0
+                ))
+
+        # Add traces for all variables
+        variables = [
+            ('temperature', 'Temperature', 'blue'),
+            ('salinity', 'Salinity', 'orange'),
+            ('par', 'PAR', 'green'),
+            ('conductivity', 'Conductivity', 'purple'),
+            ('oxygen', 'Oxygen', 'gold'),
+            ('turbidity', 'Turbidity', 'red'),
+            ('pressure', 'Pressure', 'black'),
+        ]
+
+        for var, label, color in variables:
+            if var in filtered_data.columns:
+                add_lines_with_gaps(fig, filtered_data, var, label, color)
+
+        fig.update_layout(
+            xaxis_title="Time",
+            yaxis_title="Measurement Values",
+            height=500,
+            xaxis=dict(
+                rangeslider=dict(visible=True),
+                type="date",
+                rangeselector=dict(
+                    buttons=[
+                        dict(count=1, label="1d", step="day", stepmode="backward"),
+                        dict(count=7, label="1w", step="day", stepmode="backward"),
+                        dict(count=1, label="1m", step="month", stepmode="backward"),
+                        dict(count=6, label="6m", step="month", stepmode="backward"),
+                        dict(step="all")
+                    ],
+                    x=0.5, y=1.15, xanchor='center', yanchor='bottom'
+                )
+            ),
+            yaxis=dict(showgrid=True, gridcolor='lightgrey'),
+            plot_bgcolor="white",
+            paper_bgcolor="lightblue",
+            font=dict(family="Georgia, serif", size=12, color="black"),
+            legend=dict(x=1.05, y=0.5, xanchor='left', yanchor='middle', bgcolor='rgba(255, 255, 255, 0.5)'),
+            margin=dict(l=80, r=80, t=50, b=80),
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Show dataframe filtered and download option
+        columns_to_show = ['datetime', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
+        filtered_display = filtered_data[columns_to_show].sort_values('datetime')
+        st.dataframe(filtered_display, use_container_width=True)
+        st.download_button("Download Filtered CTD Data", filtered_display.to_csv(index=False), "ctd_data_combined.csv")
+
+else:
+    st.title("Welcome to the Main Page")
+    st.write("Select 'Instrument Data' from the sidebar to see the combined CTD data from Firebase and CSV.")
+
 
 
 # import streamlit as st
@@ -201,7 +298,6 @@ st.dataframe(filtered, use_container_width=True)
 #         st.warning("No CTD data for the selected date range.")
 #         return
 
-#     # --- NEW CODE START ---
 #     def add_lines_with_gaps(fig, df, y_col, name, color):
 #         nan_indices = df[y_col].isna()
 #         segments = []
