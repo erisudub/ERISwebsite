@@ -187,7 +187,7 @@ if page == "Main Page":
                 display: block;
                 width: 100%;
                 background-color: #74bcf7;
-                color: black;
+                color: black !important;
                 text-align: center;
                 padding: 15px;
                 font-size: 20px;
@@ -196,13 +196,14 @@ if page == "Main Page":
                 border-radius: 5px;
             }
             .full-width-link:hover {
-                background-color: #000000;
+                background-color: #5A0C9D;
             }
         </style>
         <a href="https://youtu.be/zQ8caaUxIvY?si=NlzA_W-o2h0XHfeM" class="full-width-link" target="_blank">Navigation Tutorial</a>
         """,
         unsafe_allow_html=True
     )
+
 
     #🔬 Educational Content
     st.write("### What is ERIS?")
