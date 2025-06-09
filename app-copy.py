@@ -336,7 +336,7 @@ elif page == "Instrument Data":
                         dict(count=6, label="6m", step="month", stepmode="backward"),
                         dict(step="all")
                     ],
-                    x=0.5, y=1.15, xanchor='center', yanchor='bottom'
+                    x=0.5, y=1.15, xanchor='center', yanchor='bottom', bgcolor ="#444", font=dict(color="#FFF"), activecolor="#74bcf7"
                 )
             ),
             yaxis=dict(showgrid=True, gridcolor='lightgrey'),
