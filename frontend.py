@@ -1,117 +1,107 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
-from firebase_admin import credentials, firestore, initialize_app
-from datetime import datetime
+import json
+import base64
+from datetime import datetime, date
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-# Initialize Firebase
-@st.cache_resource
-def init_firebase():
-    cred = credentials.Certificate("eris-db-firebase-adminsdk.json")  # Replace with actual path
-    initialize_app(cred)
-    return firestore.client()
+# --- Initialize Firebase ---
+if not firebase_admin._apps:
+    cert = json.loads(st.secrets["Certificate"]["data"])
+    cred = credentials.Certificate(cert)
+    firebase_admin.initialize_app(cred)
+db = firestore.client()
 
-db = init_firebase()
+# --- Load CSV Data ---
+csv_data = pd.read_csv('ERIS_data_2015-2024.csv')
+csv_data['datetime'] = pd.to_datetime(csv_data['date'], errors='coerce')
+csv_data = csv_data.dropna(subset=['datetime'])
 
-# Fetch Firebase CTD data
-@st.cache_data
-def fetch_ctd_data():
-    collection_ref = db.collection("ctd_data")
-    docs = collection_ref.stream()
+# --- Clean and tag CSV data ---
+csv_data = csv_data.rename(columns={'date': 'time'})
+csv_data['source'] = 'CSV'
+csv_data = csv_data[['datetime', 'temperature', 'salinity', 'par', 'conductivity', 'oxygen', 'turbidity', 'pressure', 'source']]
 
+# --- Load Firestore Data ---
+@st.cache_data(ttl=600)
+def fetch_firestore_data():
+    docs = db.collection("CTD_Data").order_by("date").get()
     data = []
     for doc in docs:
-        entry = doc.to_dict()
+        d = doc.to_dict()
         try:
-            entry['datetime'] = pd.to_datetime(entry['datetime'])
-        except:
-            entry['datetime'] = pd.NaT
-        data.append(entry)
+            ts = d.get("date", {}).get("$date")
+            if ts is None:
+                continue
+            data.append({
+                "datetime": datetime.fromtimestamp(ts / 1000),
+                "temperature": float(d.get("temperature", "nan")),
+                "salinity": float(d.get("salinity", "nan")),
+                "par": float(d.get("par", "nan")),
+                "conductivity": float(d.get("conductivity", "nan")),
+                "oxygen": float(d.get("oxygen", "nan")),
+                "turbidity": float(d.get("turbidity", "nan")),
+                "pressure": float(d.get("pressure", "nan")),
+                "source": "Firebase"
+            })
+        except Exception as e:
+            print(f"Error: {e}")
+    return pd.DataFrame(data)
 
-    df = pd.DataFrame(data)
-    return df
+firebase_data = fetch_firestore_data()
 
-firebase_data = fetch_ctd_data()
+# --- Combine datasets ---
+combined = pd.concat([csv_data, firebase_data], ignore_index=True)
 
-# Load CSV data
-@st.cache_data
-def load_csv_data():
-    df = pd.read_csv("ERIS_data_2015-2024.csv")
-    df['datetime'] = pd.to_datetime(df['date'], errors='coerce')
-    return df
+# --- Filter by date ---
+st.subheader("Date Range Selection")
+start = st.date_input("Start Date", combined['datetime'].min().date())
+end = st.date_input("End Date", combined['datetime'].max().date())
 
-csv_data = load_csv_data()
+mask = (combined['datetime'] >= pd.to_datetime(start)) & (combined['datetime'] <= pd.to_datetime(end))
+filtered = combined[mask]
 
-# Set up Streamlit interface
-st.title("CTD Data Visualization and Comparison")
-
-# Combined unique station list
-stations = sorted(set(firebase_data['station'].dropna().unique()) | set(csv_data['station'].dropna().unique()))
-selected_station = st.selectbox("Select Station", stations)
-
-# Filter by station
-firebase_station = firebase_data[firebase_data['station'] == selected_station]
-csv_station = csv_data[csv_data['station'] == selected_station]
-
-# Available columns for plotting
-numeric_cols = ['temperature', 'salinity', 'pressure', 'depth']  # adjust as needed
-available_cols = [col for col in numeric_cols if col in firebase_station.columns and col in csv_station.columns]
-selected_col = st.selectbox("Select Variable to Plot", available_cols)
-
-# Date range filter
-min_date = min(firebase_station['datetime'].min(), csv_station['datetime'].min())
-max_date = max(firebase_station['datetime'].max(), csv_station['datetime'].max())
-
-start_date = st.date_input("Start Date", min_value=min_date.date(), max_value=max_date.date(), value=min_date.date())
-end_date = st.date_input("End Date", min_value=start_date, max_value=max_date.date(), value=max_date.date())
-
-start_dt = pd.to_datetime(start_date)
-end_dt = pd.to_datetime(end_date) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
-
-firebase_filtered = firebase_station[(firebase_station['datetime'] >= start_dt) & (firebase_station['datetime'] <= end_dt)]
-csv_filtered = csv_station[(csv_station['datetime'] >= start_dt) & (csv_station['datetime'] <= end_dt)]
-
-# Plotting
+# --- Plot ---
 fig = go.Figure()
 
-# CSV trace
-fig.add_trace(go.Scatter(
-    x=csv_filtered['datetime'],
-    y=csv_filtered[selected_col],
-    mode='lines+markers',
-    name=f'CSV - {selected_col}',
-    line=dict(color='blue')
-))
+# Helper to plot lines for both sources
+def add_trace(col, name, color):
+    for source in ['CSV', 'Firebase']:
+        source_df = filtered[filtered['source'] == source]
+        fig.add_trace(go.Scatter(
+            x=source_df['datetime'],
+            y=source_df[col],
+            mode='lines',
+            name=f"{name} ({source})",
+            line=dict(color=color, dash='solid' if source == 'CSV' else 'dot')
+        ))
 
-# Firebase trace
-fig.add_trace(go.Scatter(
-    x=firebase_filtered['datetime'],
-    y=firebase_filtered[selected_col],
-    mode='lines+markers',
-    name=f'Firebase - {selected_col}',
-    line=dict(color='red', dash='dot')
-))
+add_trace("temperature", "Temperature", "blue")
+add_trace("salinity", "Salinity", "orange")
+add_trace("par", "PAR", "green")
+add_trace("conductivity", "Conductivity", "purple")
+add_trace("oxygen", "Oxygen", "gold")
+add_trace("turbidity", "Turbidity", "red")
+add_trace("pressure", "Pressure", "black")
 
 fig.update_layout(
-    title=f"{selected_col.capitalize()} at {selected_station}",
-    xaxis_title="Datetime",
-    yaxis_title=selected_col.capitalize(),
-    height=600,
+    title="Combined CTD Measurements (CSV + Firebase)",
+    xaxis_title="Time",
+    yaxis_title="Values",
+    xaxis=dict(
+        rangeslider=dict(visible=True),
+        type="date"
+    ),
+    legend=dict(x=1.05, y=0.5, xanchor='left'),
     plot_bgcolor="white",
-    paper_bgcolor="lightgray",
-    font=dict(family="Arial", size=12),
-    xaxis=dict(rangeslider=dict(visible=True), type="date"),
-    legend=dict(x=1, y=1),
+    paper_bgcolor="lightblue"
 )
 
 st.plotly_chart(fig, use_container_width=True)
-
-# Optional: show raw data
-with st.expander("Show Raw Data"):
-    st.subheader("Firebase Data")
-    st.dataframe(firebase_filtered)
-    st.subheader("CSV Data")
-    st.dataframe(csv_filtered)
+st.download_button("Download Combined Data", filtered.to_csv(index=False), "combined_ctd.csv")
+st.dataframe(filtered, use_container_width=True)
 
 
 # import streamlit as st
