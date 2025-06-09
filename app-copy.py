@@ -127,6 +127,9 @@ def fetch_ctd_data():
             continue
     return pd.DataFrame(data) if data else None
 
+# Load CSV data for each graph
+ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
+
 if page == "Main Page":
     st.markdown("<h1 style='text-align: center; font-family:Georgia, serif;'>Welcome to ERIS</h1>", unsafe_allow_html=True)
 
