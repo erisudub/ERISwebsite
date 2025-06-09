@@ -290,13 +290,14 @@ if page == "Instrument Data":
 
     # ✅ Date range filtering
     st.write("### Date Range Selection")
-    start_date = st.date_input("Start Date", value=ctd_data['time'].min().date())
-    end_date = st.date_input("End Date", value=ctd_data['time'].max().date())
+    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date())).tz_localize('UTC')
+    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date())).tz_localize('UTC')
 
     filtered_ctd_data = ctd_data[
-        (ctd_data['time'] >= pd.Timestamp(start_date)) &
-        (ctd_data['time'] <= pd.Timestamp(end_date))
+        (ctd_data['time'] >= start_date) &
+        (ctd_data['time'] <= end_date)
     ]
+
 
     # ✅ CTD Plot
     fig1 = go.Figure()
