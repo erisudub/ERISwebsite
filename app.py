@@ -8,7 +8,6 @@ import os
 import base64
 import threading
 import random
-import datetime
 
 # Function to encode images to base64
 def get_base64_image(image_path):
@@ -257,12 +256,19 @@ if page == "Main Page":
     #     time.sleep(5)  
     #     change_image(1)
 
+
+# ✅ Instrument Data Page
 if page == "Instrument Data":
+    # Convert logo to Base64
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
 
-    logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>" if base64_logo else "⚠️ Logo Not Found"
+    if base64_logo:
+        logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>"
+    else:
+        logo_html = "⚠️ Logo Not Found"
 
+    # Title with Logos on Both Sides
     st.markdown(
         f"""
         <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
@@ -274,100 +280,99 @@ if page == "Instrument Data":
         unsafe_allow_html=True
     )
 
-    # ✅ Load and clean CTD data
+    # ✅ Load and prepare CTD data
+    ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
     ctd_data = pd.read_csv(ctd_csv_file_path)
+
     ctd_data['date'] = pd.to_datetime(ctd_data['date'], errors='coerce')
     ctd_data = ctd_data.dropna(subset=['date'])
     ctd_data.rename(columns={'date': 'time'}, inplace=True)
 
+    # 🔧 CHANGED: Clean data to remove extreme/invalid values
     for col in ['temperature', 'conductivity', 'par', 'turbidity', 'salinity', 'pressure', 'oxygen']:
         if col in ctd_data.columns:
             ctd_data[col] = pd.to_numeric(ctd_data[col], errors='coerce')
             ctd_data = ctd_data[(ctd_data[col] > -1000) & (ctd_data[col] < 1000)]
 
-    # ✅ Debug info for available date range
-    st.write("Earliest date in dataset:", ctd_data['time'].min())
-    st.write("Latest date in dataset:", ctd_data['time'].max())
-
-    # ✅ Date range filtering (timezone-naive handling)
+    # ✅ Date range filtering
     st.write("### Date Range Selection")
-
-    start_date = datetime.datetime.combine(
-        st.date_input("Start Date", value=ctd_data['time'].min().date()),
-        datetime.time.min
-    )
-    end_date = datetime.datetime.combine(
-        st.date_input("End Date", value=ctd_data['time'].max().date()),
-        datetime.time.max
-    )
+    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date())).tz_localize('UTC')
+    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date())).tz_localize('UTC')
 
     filtered_ctd_data = ctd_data[
         (ctd_data['time'] >= start_date) &
         (ctd_data['time'] <= end_date)
     ]
 
-    if filtered_ctd_data.empty:
-        st.warning("⚠️ No data found in this date range. Please select a different range.")
-    else:
-        # ✅ Plot CTD Measurements
-        fig1 = go.Figure()
-        fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
-        fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
-        fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
-        fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
-        fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
-        fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', yaxis='y2', line=dict(color='black')))
-        fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
+    # ✅ CTD Plot
+    fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
+    
+    # 🔧 CHANGED: Move pressure to secondary y-axis to avoid flattening graph
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', yaxis='y2', line=dict(color='black')))
 
-        fig1.update_layout(
-            title="UW ERIS CTD MEASUREMENTS",
-            xaxis_title="Time",
-            yaxis_title="Values",
-            width=1000,
-            height=500,
-            xaxis=dict(
-                rangeslider=dict(visible=True),
-                type="date",
-                rangeselector=dict(
-                    buttons=[
-                        dict(count=1, label="1d", step="day", stepmode="backward"),
-                        dict(count=7, label="1w", step="day", stepmode="backward"),
-                        dict(count=1, label="1m", step="month", stepmode="backward"),
-                        dict(count=6, label="6m", step="month", stepmode="backward"),
-                        dict(step="all")
-                    ],
-                    x=0.5, y=1.15, xanchor='center', yanchor='bottom'
-                )
-            ),
-            yaxis=dict(
-                title="Temp, Cond., PAR, Turbidity, Salinity, Oxygen",
-                showgrid=True,
-                gridcolor='lightgrey'
-            ),
-            yaxis2=dict(
-                title="Pressure",
-                overlaying='y',
-                side='right'
-            ),
-            plot_bgcolor="white",
-            paper_bgcolor="lightblue",
-            font=dict(family="Georgia, serif", size=12, color="black"),
-            legend=dict(
-                x=1.05,
-                y=0.5,
-                xanchor='left',
-                yanchor='middle',
-                traceorder="normal",
-                bgcolor='rgba(255, 255, 255, 0.5)'
-            ),
-            margin=dict(l=80, r=80, t=50, b=80),
-            autosize=False
-        )
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
 
-        st.plotly_chart(fig1, use_container_width=True)
+    # 🔧 CHANGED: Add secondary y-axis config
+    fig1.update_layout(
+        title="UW ERIS CTD MEASUREMENTS",
+        xaxis_title="Time",
+        yaxis_title="Values",
+        width=1000,
+        height=500,
+        xaxis=dict(
+            rangeslider=dict(visible=True),
+            type="date",
+            rangeselector=dict(
+                buttons=[
+                    dict(count=1, label="1d", step="day", stepmode="backward"),
+                    dict(count=7, label="1w", step="day", stepmode="backward"),
+                    dict(count=1, label="1m", step="month", stepmode="backward"),
+                    dict(count=6, label="6m", step="month", stepmode="backward"),
+                    dict(step="all")
+                ],
+                x=0.5, y=1.15, xanchor='center', yanchor='bottom'
+            )
+        ),
+        yaxis=dict(
+            title="Temp, Cond., PAR, Turbidity, Salinity, Oxygen",
+            showgrid=True,
+            gridcolor='lightgrey'
+        ),
+        yaxis2=dict(
+            title="Pressure",
+            overlaying='y',
+            side='right'
+        ),
+        plot_bgcolor="white",
+        paper_bgcolor="lightblue",
+        font=dict(family="Georgia, serif", size=12, color="black"),
+        legend=dict(
+            x=1.05,
+            y=0.5,
+            xanchor='left',
+            yanchor='middle',
+            traceorder="normal",
+            bgcolor='rgba(255, 255, 255, 0.5)'
+        ),
+        margin=dict(l=80, r=80, t=50, b=80),
+        autosize=False
+    )
 
-        # ✅ Data display and download
-        columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
-        filtered_display_data = filtered_ctd_data[columns_to_display]
-        st.dataframe(filtered_display_data)
-        st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
+    st.plotly_chart(fig1, use_container_width=True)
+    
+    # ✅ Define the columns to show and their order
+    columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
+
+# ✅ Subset and reorder the filtered data
+    filtered_display_data = filtered_ctd_data[columns_to_display]
+
+# ✅ Show the selected columns in order
+    st.dataframe(filtered_display_data)
+
+# ✅ Download button with reordered/filtered data
+    st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
