@@ -366,7 +366,7 @@ if page == "Instrument Data":
     st.plotly_chart(fig1, use_container_width=True)
     
     # ✅ Define the columns to show and their order
-    columns_to_display = ['time', 'temperature', 'conductivity', 'par', 'turbidity', 'salinity', 'pressure', 'oxygen']
+    columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
 
 # ✅ Subset and reorder the filtered data
     filtered_display_data = filtered_ctd_data[columns_to_display]
