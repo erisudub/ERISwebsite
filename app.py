@@ -291,8 +291,11 @@ if page == "Instrument Data":
 
     # ✅ Date range filtering (no timezone localization)
     st.write("### Date Range Selection")
-    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date()))
-    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date()))
+   
+
+    start_date = datetime.datetime.combine(st.date_input("Start Date", value=ctd_data['time'].min().date()), datetime.time.min)
+    end_date = datetime.datetime.combine(st.date_input("End Date", value=ctd_data['time'].max().date()), datetime.time.max)
+
 
     filtered_ctd_data = ctd_data[
         (ctd_data['time'] >= start_date) &
