@@ -282,42 +282,32 @@ if page == "Instrument Data":
     # ✅ Load and prepare CTD data
     ctd_data = pd.read_csv(ctd_csv_file_path)
 
+    # Convert to datetime and clean
     ctd_data['date'] = pd.to_datetime(ctd_data['date'], errors='coerce')
     ctd_data = ctd_data.dropna(subset=['date'])
     ctd_data.rename(columns={'date': 'time'}, inplace=True)
 
-    # 🔧 Ensure 'time' column is timezone-naive to match comparisons
-    ctd_data['time'] = ctd_data['time'].dt.tz_localize(None)
-
-    # 🔧 CHANGED: Clean data to remove extreme/invalid values
+    # ✅ Clean numeric columns, but preserve rows
     for col in ['temperature', 'conductivity', 'par', 'turbidity', 'salinity', 'pressure', 'oxygen']:
         if col in ctd_data.columns:
             ctd_data[col] = pd.to_numeric(ctd_data[col], errors='coerce')
-            ctd_data = ctd_data[(ctd_data[col] > -1000) & (ctd_data[col] < 1000)]
+            ctd_data.loc[(ctd_data[col] < -1000) | (ctd_data[col] > 1000), col] = pd.NA
 
-    # ✅ Date range filtering
+    # ✅ Date range filtering UI
     st.write("### Date Range Selection")
+    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date()))
+    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date()))
 
-# Convert full time column to timezone-naive if needed
-    ctd_data['time'] = pd.to_datetime(ctd_data['time'], errors='coerce')
-    ctd_data['time'] = ctd_data['time'].dt.tz_localize(None)
-
-# Use explicit default range
-    start_date_input = st.date_input("Start Date", value=pd.Timestamp("2015-12-22"))
-    end_date_input = st.date_input("End Date", value=ctd_data['time'].max().date())
-
-# Convert inputs to datetime (naive)
-    start_date = pd.to_datetime(start_date_input)
-    end_date = pd.to_datetime(end_date_input)
-
-# Filter data
+    # ✅ Filter data within date range
     filtered_ctd_data = ctd_data[
         (ctd_data['time'] >= start_date) &
         (ctd_data['time'] <= end_date)
-    ]
+    ].sort_values('time')
 
+    # ✅ OPTIONAL: Interpolate missing values (if desired)
+    # filtered_ctd_data = filtered_ctd_data.interpolate(method="time")
 
-    # ✅ CTD Plot
+    # ✅ Plotting
     fig1 = go.Figure()
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
@@ -327,7 +317,7 @@ if page == "Instrument Data":
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', yaxis='y2', line=dict(color='black')))
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
 
-    # 🔧 CHANGED: Add secondary y-axis config
+    # ✅ Layout config
     fig1.update_layout(
         title="UW ERIS CTD MEASUREMENTS",
         xaxis_title="Time",
@@ -375,15 +365,8 @@ if page == "Instrument Data":
 
     st.plotly_chart(fig1, use_container_width=True)
 
-    # ✅ Define the columns to show and their order
+    # ✅ Table & download
     columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
-
-    # ✅ Subset and reorder the filtered data
     filtered_display_data = filtered_ctd_data[columns_to_display]
-
-    # ✅ Show the selected columns in order
     st.dataframe(filtered_display_data)
-
-    # ✅ Download button with reordered/filtered data
     st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
-
