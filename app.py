@@ -281,7 +281,7 @@ if page == "Instrument Data":
     )
 
     # ✅ Load and prepare CTD data
-    ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
+    # ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
     ctd_data = pd.read_csv(ctd_csv_file_path)
 
     ctd_data['date'] = pd.to_datetime(ctd_data['date'], errors='coerce')
@@ -296,8 +296,11 @@ if page == "Instrument Data":
 
     # ✅ Date range filtering
     st.write("### Date Range Selection")
-    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date())).tz_localize('UTC')
-    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date())).tz_localize('UTC')
+    # start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date())).tz_localize('UTC')
+    # end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date())).tz_localize('UTC')
+
+    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date()))
+    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date()))
 
     filtered_ctd_data = ctd_data[
         (ctd_data['time'] >= start_date) &
