@@ -286,7 +286,7 @@ if page == "Instrument Data":
 
     ctd_data['date'] = pd.to_datetime(ctd_data['date'], errors='coerce')
     ctd_data = ctd_data.dropna(subset=['date'])
-    ctd_data.rename(columns={'date': 'time'}, inplace=True)
+    ctd_data.rename(columns={'date': 'datetime'}, inplace=True)
 
     # 🔧 CHANGED: Clean data to remove extreme/invalid values
     for col in ['temperature', 'conductivity', 'par', 'turbidity', 'salinity', 'pressure', 'oxygen']:
@@ -300,22 +300,22 @@ if page == "Instrument Data":
     end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date())).tz_localize('UTC')
 
     filtered_ctd_data = ctd_data[
-        (ctd_data['time'] >= start_date) &
-        (ctd_data['time'] <= end_date)
+        (ctd_data['datetime'] >= start_date) &
+        (ctd_data['datetime'] <= end_date)
     ]
 
     # ✅ CTD Plot
     fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
     
     # 🔧 CHANGED: Move pressure to secondary y-axis to avoid flattening graph
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', yaxis='y2', line=dict(color='black')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', yaxis='y2', line=dict(color='black')))
 
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['datetime'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
 
     # 🔧 CHANGED: Add secondary y-axis config
     fig1.update_layout(
@@ -366,7 +366,7 @@ if page == "Instrument Data":
     st.plotly_chart(fig1, use_container_width=True)
     
     # ✅ Define the columns to show and their order
-    columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
+    columns_to_display = ['datetime', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
 
 # ✅ Subset and reorder the filtered data
     filtered_display_data = filtered_ctd_data[columns_to_display]
