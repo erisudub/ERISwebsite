@@ -297,13 +297,25 @@ if page == "Instrument Data":
 
     # ✅ Date range filtering
     st.write("### Date Range Selection")
-    start_date = pd.to_datetime(st.date_input("Start Date", value=ctd_data['time'].min().date()))
-    end_date = pd.to_datetime(st.date_input("End Date", value=ctd_data['time'].max().date()))
 
+# Convert full time column to timezone-naive if needed
+    ctd_data['time'] = pd.to_datetime(ctd_data['time'], errors='coerce')
+    ctd_data['time'] = ctd_data['time'].dt.tz_localize(None)
+
+# Use explicit default range
+    start_date_input = st.date_input("Start Date", value=pd.Timestamp("2015-12-22"))
+    end_date_input = st.date_input("End Date", value=ctd_data['time'].max().date())
+
+# Convert inputs to datetime (naive)
+    start_date = pd.to_datetime(start_date_input)
+    end_date = pd.to_datetime(end_date_input)
+
+# Filter data
     filtered_ctd_data = ctd_data[
         (ctd_data['time'] >= start_date) &
         (ctd_data['time'] <= end_date)
     ]
+
 
     # ✅ CTD Plot
     fig1 = go.Figure()
