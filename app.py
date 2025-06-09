@@ -256,7 +256,9 @@ if page == "Main Page":
         time.sleep(5)  
         change_image(1)
 
-elif page == "Instrument Data":
+
+# ✅ Instrument Data Page
+if page == "Instrument Data":
     # Convert logo to Base64
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
@@ -278,45 +280,54 @@ elif page == "Instrument Data":
         unsafe_allow_html=True
     )
 
-    # Load CTD data
+    # ✅ Load and prepare CTD data
+    ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
     ctd_data = pd.read_csv(ctd_csv_file_path)
+
     ctd_data['date'] = pd.to_datetime(ctd_data['date'], errors='coerce')
     ctd_data = ctd_data.dropna(subset=['date'])
+    ctd_data.rename(columns={'date': 'time'}, inplace=True)
 
-    # Date range filtering
+    # ✅ Date range filtering
     st.write("### Date Range Selection")
     start_date = st.date_input("Start Date", value=ctd_data['time'].min().date())
     end_date = st.date_input("End Date", value=ctd_data['time'].max().date())
 
     filtered_ctd_data = ctd_data[
-        (ctd_data['date'] >= pd.Timestamp(start_date)) &
-        (ctd_data['date'] <= pd.Timestamp(end_date))
+        (ctd_data['time'] >= pd.Timestamp(start_date)) &
+        (ctd_data['time'] <= pd.Timestamp(end_date))
     ]
 
-    # Create CTD graph
+    # ✅ CTD Plot
     fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', line=dict(color='black')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['date'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', line=dict(color='black')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
 
-    # Update layout
     fig1.update_layout(
         title="UW ERIS CTD MEASUREMENTS",
         xaxis_title="Time",
         yaxis_title="Values",
         width=1000,
         height=500,
-        xaxis=dict(rangeslider=dict(visible=True), type="date", rangeselector=dict(
-            buttons=[dict(count=1, label="1d", step="day", stepmode="backward"),
-                     dict(count=7, label="1w", step="day", stepmode="backward"),
-                     dict(count=1, label="1m", step="month", stepmode="backward"),
-                     dict(count=6, label="6m", step="month", stepmode="backward"),
-                     dict(step="all")],
-            x=0.5, y=1.15, xanchor='center', yanchor='bottom')),
+        xaxis=dict(
+            rangeslider=dict(visible=True),
+            type="date",
+            rangeselector=dict(
+                buttons=[
+                    dict(count=1, label="1d", step="day", stepmode="backward"),
+                    dict(count=7, label="1w", step="day", stepmode="backward"),
+                    dict(count=1, label="1m", step="month", stepmode="backward"),
+                    dict(count=6, label="6m", step="month", stepmode="backward"),
+                    dict(step="all")
+                ],
+                x=0.5, y=1.15, xanchor='center', yanchor='bottom'
+            )
+        ),
         yaxis=dict(showgrid=True, gridcolor='lightgrey'),
         plot_bgcolor="white",
         paper_bgcolor="lightblue",
@@ -327,12 +338,13 @@ elif page == "Instrument Data":
             xanchor='left',
             yanchor='middle',
             traceorder="normal",
-            bgcolor='rgba(255, 255, 255, 0.5)'),
+            bgcolor='rgba(255, 255, 255, 0.5)'
+        ),
         margin=dict(l=80, r=80, t=50, b=80),
         autosize=False
     )
 
-    # Display
     st.plotly_chart(fig1, use_container_width=True)
     st.download_button("Download CTD Data", filtered_ctd_data.to_csv(index=False), "ctd_data.csv")
     st.dataframe(filtered_ctd_data)
+
