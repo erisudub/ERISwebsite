@@ -257,7 +257,6 @@ if page == "Main Page":
     #     time.sleep(5)  
     #     change_image(1)
 
-
 if page == "Instrument Data":
     logo_path = "images/OceanTech Logo-PURPLE.png"
     base64_logo = get_base64_image(logo_path)
@@ -290,13 +289,17 @@ if page == "Instrument Data":
     st.write("Earliest date in dataset:", ctd_data['time'].min())
     st.write("Latest date in dataset:", ctd_data['time'].max())
 
-    # ✅ Date range filtering (no timezone localization)
+    # ✅ Date range filtering (timezone-naive handling)
     st.write("### Date Range Selection")
-   
 
-    start_date = datetime.datetime.combine(st.date_input("Start Date", value=ctd_data['time'].min().date()), datetime.time.min)
-    end_date = datetime.datetime.combine(st.date_input("End Date", value=ctd_data['time'].max().date()), datetime.time.max)
-
+    start_date = datetime.datetime.combine(
+        st.date_input("Start Date", value=ctd_data['time'].min().date()),
+        datetime.time.min
+    )
+    end_date = datetime.datetime.combine(
+        st.date_input("End Date", value=ctd_data['time'].max().date()),
+        datetime.time.max
+    )
 
     filtered_ctd_data = ctd_data[
         (ctd_data['time'] >= start_date) &
@@ -368,6 +371,3 @@ if page == "Instrument Data":
         filtered_display_data = filtered_ctd_data[columns_to_display]
         st.dataframe(filtered_display_data)
         st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
-
-
-
