@@ -275,11 +275,17 @@ if page == "Instrument Data":
     )
 
     # ✅ Load and prepare CTD data
+# ✅ Load and prepare CTD data
     ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
     ctd_data = pd.read_csv(ctd_csv_file_path)
 
-    ctd_data['datetime'] = pd.to_datetime(ctd_data['datetime'], errors='coerce')  # 🔧 Changed 'date' to 'datetime'
-    ctd_data = ctd_data.dropna(subset=['datetime'])
+# 🔧 Fix column name: 'datetime' ➝ 'date'
+    ctd_data['date'] = pd.to_datetime(ctd_data['date'], errors='coerce')  
+    ctd_data = ctd_data.dropna(subset=['date'])
+
+# 🔧 Rename for consistency with plotting
+    ctd_data.rename(columns={'date': 'time', 'depth': 'depth1'}, inplace=True)  # ✅ Added 'depth1' rename for display
+
 
     # ✅ Date range filtering
     st.write("### Date Range Selection")
