@@ -358,7 +358,7 @@ from datetime import datetime
 st.title("CTD Data Visualization")
 
 # File path input
-file_path = st.text_input("Enter path to CTD data file:", "/path/to/your/ctd_data.txt")
+file_path = st.text_input("Enter path to CTD data file:", "ERIS_data_2015-2024.csv")
 
 if file_path:
     try:
