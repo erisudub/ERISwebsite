@@ -86,7 +86,7 @@ st.sidebar.image("images/New Oceanography-logo-banner-BLUE.png", use_container_w
 st.sidebar.title("Navigation")
 
 # Sidebar navigation dropdown (No "Go to" label, fixed spacing)
-page = st.sidebar.selectbox("Select Page", ["Main Page", "Instrument Data", "What is our Instrument?", "Meet the Team", "Gallery"])
+page = st.sidebar.selectbox("Select Page", ["Main Page", "Live CTD Data (2025 to Present)", "CTD Data (2015 to 2024)", "What is our Instrument?", "Meet the Team", "Gallery"])
 
 # --- Firebase Init ---
 if not firebase_admin._apps:
@@ -251,7 +251,7 @@ if page == "Main Page":
     st.write("For more information, visit [MyPlan](https://myplan.uw.edu/course/#/courses?states=N4Igwg9grgTgzgUwMoIIYwMYAsQC4TAA6IAZhDALYAiqALqsbkSBqhQA5RyPGJ20AbBMQA0xAJZwUGWuIgA7FOmyNaMKAjEhJASXlw1UGeSWYsjEqgGItARw0wAnkjXj5Acx4hRxACapHbjxmAEYLKxtiACZw601iAGZYyJAAFmT4kABWDK0ANgyAXy0DdFoAUXlfABVxCgQg3ABtAAYRAE48loBdLTcMAShfBAA5BQB5dgRFBBk5fVV1TP7B4YAlBtcZBF9pWQVGw2X5AaGEAAUYBCvbOA37cSvfRY0%2Bk9WEaoAjVD35w6WJSwEAA7uN5AJHOcMMhZvsFnhLHEgaDwZC9OdrnAFH8DkUUSCAEIwUGIXLELCoKRoMw7ckgXySAYQRAAQV8ADdUCcdqYVIiIghCiBCkA).")
 
 
-elif page == "Instrument Data":
+elif page == "Live CTD Data (2025 to Present)":
     def instrument_data_page():
         logo_path = "images/OceanTech Logo-PURPLE.png"
         base64_logo = get_base64_image(logo_path)
@@ -369,99 +369,129 @@ elif page == "Instrument Data":
     # --- Call the function ---
     instrument_data_page()
 
+elif page == "CTD Data (2015 to 2024)":
+    # Convert logo to Base64
+    logo_path = "images/OceanTech Logo-PURPLE.png"
+    base64_logo = get_base64_image(logo_path)
 
-    # logo_path = "images/OceanTech Logo-PURPLE.png"
-    # base64_logo = get_base64_image(logo_path)
-    # logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>" if base64_logo else "⚠️ Logo Not Found"
-    # st.markdown(f"""
-    #     <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-    #         {logo_html}
-    #         <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>UW ERIS CTD DATA</h1>
-    #         {logo_html}
-    #     </div>
-    # """, unsafe_allow_html=True)
+    if base64_logo:
+        logo_html = f"<img src='data:image/png;base64,{base64_logo}' style='width:150px; height:auto;'>"
+    else:
+        logo_html = "⚠️ Logo Not Found"
 
-    # with st.spinner("Loading CTD data..."):
-    #     data = fetch_ctd_data()
+    # Title with Logos on Both Sides
+    st.markdown(
+        f"""
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+            {logo_html}
+            <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>UW ERIS CTD Data</h1>
+            {logo_html}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    # if data is None or data.empty:
-    #     st.warning("No CTD data found.")
-    # else:
-    #     st.subheader("Date Range Selection")
-    #     start = st.date_input("Start Date", datetime(2025, 5, 1).date())
-    #     end = st.date_input("End Date", date.today(), min_value=start)
+    # ✅ Load and prepare CTD data
+    ctd_data = pd.read_csv(ctd_csv_file_path)
 
-    #     if end < start:
-    #         st.error("End Date must be on or after Start Date.")
-    #         st.stop()
+    # Convert to datetime and clean
+    ctd_data['date'] = pd.to_datetime(ctd_data['date'], errors='coerce')
+    ctd_data = ctd_data.dropna(subset=['date'])
+    ctd_data.rename(columns={'date': 'time'}, inplace=True)
 
-    #     start_dt = pd.Timestamp(start)
-    #     end_dt = pd.Timestamp(end) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
-    #     filtered_data = data[(data["datetime"] >= start_dt) & (data["datetime"] <= end_dt)]
+    # ✅ Clean numeric columns, but preserve rows
+    for col in ['temperature', 'conductivity', 'par', 'turbidity', 'salinity', 'pressure', 'oxygen']:
+        if col in ctd_data.columns:
+            ctd_data[col] = pd.to_numeric(ctd_data[col], errors='coerce')
+            ctd_data.loc[(ctd_data[col] < -1000) | (ctd_data[col] > 1000), col] = pd.NA
 
-    #     if filtered_data.empty:
-    #         st.warning("No CTD data for the selected date range.")
-    #     else:
-    #         fig = go.Figure()
-    #         fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["temperature"], mode='lines', name='Temperature', line=dict(color='blue')))
-    #         fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["salinity"], mode='lines', name='Salinity', line=dict(color='orange')))
-    #         fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["par"], mode='lines', name='PAR', line=dict(color='green')))
-    #         fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["conductivity"], mode='lines', name='Conductivity', line=dict(color='purple')))
-    #         fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["oxygen"], mode='lines', name='Oxygen', line=dict(color='gold')))
-    #         fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["turbidity"], mode='lines', name='Turbidity', line=dict(color='red')))
-    #         fig.add_trace(go.Scatter(x=filtered_data["datetime"], y=filtered_data["pressure"], mode='lines', name='Pressure', line=dict(color='black')))
+    # ✅ Date range filtering UI
+    st.write("### Date Range Selection")
+    fixed_start = pd.to_datetime("2015-12-22 19:38:34+00:00")
 
-    #         fig.update_layout(
-    #         xaxis_title="Time",
-    #         yaxis_title="Values",
-    #         height=450,
-    #         xaxis=dict(
-    #             rangeslider=dict(visible=True),
-    #             type="date",
-    #             rangeselector=dict(
-    #                 buttons=[
-    #                     dict(count=1, label="1d", step="day", stepmode="backward"),
-    #                     dict(count=7, label="1w", step="day", stepmode="backward"),
-    #                     dict(count=1, label="1m", step="month", stepmode="backward"),
-    #                     dict(count=6, label="6m", step="month", stepmode="backward"),
-    #                     dict(step="all")
-    #                 ],
-    #                 x=0.5,
-    #                 y=1.15,
-    #                 xanchor='center',
-    #                 yanchor='bottom',
-    #                 bgcolor="#444",  # neutral dark gray background
-    #                 font=dict(color="#FFF"),  # white text
-    #                 activecolor="#74bcf7"  # highlight color
-    #             )
-    #         ),
+# Make sure start_date has timezone info
+    start_date = st.date_input("Start Date", value=fixed_start.date())
 
-    #             yaxis=dict(showgrid=True, gridcolor='lightgrey'),
-    #             plot_bgcolor="white",
-    #             paper_bgcolor="lightblue",
-    #             font=dict(family="Georgia, serif", size=12, color="black"),
-    #             legend=dict(x=1.05, y=0.5, xanchor='left', yanchor='middle', bgcolor='rgba(255, 255, 255, 0.5)'),
-    #             margin=dict(l=80, r=80, t=50, b=80),
-    #         )
+# Convert to datetime with UTC timezone (timezone-aware)
+    start_date = pd.to_datetime(start_date).tz_localize('UTC')
 
-    #         st.plotly_chart(fig, use_container_width=True)
+# Similarly for end_date (assuming you want timezone-aware)
+    end_date = st.date_input("End Date", value=ctd_data['time'].max().date())
+    end_date = pd.to_datetime(end_date).tz_localize('UTC')
 
-    #         csv_data = filtered_data.to_csv(index=False)
-    #         st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
 
-    #         st.dataframe(filtered_data, use_container_width=True)
+    # ✅ Filter data within date range
+    filtered_ctd_data = ctd_data[
+        (ctd_data['time'] >= start_date) &
+        (ctd_data['time'] <= end_date)
+    ].sort_values('time')
 
-    # st.write("### Instrument Location")
-    # map_center = [47.64935, -122.3127]
-    # m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
+    # ✅ OPTIONAL: Interpolate missing values (if desired)
+    # filtered_ctd_data = filtered_ctd_data.interpolate(method="time")
 
-    # folium.Marker(
-    #     location=[47.64935, -122.3127],
-    #     tooltip="CTD: 47.64935, -122.3127",
-    #     icon=folium.Icon(icon='star', prefix='fa', color='orange')  # 'orange' looks close to gold
-    # ).add_to(m)
+    # ✅ Plotting
+    fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', line=dict(color='black')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
 
-    # folium_static(m, width=1500, height=500)
+    # ✅ Layout config
+    fig1.update_layout(
+        title="UW ERIS CTD MEASUREMENTS",
+        xaxis_title="Time",
+        yaxis_title="Values",
+        width=1000,
+        height=500,
+        xaxis=dict(
+            rangeslider=dict(visible=True),
+            type="date",
+            rangeselector=dict(
+                buttons=[
+                    dict(count=1, label="1d", step="day", stepmode="backward"),
+                    dict(count=7, label="1w", step="day", stepmode="backward"),
+                    dict(count=1, label="1m", step="month", stepmode="backward"),
+                    dict(count=6, label="6m", step="month", stepmode="backward"),
+                    dict(step="all")
+                ],
+                x=0.5, y=1.15, xanchor='center', yanchor='bottom', bgcolor ="#444", font=dict(color="#FFF"), activecolor="#74bcf7"
+            )
+        ),
+        yaxis=dict(
+            title="Temp, Cond., PAR, Turbidity, Salinity, Oxygen",
+            showgrid=True,
+            gridcolor='lightgrey'
+        ),
+        # yaxis2=dict(
+        #     title="Pressure",
+        #     overlaying='y',
+        #     side='right'
+        # ),
+        plot_bgcolor="white",
+        paper_bgcolor="lightblue",
+        font=dict(family="Georgia, serif", size=12, color="black"),
+        legend=dict(
+            x=1.05,
+            y=0.5,
+            xanchor='left',
+            yanchor='middle',
+            traceorder="normal",
+            bgcolor='rgba(255, 255, 255, 0.5)'
+        ),
+        margin=dict(l=80, r=80, t=50, b=80),
+        autosize=False
+    )
+
+    st.plotly_chart(fig1, use_container_width=True)
+
+    # ✅ Table & download
+    columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
+    filtered_display_data = filtered_ctd_data[columns_to_display]
+    st.dataframe(filtered_display_data)
+    st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
 
 
 # 📌 **Instrument Descriptions Page**
