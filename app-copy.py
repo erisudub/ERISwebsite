@@ -358,7 +358,7 @@ elif page == "Live CTD Data (2025 to Present)":
         # Prepare CSV data once before the columns
         csv_data = filtered_data.to_csv(index=False)
 
-        col1, col2 = st.columns([1, 1])
+        col1, col_spacer, col2 = st.columns([1, 8, 1])
 
         with col1:
             st.download_button("⬇️ Download CSV", csv_data, "ctd_data.csv")
