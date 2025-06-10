@@ -277,7 +277,7 @@ elif page == "Live CTD Data (2025 to Present)":
             st.warning("No CTD data found.")
             return
 
-        #st.caption(f"Last updated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
+        st.caption(f"Last updated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
 
         st.subheader("Date Range Selection")
         start = st.date_input("Start Date", datetime(2025, 5, 1).date())
