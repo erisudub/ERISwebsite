@@ -267,8 +267,6 @@ elif page == "Live CTD Data (2025 to Present)":
             </div>
         """, unsafe_allow_html=True)
 
-        # 🔄 REMOVED: old refresh button here
-
         with st.spinner("Loading CTD data..."):
             data = fetch_ctd_data()
 
@@ -356,19 +354,17 @@ elif page == "Live CTD Data (2025 to Present)":
 
         st.plotly_chart(fig, use_container_width=True)
 
-        # 🔄 NEW: Button layout section
-        col1, col2 = st.columns([1, 1])  # 👈 ADDED: side-by-side layout
+        # 📌 NEW: Aligned Refresh + Download buttons on far ends
+        col_left, col_spacer, col_right = st.columns([1, 6, 1])
 
-        with col1:
-            if st.button("🔁 Refresh Page"):
+        with col_left:
+            if st.button("🔄 Refresh Data"):
                 fetch_ctd_data.clear()
                 st.experimental_rerun()
 
-        with col2:
+        with col_right:
             csv_data = filtered_data.to_csv(index=False)
             st.download_button("⬇️ Download CTD Data", csv_data, "ctd_data.csv")
-
-        # 🔄 OLD single-button section removed
 
         st.dataframe(filtered_data, use_container_width=True)
 
