@@ -358,14 +358,14 @@ elif page == "Live CTD Data (2025 to Present)":
         st.plotly_chart(fig, use_container_width=True)
 
         csv_data = filtered_data.to_csv(index=False)
-        st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
-        # with col1:
-        #     if st.button("🔁 Refresh Page"):
-        #         st.experimental_rerun()
+        # st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
+        with col1:
+            if st.button("🔁 Refresh Page"):
+                st.experimental_rerun()
 
-        # with col2:
-        #     csv_data = filtered_data.to_csv(index=False)
-        #     st.download_button("⬇️ Download CTD Data", csv_data, "ctd_data.csv")
+        with col2:
+            csv_data = filtered_data.to_csv(index=False)
+            st.download_button("⬇️ Download CTD Data", csv_data, "ctd_data.csv")
 
         st.dataframe(filtered_data, use_container_width=True)
 
