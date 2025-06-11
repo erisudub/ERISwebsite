@@ -361,10 +361,10 @@ elif page == "Live CTD Data (2025 to Present)":
         col1, col_spacer, col2 = st.columns([1, 8, 1])
 
         with col1:
-            st.download_button("⬇️ Download CSV", csv_data, "ctd_data.csv")
+            st.download_button("Download Data", csv_data, "ctd_data.csv")
 
         with col2:
-            if st.button("🔄 Refresh Data"):
+            if st.button("Refresh Data"):
                 fetch_ctd_data.clear()
                 st.experimental_rerun()
         # # Create three columns: left, spacer, right
@@ -641,7 +641,7 @@ elif page == "CTD Data (2015 to 2024)":
     columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
     filtered_display_data = filtered_ctd_data[columns_to_display]
     st.dataframe(filtered_display_data)
-    st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
+    st.download_button("Download Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
 
 # 📌 **Instrument Descriptions Page**
 elif page == "What is our Instrument?":
