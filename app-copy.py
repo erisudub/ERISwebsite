@@ -634,7 +634,7 @@ elif page == "CTD Data (2015 to 2024)":
         filtered_display_data = filtered_ctd_data[columns_to_display]
 
         # Download button
-        st.download_button("⬇️ Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
+        st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
 
         # Show table
         st.dataframe(filtered_display_data, use_container_width=True)
