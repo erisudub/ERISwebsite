@@ -619,14 +619,11 @@ elif page == "CTD Data (2015 to 2024)":
 
     st.plotly_chart(fig1, use_container_width=True)
 
-# Just a clean, non-wrapping download button
     columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
     filtered_display_data = filtered_ctd_data[columns_to_display]
 
-# Download button
     st.download_button("⬇️ Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
 
-# Table display
     st.dataframe(filtered_display_data, use_container_width=True)
 
 
