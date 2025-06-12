@@ -358,26 +358,7 @@ elif page == "Live CTD Data (2025 to Present)":
         # Prepare CSV data once before the columns
         csv_data = filtered_data.to_csv(index=False)
 
-        col1, col_spacer, col2 = st.columns([1, 8, 1])
-
-        with col1:
-            st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
-
-        with col2:
-            if st.button("Refresh CTD Data"):
-                fetch_ctd_data.clear()
-                st.experimental_rerun()
-        # # Create three columns: left, spacer, right
-        # col_left, col_spacer, col_right = st.columns([1, 6, 1])
-
-        # with col_left:
-        #     st.download_button("⬇️ Download CTD_Data", csv_data, "CTD_Data.csv")
-
-        # with col_right:
-        #     if st.button("🔄 Refresh Data"):
-        #         fetch_ctd_data.clear()
-        #         st.experimental_rerun()
-        # ======= CHANGED SECTION END =======
+        st.download_button("Download CTD Data", csv_data, "ctd_data.csv")
 
         st.dataframe(filtered_data, use_container_width=True)
 
