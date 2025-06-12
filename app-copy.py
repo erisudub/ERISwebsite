@@ -619,12 +619,27 @@ elif page == "CTD Data (2015 to 2024)":
 
     st.plotly_chart(fig1, use_container_width=True)
 
+    # columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
+    # filtered_display_data = filtered_ctd_data[columns_to_display]
+
+    # st.download_button("⬇️ Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
+
+    # st.dataframe(filtered_display_data, use_container_width=True)
+
+    # ✅ Table & download (only the button and data table)
     columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
-    filtered_display_data = filtered_ctd_data[columns_to_display]
 
-    st.download_button("⬇️ Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
+    # Make sure 'filtered_ctd_data' exists before this
+    if 'filtered_ctd_data' in locals() and not filtered_ctd_data.empty:
+        filtered_display_data = filtered_ctd_data[columns_to_display]
 
-    st.dataframe(filtered_display_data, use_container_width=True)
+        # Download button
+        st.download_button("⬇️ Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
+
+        # Show table
+        st.dataframe(filtered_display_data, use_container_width=True)
+    else:
+        st.warning("No filtered CTD data available.")
 
 
 # 📌 **Instrument Descriptions Page**
