@@ -362,6 +362,7 @@ elif page == "Live CTD Data (2025 to Present)":
 
         st.dataframe(filtered_data, use_container_width=True)
 
+        st.write("NOTE: To obtain new data from our deployed CTD, manually refresh this page every 30 minutes.")
         st.write("### Instrument Location")
         map_center = [47.64935, -122.3127]
         m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
@@ -567,15 +568,15 @@ elif page == "CTD Data (2015 to 2024)":
     # ✅ Plotting
     fig1 = go.Figure()
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['temperature'], mode='lines', name='Temperature', line=dict(color='blue')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['salinity'], mode='lines', name='Salinity', line=dict(color='orange')))
-    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', line=dict(color='black')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['par'], mode='lines', name='PAR', line=dict(color='green')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['conductivity'], mode='lines', name='Conductivity', line=dict(color='purple')))
     fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['oxygen'], mode='lines', name='Oxygen', line=dict(color='gold')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['turbidity'], mode='lines', name='Turbidity', line=dict(color='red')))
+    fig1.add_trace(go.Scatter(x=filtered_ctd_data['time'], y=filtered_ctd_data['pressure'], mode='lines', name='Pressure', line=dict(color='black')))
 
     fig1.update_layout(
-        title="UW ERIS CTD MEASUREMENTS",
+        #title="UW ERIS CTD MEASUREMENTS",
         xaxis_title="Time",
         yaxis_title="Values",
         width=1000,
@@ -618,11 +619,12 @@ elif page == "CTD Data (2015 to 2024)":
 
     st.plotly_chart(fig1, use_container_width=True)
 
+    st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
     # ✅ Table & download
     columns_to_display = ['time', 'instrument', 'lat', 'lon', 'depth1', 'oxygen', 'conductivity', 'par', 'pressure', 'salinity', 'temperature', 'turbidity']
     filtered_display_data = filtered_ctd_data[columns_to_display]
     st.dataframe(filtered_display_data)
-    st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
+    #st.download_button("Download CTD Data", filtered_display_data.to_csv(index=False), "ctd_data.csv")
 
 # 📌 **Instrument Descriptions Page**
 elif page == "What is our Instrument?":
