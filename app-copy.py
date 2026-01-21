@@ -362,7 +362,7 @@ elif page == "Live CTD Data (2025 to Present)":
 
         st.dataframe(filtered_data, use_container_width=True)
 
-        st.write("NOTE: To obtain new data from our deployed CTD, manually refresh this page every 30 minutes.")
+        st.write("NOTE: To obtain new data from our deployed CTD, manually refresh this page every 30 minutes. Disregard all oxygen values, they are in the process of being fixed.")
         st.write("### Instrument Location")
         map_center = [47.64935, -122.3127]
         m = folium.Map(location=map_center, zoom_start=15, width='100%', height='600px')
