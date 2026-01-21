@@ -780,6 +780,7 @@ elif page == "Gallery":
         "images/ctdmainetence.jpg",
         "images/ctdrecovery.jpg",
         "images/websiteteam.jpg",
+        "images/cleanAlby.jpg",
     ]
     gallery_captions = [
         "CTD Calibrations",
@@ -791,6 +792,7 @@ elif page == "Gallery":
         "CTD Maintenance Team",
         "CTD Recovery",
         "Website Development Team",
+        "CTD Cage After Cleaning",
     ]
 
     # ✅ Filter valid gallery images
