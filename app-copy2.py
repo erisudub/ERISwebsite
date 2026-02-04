@@ -100,6 +100,12 @@ db = firestore.client()
 @st.cache_data(ttl=60)
 #write a function that fetches data from beginning of today to now 
 #write a function that caches data from beginning to today
+quarterstart = st.date_input("Quarter Start Date", datetime(2026, 1, 1).date())
+currentdate = st.date_input("Current Date", date.today(), min_value=start)
+
+@st.cache_data
+def long_running_function(quarterstart, currentdate):
+    return long_running_function
 
 def fetch_ctd_data():
     docs = db.collection("CTD_Data").order_by("date").get()
