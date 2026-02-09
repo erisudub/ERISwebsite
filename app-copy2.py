@@ -97,7 +97,7 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 quarterstart = st.date_input("Quarter Start Date", datetime(2026, 1, 1).date())
-currentdate = st.date_input("Current Date", date.today(), min_value=start)
+currentdate = st.date_input("Current Date", date.today())
 
 @st.cache_data
 def long_running_function(quarterstart, currentdate):
