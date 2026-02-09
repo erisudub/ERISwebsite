@@ -712,9 +712,9 @@ elif page == "Meet the Team":
 
     # Gallery Images, Captions & Subtitles
     gallery_photos = [
-        "images/IMG_6540.jpg",
-        "images/IMG_4499.jpg",
-        "images/IMG_9981.jpg"
+        "images/austinkarpf.jpg",
+        "images/kellyhorak.jpg",
+        "images/sophiamangrubang.jpg"
     ]
     gallery_captions = [
         "Austin Karpf",
