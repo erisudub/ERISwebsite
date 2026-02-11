@@ -102,12 +102,12 @@ currentdate =  date.today()
 @st.cache_data
 def long_running_function(quarterstart, currentdate):
     return long_running_function
-
-# --- Function to fetch CTD data from Firebase ---
-@st.cache_data(ttl=60)
+ 
 #write a function that fetches data from beginning of today to now 
 #write a function that caches data from beginning to today
 
+# --- Function to fetch CTD data from Firebase ---
+@st.cache_data(ttl=60)
 def fetch_ctd_data():
     docs = db.collection("CTD_Data").order_by("date").get()
     data = []
