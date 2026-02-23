@@ -812,7 +812,7 @@ elif page == "Gallery":
 
     # Gallery image paths and captions
     gallery_photos = [
-        "images/erisgrouppic2526.jpg",
+        "images/erisgrouppic2526.jpeg",
         "images/ctdmainetence.jpg",
         "images/websiteteam.jpg",
         "images/group.jpg",
