@@ -107,8 +107,10 @@ def long_running_function(quarterstart, currentdate):
 #write a function that caches data from beginning to today
 
 @st.cache_data()
-def fetch_ctd_data():
-    docs = db.collection("CTD_Data").order_by("date").get()
+def cache_ctd_data():
+    quarterstart_ms = int(quarterstart.timestamp() * 1000)
+    currentdate_ms = int(currentdate.timestamp() * 1000)
+    docs = db.collection("CTD_Data").where("date.$date", ">=", quarterstart_ms).where("date.$date", "<=", currentdate_ms).order_by("date").get()
     data = []
     for doc in docs:
         d = doc.to_dict()
