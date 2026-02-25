@@ -106,7 +106,7 @@ def long_running_function(quarterstart, currentdate):
 #write a function that fetches data from beginning of today to now 
 #write a function that caches data from beginning to today
 
-@st.cache_data()
+@st.cache_data
 def cache_ctd_data():
     quarterstart_ms = int(quarterstart.timestamp() * 1000)
     currentdate_ms = int(currentdate.timestamp() * 1000)
