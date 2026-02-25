@@ -771,33 +771,37 @@ elif page == "Gallery":
 
     # Gallery image paths and captions
     gallery_photos = [
-        "images/tub.jpg",
+        "images/erisgrouppic2526.jpeg",
+        "images/ctdmainetence.jpg",
+        "images/websiteteam.jpg",
         "images/group.jpg",
         "images/grads.jpg",
+        "images/grads25.jpg"
         "images/ctd.jpg",
-        "images/ctdmaintenence.jpg",
         "images/rasppitable.jpg",
-        "images/ctdmainetence.jpg",
+        "images/ctdmaintenence.jpg",
         "images/ctdrecovery.jpg",
-        "images/websiteteam.jpg",
+        "images/tub.jpg",
         "images/dirtyAlby.jpg",
         "images/cleanAlby.jpg",
     ]
     gallery_captions = [
-        "CTD Calibrations",
+        "2025-2026 ERIS Team", 
+        "CTD Maintenance Team",
+        "Website Development Team",
         "Deployment Day Spring 2024",
         "2024 Graduating Marine Technicians",
+        "2025 Graduating Marine Technincians"
         "Seabird 16plus CTD",
-        "CTD Maintenance",
         "Raspberry Pi Setup",
-        "CTD Maintenance Team",
+        "CTD Maintenance",
         "CTD Recovery",
-        "Website Development Team",
+        "CTD Calibrations",
         "CTD Cage Before Cleaning",
         "CTD Cage After Cleaning",
         
     ]
-
+    
     # ✅ Filter valid gallery images
     valid_gallery = [
         (photo, caption) for photo, caption in zip(gallery_photos, gallery_captions)
