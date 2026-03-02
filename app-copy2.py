@@ -97,11 +97,8 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 quarterstart = datetime(2026, 1, 1).date()
-currentdate =  date.today()
-
-@st.cache_data
-def long_running_function(quarterstart, currentdate):
-    return long_running_function
+currentdate =  datetime.now()
+yesterday = currentdate - timedelta(days= 1)
  
 #write a function that fetches data from beginning of today to now 
 #write a function that caches data from beginning to today
@@ -109,8 +106,8 @@ def long_running_function(quarterstart, currentdate):
 @st.cache_data
 def cache_ctd_data():
     quarterstart_ms = int(quarterstart.timestamp() * 1000)
-    currentdate_ms = int(currentdate.timestamp() * 1000)
-    docs = db.collection("CTD_Data").where("date.$date", ">=", quarterstart_ms).where("date.$date", "<=", currentdate_ms).order_by("date").get()
+    yesterday_ms = int(yesterday.timestamp() * 1000)
+    docs = db.collection("CTD_Data").where("date.$date", ">=", quarterstart_ms).where("date.$date", "<=", yesterday_ms).order_by("date").get()
     data = []
     for doc in docs:
         d = doc.to_dict()
@@ -141,7 +138,8 @@ def cache_ctd_data():
 # --- Function to fetch CTD data from Firebase ---
 @st.cache_data(ttl=60)
 def fetch_ctd_data():
-    docs = db.collection("CTD_Data").order_by("date").get()
+    currentdate_ms = int(currentdate.timestamp() * 1000)
+    docs = db.collection("CTD_Data").where("date.$date", ">=", currentdate_ms).order_by("date").get()
     data = []
     for doc in docs:
         d = doc.to_dict()
