@@ -96,9 +96,10 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-quarterstart = datetime(2026, 1, 1).date()
-currentdate =  datetime.now()
-yesterday = currentdate - timedelta(days= 1)
+quarterstart = datetime(2026, 1, 1)
+now = datetime.now() #current date + time
+currentdate =  datetime.combine(now.date(), time.min) # stripping timestamp from current date, but add time=00:00:00
+yesterday = currentdate - timedelta(days= 1) #one day less than current date (for caching quarterly data)
  
 #write a function that fetches data from beginning of today to now 
 #write a function that caches data from beginning to today
