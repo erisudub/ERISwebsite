@@ -94,115 +94,118 @@ yesterday = currentdate - timedelta(days= 1) #one day less than current date (fo
 #write a function that fetches data from beginning of today to now 
 #write a function that caches data from beginning to today
 
+@st.cache_data(ttl=60)
+def fetch_ctd_data():
+    currentdate_ms = int(currentdate.timestamp() * 1000)
+    data = []
+    try:
+        for doc in db.collection("CTD_Data").limit(500).stream():
+            d = doc.to_dict()
+            try:
+                ts = d.get("date", {}).get("$date")
+                if ts is None or ts < currentdate_ms:
+                    continue
+                record = {
+                    "datetime": datetime.fromtimestamp(ts / 1000),
+                    "instrument": d.get("instrument"),
+                    "lat": d.get("lat"),
+                    "lon": d.get("lon"),
+                    "depth1": d.get("depth1"),
+                    "oxygen": d.get("oxygen"),
+                    "conductivity": float(d.get("conductivity", "nan")),
+                    "par": float(d.get("par", "nan")),
+                    "pressure": float(d.get("pressure", "nan")),
+                    "salinity": float(d.get("salinity", "nan")),
+                    "temperature": float(d.get("temperature", "nan")),
+                    "turbidity": float(d.get("turbidity", "nan")),
+                }
+                data.append(record)
+            except Exception as e:
+                print(f"Error processing document: {e}")
+                continue
+    except Exception as e:
+        print(f"Firestore fetch error: {e}")
+    df = pd.DataFrame(data) if data else None
+    if df is not None:
+        df = df.sort_values("datetime")
+    return df
+
 @st.cache_data
 def cache_ctd_data():
     quarterstart_ms = int(quarterstart.timestamp() * 1000)
     yesterday_ms = int(yesterday.timestamp() * 1000)
-    docs = db.collection("CTD_Data").get()  # no order_by
     data = []
-    for doc in docs:
-        d = doc.to_dict()
-        try:
-            ts = d.get("date", {}).get("$date")
-            if ts is None:
+    try:
+        for doc in db.collection("CTD_Data").limit(5000).stream():
+            d = doc.to_dict()
+            try:
+                ts = d.get("date", {}).get("$date")
+                if ts is None:
+                    continue
+                if not (quarterstart_ms <= ts <= yesterday_ms):
+                    continue
+                record = {
+                    "datetime": datetime.fromtimestamp(ts / 1000),
+                    "instrument": d.get("instrument"),
+                    "lat": d.get("lat"),
+                    "lon": d.get("lon"),
+                    "depth1": d.get("depth1"),
+                    "oxygen": d.get("oxygen"),
+                    "conductivity": float(d.get("conductivity", "nan")),
+                    "par": float(d.get("par", "nan")),
+                    "pressure": float(d.get("pressure", "nan")),
+                    "salinity": float(d.get("salinity", "nan")),
+                    "temperature": float(d.get("temperature", "nan")),
+                    "turbidity": float(d.get("turbidity", "nan")),
+                }
+                data.append(record)
+            except Exception as e:
+                print(f"Error processing document: {e}")
                 continue
-            if not (quarterstart_ms <= ts <= yesterday_ms):
-                continue
-            record = {
-                "datetime": datetime.fromtimestamp(ts / 1000),
-                "instrument": d.get("instrument"),
-                "lat": d.get("lat"),
-                "lon": d.get("lon"),
-                "depth1": d.get("depth1"),
-                "oxygen": d.get("oxygen"),
-                "conductivity": float(d.get("conductivity", "nan")),
-                "par": float(d.get("par", "nan")),
-                "pressure": float(d.get("pressure", "nan")),
-                "salinity": float(d.get("salinity", "nan")),
-                "temperature": float(d.get("temperature", "nan")),
-                "turbidity": float(d.get("turbidity", "nan")),
-            }
-            data.append(record)
-        except Exception as e:
-            print(f"Error processing document: {e}")
-            continue
+    except Exception as e:
+        print(f"Firestore fetch error: {e}")
     df = pd.DataFrame(data) if data else None
     if df is not None:
         df = df.sort_values("datetime")
     return df
 
-@st.cache_data(ttl=60)
-def fetch_ctd_data():
-    currentdate_ms = int(currentdate.timestamp() * 1000)
-    docs = db.collection("CTD_Data").get()  # no order_by
-    data = []
-    for doc in docs:
-        d = doc.to_dict()
-        try:
-            ts = d.get("date", {}).get("$date")
-            if ts is None:
-                continue
-            if ts < currentdate_ms:
-                continue
-            record = {
-                "datetime": datetime.fromtimestamp(ts / 1000),
-                "instrument": d.get("instrument"),
-                "lat": d.get("lat"),
-                "lon": d.get("lon"),
-                "depth1": d.get("depth1"),
-                "oxygen": d.get("oxygen"),
-                "conductivity": float(d.get("conductivity", "nan")),
-                "par": float(d.get("par", "nan")),
-                "pressure": float(d.get("pressure", "nan")),
-                "salinity": float(d.get("salinity", "nan")),
-                "temperature": float(d.get("temperature", "nan")),
-                "turbidity": float(d.get("turbidity", "nan")),
-            }
-            data.append(record)
-        except Exception as e:
-            print(f"Error processing document: {e}")
-            continue
-    df = pd.DataFrame(data) if data else None
-    if df is not None:
-        df = df.sort_values("datetime")
-    return df
-
-# --- Function to fetch Weather Station data from Firebase ---
 @st.cache_data(ttl=60)
 def fetch_weather_data():
-    docs = db.collection("Weather_Data").get()  # no order_by
     data = []
-    for doc in docs:
-        d = doc.to_dict()
-        try:
-            ts = d.get("timestamp")
-            if ts is None:
+    try:
+        for doc in db.collection("Weather_Data").limit(500).stream():
+            d = doc.to_dict()
+            try:
+                ts = d.get("timestamp")
+                if ts is None:
+                    continue
+                if hasattr(ts, 'seconds'):
+                    ts = datetime.fromtimestamp(ts.seconds)
+                if ts < currentdate:
+                    continue
+                record = {
+                    "datetime":   ts,
+                    "temp_out":   float(d.get("temp_out", "nan")),
+                    "temp_hi":    float(d.get("temp_hi", "nan")),
+                    "temp_low":   float(d.get("temp_low", "nan")),
+                    "out_hum":    float(d.get("out_hum", "nan")),
+                    "dew_pt":     float(d.get("dew_pt", "nan")),
+                    "wind_speed": float(d.get("wind_speed", "nan")),
+                    "wind_dir":   d.get("wind_dir"),
+                    "bar":        float(d.get("bar", "nan")),
+                    "rain":       float(d.get("rain", "nan")),
+                    "rain_rate":  float(d.get("rain_rate", "nan")),
+                    "heat_index": float(d.get("heat_index", "nan")),
+                    "wind_chill": float(d.get("wind_chill", "nan")),
+                    "in_temp":    float(d.get("in_temp", "nan")),
+                    "in_hum":     float(d.get("in_hum", "nan")),
+                }
+                data.append(record)
+            except Exception as e:
+                print(f"Error processing weather document: {e}")
                 continue
-            if hasattr(ts, 'seconds'):
-                ts = datetime.fromtimestamp(ts.seconds)
-            if ts < currentdate:
-                continue
-            record = {
-                "datetime":   ts,
-                "temp_out":   float(d.get("temp_out", "nan")),
-                "temp_hi":    float(d.get("temp_hi", "nan")),
-                "temp_low":   float(d.get("temp_low", "nan")),
-                "out_hum":    float(d.get("out_hum", "nan")),
-                "dew_pt":     float(d.get("dew_pt", "nan")),
-                "wind_speed": float(d.get("wind_speed", "nan")),
-                "wind_dir":   d.get("wind_dir"),
-                "bar":        float(d.get("bar", "nan")),
-                "rain":       float(d.get("rain", "nan")),
-                "rain_rate":  float(d.get("rain_rate", "nan")),
-                "heat_index": float(d.get("heat_index", "nan")),
-                "wind_chill": float(d.get("wind_chill", "nan")),
-                "in_temp":    float(d.get("in_temp", "nan")),
-                "in_hum":     float(d.get("in_hum", "nan")),
-            }
-            data.append(record)
-        except Exception as e:
-            print(f"Error processing weather document: {e}")
-            continue
+    except Exception as e:
+        print(f"Firestore weather fetch error: {e}")
     df = pd.DataFrame(data) if data else None
     if df is not None:
         df = df.sort_values("datetime")
