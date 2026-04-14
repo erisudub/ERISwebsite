@@ -98,7 +98,7 @@ yesterday = currentdate - timedelta(days= 1) #one day less than current date (fo
 def cache_ctd_data():
     quarterstart_ms = int(quarterstart.timestamp() * 1000)
     yesterday_ms = int(yesterday.timestamp() * 1000)
-    docs = db.collection("CTD_Data").where("date.$date", ">=", quarterstart_ms).where("date.$date", "<=", yesterday_ms).order_by("date").get()
+    docs = db.collection("CTD_Data").where("`date.\\$date`", ">=", quarterstart_ms).where("`date.\\$date`", "<=", yesterday_ms).order_by("`date.\\$date`").get()
     data = []
     for doc in docs:
         d = doc.to_dict()
@@ -130,7 +130,7 @@ def cache_ctd_data():
 @st.cache_data(ttl=60)
 def fetch_ctd_data():
     currentdate_ms = int(currentdate.timestamp() * 1000)
-    docs = db.collection("CTD_Data").where("date.$date", ">=", currentdate_ms).order_by("date").get()
+    docs = db.collection("CTD_Data").where("`date.\\$date`", ">=", currentdate_ms).order_by("`date.\\$date`").get()
     data = []
     for doc in docs:
         d = doc.to_dict()
