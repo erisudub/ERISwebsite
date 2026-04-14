@@ -98,7 +98,7 @@ yesterday = currentdate - timedelta(days= 1) #one day less than current date (fo
 def cache_ctd_data():
     quarterstart_ms = int(quarterstart.timestamp() * 1000)
     yesterday_ms = int(yesterday.timestamp() * 1000)
-    docs = db.collection("CTD_Data").order_by("date").get()
+    docs = db.collection("CTD_Data").get()  # no order_by
     data = []
     for doc in docs:
         d = doc.to_dict()
@@ -126,12 +126,15 @@ def cache_ctd_data():
         except Exception as e:
             print(f"Error processing document: {e}")
             continue
-    return pd.DataFrame(data) if data else None
+    df = pd.DataFrame(data) if data else None
+    if df is not None:
+        df = df.sort_values("datetime")
+    return df
 
 @st.cache_data(ttl=60)
 def fetch_ctd_data():
     currentdate_ms = int(currentdate.timestamp() * 1000)
-    docs = db.collection("CTD_Data").order_by("date").get()
+    docs = db.collection("CTD_Data").get()  # no order_by
     data = []
     for doc in docs:
         d = doc.to_dict()
@@ -159,12 +162,15 @@ def fetch_ctd_data():
         except Exception as e:
             print(f"Error processing document: {e}")
             continue
-    return pd.DataFrame(data) if data else None
+    df = pd.DataFrame(data) if data else None
+    if df is not None:
+        df = df.sort_values("datetime")
+    return df
 
 # --- Function to fetch Weather Station data from Firebase ---
 @st.cache_data(ttl=60)
 def fetch_weather_data():
-    docs = db.collection("Weather_Data").order_by("timestamp").get()
+    docs = db.collection("Weather_Data").get()  # no order_by
     data = []
     for doc in docs:
         d = doc.to_dict()
@@ -172,7 +178,6 @@ def fetch_weather_data():
             ts = d.get("timestamp")
             if ts is None:
                 continue
-            # Convert Firestore timestamp to datetime if needed
             if hasattr(ts, 'seconds'):
                 ts = datetime.fromtimestamp(ts.seconds)
             if ts < currentdate:
@@ -198,7 +203,10 @@ def fetch_weather_data():
         except Exception as e:
             print(f"Error processing weather document: {e}")
             continue
-    return pd.DataFrame(data) if data else None
+    df = pd.DataFrame(data) if data else None
+    if df is not None:
+        df = df.sort_values("datetime")
+    return df
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
