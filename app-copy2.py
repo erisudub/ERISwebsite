@@ -168,6 +168,38 @@ def fetch_ctd_data():
             continue
     return pd.DataFrame(data) if data else None
 
+# --- Function to fetch Weather Station data from Firebase ---
+def fetch_weather_data():
+    docs = db.collection("Weather_Data").where("timestamp", ">=", currentdate).order_by("timestamp").get()
+    data = []
+    for doc in docs:
+        d = doc.to_dict()
+        try:
+            ts = d.get("timestamp")
+            if ts is None:
+                continue
+            record = {
+                "datetime":   ts,
+                "temp_out":   float(d.get("temp_out", "nan")),
+                "temp_hi":    float(d.get("temp_hi", "nan")),
+                "temp_low":   float(d.get("temp_low", "nan")),
+                "out_hum":    float(d.get("out_hum", "nan")),
+                "dew_pt":     float(d.get("dew_pt", "nan")),
+                "wind_speed": float(d.get("wind_speed", "nan")),
+                "wind_dir":   d.get("wind_dir"),
+                "bar":        float(d.get("bar", "nan")),
+                "rain":       float(d.get("rain", "nan")),
+                "rain_rate":  float(d.get("rain_rate", "nan")),
+                "heat_index": float(d.get("heat_index", "nan")),
+                "wind_chill": float(d.get("wind_chill", "nan")),
+                "in_temp":    float(d.get("in_temp", "nan")),
+                "in_hum":     float(d.get("in_hum", "nan")),
+            }
+            data.append(record)
+        except Exception as e:
+            print(f"Error processing weather document: {e}")
+            continue
+    return pd.DataFrame(data) if data else None
 
 # Load CSV data for each graph
 ctd_csv_file_path = 'ERIS_data_2015-2024.csv'
