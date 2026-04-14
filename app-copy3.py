@@ -98,13 +98,15 @@ yesterday = currentdate - timedelta(days= 1) #one day less than current date (fo
 def cache_ctd_data():
     quarterstart_ms = int(quarterstart.timestamp() * 1000)
     yesterday_ms = int(yesterday.timestamp() * 1000)
-    docs = db.collection("CTD_Data").where("`date.\\$date`", ">=", quarterstart_ms).where("`date.\\$date`", "<=", yesterday_ms).order_by("`date.\\$date`").get()
+    docs = db.collection("CTD_Data").order_by("date").get()
     data = []
     for doc in docs:
         d = doc.to_dict()
         try:
             ts = d.get("date", {}).get("$date")
             if ts is None:
+                continue
+            if not (quarterstart_ms <= ts <= yesterday_ms):
                 continue
             record = {
                 "datetime": datetime.fromtimestamp(ts / 1000),
@@ -126,17 +128,18 @@ def cache_ctd_data():
             continue
     return pd.DataFrame(data) if data else None
 
-# --- Function to fetch CTD data from Firebase ---
 @st.cache_data(ttl=60)
 def fetch_ctd_data():
     currentdate_ms = int(currentdate.timestamp() * 1000)
-    docs = db.collection("CTD_Data").where("`date.\\$date`", ">=", currentdate_ms).order_by("`date.\\$date`").get()
+    docs = db.collection("CTD_Data").order_by("date").get()
     data = []
     for doc in docs:
         d = doc.to_dict()
         try:
             ts = d.get("date", {}).get("$date")
             if ts is None:
+                continue
+            if ts < currentdate_ms:
                 continue
             record = {
                 "datetime": datetime.fromtimestamp(ts / 1000),
