@@ -164,13 +164,18 @@ def fetch_ctd_data():
 # --- Function to fetch Weather Station data from Firebase ---
 @st.cache_data(ttl=60)
 def fetch_weather_data():
-    docs = db.collection("Weather_Data").where("timestamp", ">=", currentdate).order_by("timestamp").get()
+    docs = db.collection("Weather_Data").order_by("timestamp").get()
     data = []
     for doc in docs:
         d = doc.to_dict()
         try:
             ts = d.get("timestamp")
             if ts is None:
+                continue
+            # Convert Firestore timestamp to datetime if needed
+            if hasattr(ts, 'seconds'):
+                ts = datetime.fromtimestamp(ts.seconds)
+            if ts < currentdate:
                 continue
             record = {
                 "datetime":   ts,
