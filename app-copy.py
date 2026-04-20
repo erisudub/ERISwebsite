@@ -709,19 +709,22 @@ elif page == "Meet the Team":
 
     # Gallery Images, Captions & Subtitles
     gallery_photos = [
+        "images/MakanaPaige.jpg",
         "images/austinkarpf.jpg",
         "images/kellyhorak.jpg",
         "images/sophiamangrubang.jpg"
     ]
     gallery_captions = [
+        "Makana Paige",
         "Austin Karpf",
         "Kelly Horak",
         "Sophia Mangrubang"
     ]
     gallery_subtitles = [
-        "Software Engineer/Web Developer",
-        "Software Engineer/Web Developer",
-        "Software Engineer/Web Developer"
+        "ERIS Student Director",
+        "Graduated, Software Engineer/Web Developer",
+        "Graduated, Software Engineer/Web Developer",
+        "Graduated, Software Engineer/Web Developer"
     ]
 
     # Display in columns
