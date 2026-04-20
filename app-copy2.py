@@ -96,7 +96,7 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-quarterstart = datetime(2026, 1, 1)
+quarterstart = datetime(2026, 3, 30)
 now = datetime.now() #current date + time
 currentdate =  datetime.combine(now.date(), time.min) # stripping timestamp from current date, but add time=00:00:00
 yesterday = currentdate - timedelta(days= 1) #one day less than current date (for caching quarterly data)
@@ -798,7 +798,7 @@ elif page == "Meet the Team":
         "Software Engineer/Web Developer"
     ]
 
-       st.markdown(
+    st.markdown(
         f"""
         <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
             {logo_html}
