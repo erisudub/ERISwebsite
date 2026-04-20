@@ -798,6 +798,34 @@ elif page == "Meet the Team":
         "Software Engineer/Web Developer"
     ]
 
+       st.markdown(
+        f"""
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+            {logo_html}
+            <h1 style='text-align: center; font-family:Georgia, serif; margin:0;'>Past Team Members</h1>
+            {logo_html}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Gallery Images, Captions & Subtitles
+    gallery_photos = [
+        "images/austinkarpf.jpg",
+        "images/kellyhorak.jpg",
+        "images/sophiamangrubang.jpg"
+    ]
+    gallery_captions = [
+        "Austin Karpf",
+        "Kelly Horak",
+        "Sophia Mangrubang"
+    ]
+    gallery_subtitles = [
+        "Software Engineer/Web Developer",
+        "Software Engineer/Web Developer",
+        "Software Engineer/Web Developer"
+    ]
+
     # Display in columns
     cols = st.columns(len(gallery_photos))
 
