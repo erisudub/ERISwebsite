@@ -103,70 +103,88 @@ yesterday = currentdate - timedelta(days= 1) #one day less than current date (fo
  
 #write a function that fetches data from beginning of today to now 
 #write a function that caches data from beginning to today
+quarterstart = datetime(2026, 3, 30)
 
+def _process_docs(docs):
+    """Shared helper to convert Firestore docs → DataFrame"""
+    data = []
+    for doc in docs:
+        d = doc.to_dict()
+        try:
+            ts = d.get("date", {}).get("$date")
+            if ts is None:
+                continue
+
+            data.append({
+                "datetime": datetime.fromtimestamp(ts / 1000),
+                "instrument": d.get("instrument"),
+                "lat": d.get("lat"),
+                "lon": d.get("lon"),
+                "depth1": d.get("depth1"),
+                "oxygen": d.get("oxygen"),
+                "conductivity": float(d.get("conductivity", "nan")),
+                "par": float(d.get("par", "nan")),
+                "pressure": float(d.get("pressure", "nan")),
+                "salinity": float(d.get("salinity", "nan")),
+                "temperature": float(d.get("temperature", "nan")),
+                "turbidity": float(d.get("turbidity", "nan")),
+            })
+        except Exception as e:
+            print(f"Error processing document: {e}")
+            continue
+
+    return pd.DataFrame(data) if data else pd.DataFrame()
+
+
+# --- Cached: quarter start → yesterday ---
 @st.cache_data
-def cache_ctd_data():
+def cache_ctd_data(quarterstart, yesterday):
     quarterstart_ms = int(quarterstart.timestamp() * 1000)
     yesterday_ms = int(yesterday.timestamp() * 1000)
-    docs = db.collection("CTD_Data").where("date.$date", ">=", quarterstart_ms).where("date.$date", "<=", yesterday_ms).order_by("date").get()
-    data = []
-    for doc in docs:
-        d = doc.to_dict()
-        try:
-            ts = d.get("date", {}).get("$date")
-            if ts is None:
-                continue
-            record = {
-                "datetime": datetime.fromtimestamp(ts / 1000),
-                "instrument": d.get("instrument"),
-                "lat": d.get("lat"),
-                "lon": d.get("lon"),
-                "depth1": d.get("depth1"),
-                "oxygen": d.get("oxygen"),
-                "conductivity": float(d.get("conductivity", "nan")),
-                "par": float(d.get("par", "nan")),
-                "pressure": float(d.get("pressure", "nan")),
-                "salinity": float(d.get("salinity", "nan")),
-                "temperature": float(d.get("temperature", "nan")),
-                "turbidity": float(d.get("turbidity", "nan")),
-            }
-            data.append(record)
-        except Exception as e:
-            print(f"Error processing document: {e}")
-            continue
-    return pd.DataFrame(data) if data else None
 
-# --- Function to fetch CTD data from Firebase ---
+    docs = (
+        db.collection("CTD_Data")
+        .where("date.$date", ">=", quarterstart_ms)
+        .where("date.$date", "<=", yesterday_ms)
+        .order_by("date")
+        .get()
+    )
+
+    return _process_docs(docs)
+
+
+# --- Live: today → now ---
 @st.cache_data(ttl=60)
-def fetch_ctd_data():
+def fetch_today_ctd_data(currentdate):
     currentdate_ms = int(currentdate.timestamp() * 1000)
-    docs = db.collection("CTD_Data").where("date.$date", ">=", currentdate_ms).order_by("date").get()
-    data = []
-    for doc in docs:
-        d = doc.to_dict()
-        try:
-            ts = d.get("date", {}).get("$date")
-            if ts is None:
-                continue
-            record = {
-                "datetime": datetime.fromtimestamp(ts / 1000),
-                "instrument": d.get("instrument"),
-                "lat": d.get("lat"),
-                "lon": d.get("lon"),
-                "depth1": d.get("depth1"),
-                "oxygen": d.get("oxygen"),
-                "conductivity": float(d.get("conductivity", "nan")),
-                "par": float(d.get("par", "nan")),
-                "pressure": float(d.get("pressure", "nan")),
-                "salinity": float(d.get("salinity", "nan")),
-                "temperature": float(d.get("temperature", "nan")),
-                "turbidity": float(d.get("turbidity", "nan")),
-            }
-            data.append(record)
-        except Exception as e:
-            print(f"Error processing document: {e}")
-            continue
-    return pd.DataFrame(data) if data else None
+
+    docs = (
+        db.collection("CTD_Data")
+        .where("date.$date", ">=", currentdate_ms)
+        .order_by("date")
+        .get()
+    )
+
+    return _process_docs(docs)
+
+
+# --- Combined function 
+def fetch_ctd_data():
+    now = datetime.now()
+    currentdate = datetime.combine(now.date(), time.min)
+    yesterday = currentdate - timedelta(days=1)
+
+    df_cached = cache_ctd_data(quarterstart, yesterday)
+    df_today = fetch_today_ctd_data(currentdate)
+
+    # Combine safely
+    if df_cached.empty:
+        return df_today
+    if df_today.empty:
+        return df_cached
+
+    return pd.concat([df_cached, df_today]).sort_values("datetime").reset_index(drop=True)
+
 
 # --- Function to fetch Weather Station data from Firebase ---
 def fetch_weather_data():
@@ -801,7 +819,7 @@ elif page == "Meet the Team":
         "Graduated, Software Engineer/Web Developer"
     ]
 
-       st.markdown(
+    st.markdown(
         f"""
         <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
             {logo_html}
