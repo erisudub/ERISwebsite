@@ -104,8 +104,15 @@ yesterday = currentdate - timedelta(days= 1) #one day less than current date (fo
 #write a function that fetches data from beginning of today to now 
 #write a function that caches data from beginning to today
 
-def _process_docs(docs):
-    #"""Shared helper to convert Firestore docs → DataFrame"""
+
+
+# --- Cached: quarter start → yesterday ---
+@st.cache_data
+def cache_ctd_data(quarterstart, yesterday):
+    quarterstart_ms = int(quarterstart.timestamp() * 1000)
+    yesterday_ms = int(yesterday.timestamp() * 1000)
+
+    docs = db.collection("CTD_Data").order_by("date").get()
     data = []
     for doc in docs:
         d = doc.to_dict()
@@ -113,8 +120,7 @@ def _process_docs(docs):
             ts = d.get("date", {}).get("$date")
             if ts is None:
                 continue
-
-            data.append({
+            record = {
                 "datetime": datetime.fromtimestamp(ts / 1000),
                 "instrument": d.get("instrument"),
                 "lat": d.get("lat"),
@@ -127,28 +133,12 @@ def _process_docs(docs):
                 "salinity": float(d.get("salinity", "nan")),
                 "temperature": float(d.get("temperature", "nan")),
                 "turbidity": float(d.get("turbidity", "nan")),
-            })
+            }
+            data.append(record)
         except Exception as e:
             print(f"Error processing document: {e}")
             continue
-
-    return pd.DataFrame(data) if data else pd.DataFrame()
-
-# --- Cached: quarter start → yesterday ---
-@st.cache_data
-def cache_ctd_data(quarterstart, yesterday):
-    quarterstart_ms = int(quarterstart.timestamp() * 1000)
-    yesterday_ms = int(yesterday.timestamp() * 1000)
-
-    docs = (
-        db.collection("CTD_Data")
-        .where("date.$date", ">=", quarterstart_ms)
-        .where("date.$date", "<=", yesterday_ms)
-        .order_by("date")
-        .get()
-    )
-
-    return _process_docs(docs)
+    return pd.DataFrame(data) if data else None
 
 
 # --- Live: today → now ---
@@ -156,14 +146,34 @@ def cache_ctd_data(quarterstart, yesterday):
 def fetch_today_ctd_data(currentdate):
     currentdate_ms = int(currentdate.timestamp() * 1000)
 
-    docs = (
-        db.collection("CTD_Data")
-        .where("date.$date", ">=", currentdate_ms)
-        .order_by("date")
-        .get()
-    )
+    docs = db.collection("CTD_Data").order_by("date").get()
+    data = []
+    for doc in docs:
+        d = doc.to_dict()
+        try:
+            ts = d.get("date", {}).get("$date")
+            if ts is None:
+                continue
+            record = {
+                "datetime": datetime.fromtimestamp(ts / 1000),
+                "instrument": d.get("instrument"),
+                "lat": d.get("lat"),
+                "lon": d.get("lon"),
+                "depth1": d.get("depth1"),
+                "oxygen": d.get("oxygen"),
+                "conductivity": float(d.get("conductivity", "nan")),
+                "par": float(d.get("par", "nan")),
+                "pressure": float(d.get("pressure", "nan")),
+                "salinity": float(d.get("salinity", "nan")),
+                "temperature": float(d.get("temperature", "nan")),
+                "turbidity": float(d.get("turbidity", "nan")),
+            }
+            data.append(record)
+        except Exception as e:
+            print(f"Error processing document: {e}")
+            continue
+    return pd.DataFrame(data) if data else None
 
-    return _process_docs(docs)
 
 
 # --- Combined function 
