@@ -104,6 +104,35 @@ yesterday = currentdate - timedelta(days= 1) #one day less than current date (fo
 #write a function that fetches data from beginning of today to now 
 #write a function that caches data from beginning to today
 
+def _process_docs(docs):
+    #"""Shared helper to convert Firestore docs → DataFrame"""
+    data = []
+    for doc in docs:
+        d = doc.to_dict()
+        try:
+            ts = d.get("date", {}).get("$date")
+            if ts is None:
+                continue
+
+            data.append({
+                "datetime": datetime.fromtimestamp(ts / 1000),
+                "instrument": d.get("instrument"),
+                "lat": d.get("lat"),
+                "lon": d.get("lon"),
+                "depth1": d.get("depth1"),
+                "oxygen": d.get("oxygen"),
+                "conductivity": float(d.get("conductivity", "nan")),
+                "par": float(d.get("par", "nan")),
+                "pressure": float(d.get("pressure", "nan")),
+                "salinity": float(d.get("salinity", "nan")),
+                "temperature": float(d.get("temperature", "nan")),
+                "turbidity": float(d.get("turbidity", "nan")),
+            })
+        except Exception as e:
+            print(f"Error processing document: {e}")
+            continue
+
+    return pd.DataFrame(data) if data else pd.DataFrame()
 
 # --- Cached: quarter start → yesterday ---
 @st.cache_data
@@ -156,7 +185,7 @@ def fetch_ctd_data():
 
 
 # --- Function to fetch Weather Station data from Firebase ---
-def fetch_weather_data():
+#def fetch_weather_data():
     docs = db.collection("Weather_Data").where("timestamp", ">=", currentdate).order_by("timestamp").get()
     data = []
     for doc in docs:
