@@ -96,44 +96,13 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-quarterstart = datetime(2026, 1, 1)
+quarterstart = datetime(2026, 3, 31)
 now = datetime.now() #current date + time
 currentdate =  datetime.combine(now.date(), time.min) # stripping timestamp from current date, but add time=00:00:00
 yesterday = currentdate - timedelta(days= 1) #one day less than current date (for caching quarterly data)
  
 #write a function that fetches data from beginning of today to now 
 #write a function that caches data from beginning to today
-quarterstart = datetime(2026, 3, 30)
-
-def _process_docs(docs):
-    """Shared helper to convert Firestore docs → DataFrame"""
-    data = []
-    for doc in docs:
-        d = doc.to_dict()
-        try:
-            ts = d.get("date", {}).get("$date")
-            if ts is None:
-                continue
-
-            data.append({
-                "datetime": datetime.fromtimestamp(ts / 1000),
-                "instrument": d.get("instrument"),
-                "lat": d.get("lat"),
-                "lon": d.get("lon"),
-                "depth1": d.get("depth1"),
-                "oxygen": d.get("oxygen"),
-                "conductivity": float(d.get("conductivity", "nan")),
-                "par": float(d.get("par", "nan")),
-                "pressure": float(d.get("pressure", "nan")),
-                "salinity": float(d.get("salinity", "nan")),
-                "temperature": float(d.get("temperature", "nan")),
-                "turbidity": float(d.get("turbidity", "nan")),
-            })
-        except Exception as e:
-            print(f"Error processing document: {e}")
-            continue
-
-    return pd.DataFrame(data) if data else pd.DataFrame()
 
 
 # --- Cached: quarter start → yesterday ---
