@@ -143,8 +143,8 @@ def cache_ctd_data(quarterstart, currentdate):
 
 # --- Live: today → now ---
 @st.cache_data(ttl=60)
-def fetch_today_ctd_data(yesterday):
-    yesterday_ms = int(yesterday.timestamp() * 1000)
+def fetch_today_ctd_data(currentdate):
+    currentdate_ms = int(currentdate.timestamp() * 1000)
     docs = db.collection("CTD_Data").where("date", "<", yesterday_ms).order_by("date").get()
     data = []
     for doc in docs:
