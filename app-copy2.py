@@ -117,7 +117,7 @@ def cache_ctd_data(quarterstart, yesterday):
     for doc in docs:
         d = doc.to_dict()
         try:
-            ts = d.get("date", {}).get.("$date" )
+            ts = d.get("date", {}).get("$date" )
             if ts is None:
                 continue
             record = {
