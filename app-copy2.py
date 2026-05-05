@@ -108,7 +108,7 @@ yesterday = currentdate - timedelta(days= 1) #one day less than current date (fo
 
 # --- Cached: quarter start → yesterday ---
 @st.cache_data
-def cache_ctd_data(quarterstart, yesterday):
+def cache_ctd_data(quarterstart, currentdate):
     quarterstart_ms = int(quarterstart.timestamp() * 1000)
     currentdate_ms = int(currentdate.timestamp() * 1000)
     #yesterday_ms = int(yesterday.timestamp() * 1000)
