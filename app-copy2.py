@@ -138,14 +138,14 @@ def cache_ctd_data(quarterstart, yesterday):
         except Exception as e:
             print(f"Error processing document: {e}")
             continue
-    return pd.DataFrame(data) if data else None
+    return pd.DataFrame(data)
 
 
 # --- Live: today → now ---
 @st.cache_data(ttl=60)
-def fetch_today_ctd_data(currentdate):
-    currentdate_ms = int(currentdate.timestamp() * 1000)
-    docs = db.collection("CTD_Data").where('date', '>=', currentdate_ms).order_by("date").get()
+def fetch_today_ctd_data(yesterday):
+    yesterday_ms = int(yesterday.timestamp() * 1000)
+    docs = db.collection("CTD_Data").where("date", "<", yesterday_ms).order_by("date").get()
     data = []
     for doc in docs:
         d = doc.to_dict()
@@ -171,7 +171,7 @@ def fetch_today_ctd_data(currentdate):
         except Exception as e:
             print(f"Error processing document: {e}")
             continue
-    return pd.DataFrame(data) if data else None
+    return pd.DataFrame(data)
 
 
 
