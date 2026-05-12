@@ -367,7 +367,7 @@ elif page == "Live CTD Data (2025 to Present)":
         """, unsafe_allow_html=True)
 
         with st.spinner("Loading CTD data..."):
-            data = fetch_today_ctd_data(currentdate)
+            data = cache_ctd_data(quarterstart, currentdate)
 
         if data is None or data.empty:
             st.warning("No CTD data found.")
